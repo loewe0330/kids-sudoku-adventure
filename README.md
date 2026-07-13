@@ -19,3 +19,7 @@ npm run build
 ## 在线版本
 
 GitHub Pages: https://loewe0330.github.io/kids-sudoku-adventure/
+
+## 跨设备数据
+
+公网版本通过 Netlify Function 与 Netlify Blobs 同步家长账号、孩子资料、闯关进度、练习记录和题库；浏览器中的 `localStorage` 仅作为当前设备缓存。首次升级后，请在原来创建账号的设备上重新登录一次管理者后台，已有本地数据会在云端为空时自动迁移。

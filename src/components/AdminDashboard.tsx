@@ -34,14 +34,19 @@ export function AdminDashboard({ onChanged }: AdminDashboardProps) {
   const parents = getParentAccounts();
 
   const saveParent = async (input: ParentAccountInput) => {
-    if (editing) {
-      updateParentAccount(editing.id, { displayName: input.displayName, status: input.enabled === false ? "disabled" : "enabled" });
-    } else {
-      await createParentAccount(input);
+    try {
+      if (editing) {
+        updateParentAccount(editing.id, { displayName: input.displayName, status: input.enabled === false ? "disabled" : "enabled" });
+      } else {
+        await createParentAccount(input);
+      }
+      setMessage(editing ? "家长账号已更新并同步。" : "家长账号已创建并同步，可在其他设备登录。");
+      setShowForm(false);
+      setEditing(undefined);
+      onChanged();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "保存家长账号失败");
     }
-    setShowForm(false);
-    setEditing(undefined);
-    onChanged();
   };
 
   const createDemoStorage = async (): Promise<AppStorage> => {
@@ -117,7 +122,7 @@ export function AdminDashboard({ onChanged }: AdminDashboardProps) {
         <div>
           <p className="eyebrow">测试版后台</p>
           <h1>管理者后台</h1>
-          <p>创建、编辑、停用、删除家长账号。当前为测试版账号系统，请勿用于真实公网密码。</p>
+          <p>创建、编辑、停用、删除家长账号。公网账号与学习数据会同步到云端，当前浏览器同时保留本地缓存。</p>
         </div>
         <div className="top-actions">
           <button className="primary" onClick={() => { setEditing(undefined); setShowForm(true); }}>新增家长</button>

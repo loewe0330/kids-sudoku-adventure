@@ -26,6 +26,7 @@ import {
 } from "../lib/storage";
 import { generatePracticePuzzle } from "../lib/practiceRules";
 import { generatePuzzleForChild } from "../lib/sudoku";
+import { isCloudAccountEnabled } from "../lib/cloudClient";
 import { getWebAppPathname, webNavigationAdapter } from "../platform/web/webNavigationAdapter";
 import type { AdventureStage, PracticeMode, PracticeSource, SudokuDifficulty, SudokuPuzzleItem, SudokuSize, ViewMode } from "../types";
 
@@ -450,7 +451,7 @@ export default function App() {
       )}
 
       <footer className="app-footer no-print">
-        当前为 localStorage 测试版，数据保存在当前浏览器。{child.name} · {getDifficultyLevel(child.currentLevel).label} · {sizeLabels[getDifficultyLevel(child.currentLevel).size]} · {difficultyLabels[getDifficultyLevel(child.currentLevel).difficulty]}
+        {isCloudAccountEnabled() ? "账号与学习数据已启用跨设备同步，当前浏览器保留本地缓存。" : "当前为本地测试模式，数据保存在当前浏览器。"}{child.name} · {getDifficultyLevel(child.currentLevel).label} · {sizeLabels[getDifficultyLevel(child.currentLevel).size]} · {difficultyLabels[getDifficultyLevel(child.currentLevel).difficulty]}
       </footer>
     </div>
   );

@@ -14,6 +14,14 @@ import type {
   SudokuPuzzleItem
 } from "../types";
 import { getRawStorageItem, setRawStorageItem } from "../platform/web/webStorageAdapter";
+import {
+  hasCloudSession,
+  isCloudAccountEnabled,
+  loginCloudAdmin,
+  loginCloudParent,
+  logoutCloudSession,
+  syncCloudStorage
+} from "./cloudClient";
 import { nowIso } from "./time";
 
 const DEFAULT_ADMIN_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
@@ -129,6 +137,12 @@ export const getAppStorage = (): AppStorage => {
 };
 
 export const saveAppStorage = (storage: AppStorage): void => {
+  const normalized = normalizeStorage(storage);
+  setRawStorageItem(APP_STORAGE_KEY, JSON.stringify(normalized));
+  void syncCloudStorage(normalized).catch(() => undefined);
+};
+
+const saveCloudStorage = (storage: AppStorage): void => {
   setRawStorageItem(APP_STORAGE_KEY, JSON.stringify(normalizeStorage(storage)));
 };
 
@@ -157,6 +171,12 @@ export const getAdminAccount = (): AdminAccount => getAppStorage().adminAccount;
 
 export const loginAdmin = async (username: string, password: string): Promise<AuthSession> => {
   const storage = getAppStorage();
+  if (isCloudAccountEnabled()) {
+    const result = await loginCloudAdmin(username, password, storage);
+    const session: AuthSession = { role: "admin", username: username.trim(), loggedInAt: nowIso() };
+    saveCloudStorage({ ...result.storage, activeSession: session, activeChildId: null });
+    return session;
+  }
   const admin = storage.adminAccount;
   if (username.trim() !== admin.username) throw new Error("管理员账号不存在");
   if ((await hashPassword(password)) !== admin.passwordHash) throw new Error("管理员密码错误");
@@ -177,12 +197,17 @@ export const updateAdminPassword = async (oldPassword: string, newPassword: stri
 };
 
 export const logout = (): void => {
+  logoutCloudSession();
   mutateStorage((storage) => ({ ...storage, activeSession: null, activeChildId: null }));
 };
 
 export const logoutParent = logout;
 
-export const getCurrentSession = (): AuthSession | null => getAppStorage().activeSession;
+export const getCurrentSession = (): AuthSession | null => {
+  const session = getAppStorage().activeSession;
+  if (session && isCloudAccountEnabled() && !hasCloudSession(session.role)) return null;
+  return session;
+};
 
 export const getParentAccounts = (): ParentAccount[] =>
   [...getAppStorage().parentAccounts].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -207,7 +232,9 @@ export const createParentAccount = async (input: ParentAccountInput): Promise<Pa
     createdAt: timestamp,
     updatedAt: timestamp
   };
-  saveAppStorage({ ...storage, parentAccounts: [...storage.parentAccounts, parent] });
+  const nextStorage = { ...storage, parentAccounts: [...storage.parentAccounts, parent] };
+  saveAppStorage(nextStorage);
+  await syncCloudStorage(nextStorage);
   return parent;
 };
 
@@ -248,12 +275,13 @@ export const enableParentAccount = (parentId: string): void => {
 export const resetParentPassword = async (parentId: string, newPassword: string): Promise<void> => {
   if (newPassword.length < 6) throw new Error("密码至少 6 位");
   const passwordHash = await hashPassword(newPassword);
-  mutateStorage((storage) => ({
+  const nextStorage = mutateStorage((storage) => ({
     ...storage,
     parentAccounts: storage.parentAccounts.map((parent) =>
       parent.id === parentId ? { ...parent, passwordHash, updatedAt: nowIso() } : parent
     )
   }));
+  await syncCloudStorage(nextStorage);
 };
 
 export const clearParentData = (parentId: string): void => {
@@ -275,6 +303,13 @@ export const deleteParentAccount = (parentId: string): void => {
 
 export const loginParent = async (username: string, password: string): Promise<AuthSession> => {
   const storage = getAppStorage();
+  if (isCloudAccountEnabled()) {
+    const result = await loginCloudParent(username, password);
+    const session = result.storage.activeSession;
+    if (!session || session.role !== "parent") throw new Error("云端账号返回异常，请重试。");
+    saveCloudStorage({ ...result.storage, activeSession: session, activeChildId: null });
+    return session;
+  }
   const parent = storage.parentAccounts.find((item) => item.username === username.trim());
   if (!parent) throw new Error("账号不存在，请联系管理者创建账号。");
   if (parent.status === "disabled") throw new Error("账号已停用，请联系管理者。");
@@ -294,6 +329,7 @@ export const loginParent = async (username: string, password: string): Promise<A
 
 export const getCurrentParent = (): ParentAccount | null => {
   const storage = getAppStorage();
+  if (isCloudAccountEnabled() && !hasCloudSession("parent")) return null;
   if (storage.activeSession?.role !== "parent" || !storage.activeSession.parentId) return null;
   return storage.parentAccounts.find((parent) => parent.id === storage.activeSession?.parentId && parent.status === "enabled") ?? null;
 };
