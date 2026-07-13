@@ -1,0 +1,44 @@
+@media print {
+  :root,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  body::before,
+  .no-print,
+  .app-header,
+  .app-footer,
+  .panel.no-print {
+    display: none !important;
+  }
+
+  button,
+  .print-sheet,
+  .panel,
+  .table-wrap {
+    box-shadow: none !important;
+  }
+
+  .selector-page,
+  .app-shell,
+  .print-preview {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .print-sheet {
+    border: 0;
+    page-break-after: always;
+  }
+
+  .print-grid-list {
+    gap: 14mm;
+  }
+
+  .print-cell,
+  .print-grid {
+    border-color: #000 !important;
+  }
+}

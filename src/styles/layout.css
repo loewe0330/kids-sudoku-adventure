@@ -1,0 +1,9 @@
+.responsive-page {
+  width: min(1180px, calc(100vw - 32px));
+  margin-inline: auto;
+}
+
+.responsive-panel {
+  border-radius: var(--radius-panel);
+  padding: var(--space-5);
+}

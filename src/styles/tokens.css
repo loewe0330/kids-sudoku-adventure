@@ -1,0 +1,19 @@
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --radius-panel: 8px;
+  --radius-pill: 999px;
+  --font-small: 0.86rem;
+  --font-body: 1rem;
+  --font-title: clamp(1.5rem, 3vw, 2.25rem);
+  --tap-target: 44px;
+  --board-phone: min(100%, calc(100vw - 32px));
+  --board-tablet: min(90vw, 680px);
+  --board-desktop-4: min(100%, 520px);
+  --board-desktop-6: min(100%, 560px);
+  --board-desktop-9: min(100%, 620px);
+}
