@@ -264,9 +264,13 @@ export default function App() {
           <button className={view === "growth" ? "active" : ""} onClick={() => goChild("growth")}>成长</button>
         </nav>
         <nav className="utility-actions" aria-label="辅助工具">
-          <button onClick={() => goChild("settings")}>设置</button>
-          <button onClick={() => { setActiveChild(null); setView("selector"); navigate(ROUTES.CHILDREN); }}>切换孩子</button>
-          <button onClick={() => { logoutParent(); setActivePuzzle(null); setView("selector"); navigate(ROUTES.PARENT_LOGIN); }}>退出登录</button>
+          <button className="settings-action" aria-label="设置" onClick={() => goChild("settings")}>
+            <span className="desktop-action-label">设置</span><span className="mobile-action-label" aria-hidden="true">设置</span>
+          </button>
+          <button className="switch-child-action" aria-label="切换孩子" onClick={() => { setActiveChild(null); setView("selector"); navigate(ROUTES.CHILDREN); }}>
+            <span className="desktop-action-label">切换孩子</span><span className="mobile-action-label" aria-hidden="true">切换</span>
+          </button>
+          <button className="logout-action" onClick={() => { logoutParent(); setActivePuzzle(null); setView("selector"); navigate(ROUTES.PARENT_LOGIN); }}>退出登录</button>
         </nav>
       </header>
 
@@ -453,6 +457,13 @@ export default function App() {
       <footer className="app-footer no-print">
         {isCloudAccountEnabled() ? "账号与学习数据已启用跨设备同步，当前浏览器保留本地缓存。" : "当前为本地测试模式，数据保存在当前浏览器。"}{child.name} · {getDifficultyLevel(child.currentLevel).label} · {sizeLabels[getDifficultyLevel(child.currentLevel).size]} · {difficultyLabels[getDifficultyLevel(child.currentLevel).difficulty]}
       </footer>
+
+      <nav className="mobile-bottom-nav no-print" aria-label="手机端主导航">
+        <button className={view === "home" ? "active" : ""} onClick={() => goChild("home")}><span aria-hidden="true">⌂</span>首页</button>
+        <button className={view === "adventure" ? "active" : ""} onClick={() => goChild("adventure")}><span aria-hidden="true">◇</span>闯关</button>
+        <button className={view === "practice" || view === "play" ? "active" : ""} onClick={() => goChild("practice")}><span aria-hidden="true">▦</span>练习</button>
+        <button className={view === "growth" ? "active" : ""} onClick={() => goChild("growth")}><span aria-hidden="true">↗</span>成长</button>
+      </nav>
     </div>
   );
 }

@@ -54,6 +54,7 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
   const [showCandidates, setShowCandidates] = useState(false);
   const [methodOpen, setMethodOpen] = useState(false);
   const [showBoardCelebration, setShowBoardCelebration] = useState(false);
+  const [moreActionsOpen, setMoreActionsOpen] = useState(false);
 
   useEffect(() => {
     setBoard(puzzle.puzzle.map((row) => [...row]));
@@ -71,6 +72,7 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     setShowCandidates(false);
     setMethodOpen(false);
     setShowBoardCelebration(false);
+    setMoreActionsOpen(false);
   }, [puzzle.id, puzzle.puzzle]);
 
   useEffect(() => {
@@ -405,7 +407,7 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
           <div className="action-button-grid">
             <button className="primary check-action" onClick={checkAnswer} disabled={finished}>检查答案</button>
             <button className="hint-action" onClick={() => hint()} disabled={finished}>引导提示</button>
-            <button className="quiet-action" onClick={reveal}>显示答案</button>
+            <button className="quiet-action desktop-reveal-action" onClick={reveal}>显示答案</button>
           </div>
         </section>
 
@@ -428,22 +430,37 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
           </section>
         )}
 
-        <section className="action-section continue-action-section">
-          <h3>继续练习</h3>
-          <div className="action-button-grid">
-            <button className="retry-action" onClick={reset}>重做本题</button>
-            <button className="primary next-action" onClick={onNext}>生成下一题</button>
-            <button className="quiet-action" onClick={onSave}>保存到题库</button>
-          </div>
-        </section>
+        <button
+          className="mobile-more-toggle"
+          type="button"
+          aria-expanded={moreActionsOpen}
+          onClick={() => setMoreActionsOpen((value) => !value)}
+        >
+          {moreActionsOpen ? "收起更多操作" : "更多操作"}
+        </button>
 
-        <section className="action-section print-action-section">
-          <h3>打印</h3>
-          <div className="action-button-grid two-actions">
-            <button className="quiet-action" onClick={() => onPrint(false)}>打印当前题</button>
-            <button className="quiet-action" onClick={() => onPrint(true)}>打印答案</button>
-          </div>
-        </section>
+        <div className={`play-more-actions ${moreActionsOpen ? "open" : ""}`}>
+          <section className="action-section mobile-reveal-section">
+            <button className="quiet-action" aria-label="手机端显示答案" onClick={reveal}>显示答案</button>
+          </section>
+
+          <section className="action-section continue-action-section">
+            <h3>继续练习</h3>
+            <div className="action-button-grid">
+              <button className="retry-action" onClick={reset}>重做本题</button>
+              <button className="primary next-action" onClick={onNext}>生成下一题</button>
+              <button className="quiet-action" onClick={onSave}>保存到题库</button>
+            </div>
+          </section>
+
+          <section className="action-section print-action-section">
+            <h3>打印</h3>
+            <div className="action-button-grid two-actions">
+              <button className="quiet-action" onClick={() => onPrint(false)}>打印当前题</button>
+              <button className="quiet-action" onClick={() => onPrint(true)}>打印答案</button>
+            </div>
+          </section>
+        </div>
       </aside>
     </main>
   );

@@ -80,10 +80,12 @@ export function AdventureMap({
   const recommendedStage = stats.recommendedStage ?? stages.find((stage) => stage.unlocked) ?? stages[0];
   const [selectedLevel, setSelectedLevel] = useState(recommendedStage?.level ?? 1);
   const [notice, setNotice] = useState("");
+  const [mapExpanded, setMapExpanded] = useState(false);
 
   useEffect(() => {
     setSelectedLevel(recommendedStage?.level ?? 1);
     setNotice("");
+    setMapExpanded(false);
   }, [child.id, recommendedStage?.level]);
 
   const chapters = Array.from({ length: 11 }, (_, index) => {
@@ -144,7 +146,7 @@ export function AdventureMap({
       </section>
 
       <section className="adventure-two-column">
-        <section className="explorer-card adventure-map-panel" aria-label="冒险地图">
+        <section className={`explorer-card adventure-map-panel ${mapExpanded ? "map-expanded" : "map-collapsed"}`} aria-label="冒险地图">
           <div className="section-title">
             <div>
               <p className="eyebrow">{parentName} · {gradeLabels[child.gradeLevel]}</p>
@@ -217,6 +219,15 @@ export function AdventureMap({
 
           <button className="adventure-primary-action" type="button" onClick={() => startStage(nextStage)}>
             开始挑战 L{nextStage.level}-{nextStage.stageIndex}
+          </button>
+
+          <button
+            className="adventure-map-toggle"
+            type="button"
+            aria-expanded={mapExpanded}
+            onClick={() => setMapExpanded((value) => !value)}
+          >
+            {mapExpanded ? "收起全部大关地图" : "查看全部大关地图"}
           </button>
 
           <section className="adventure-reward-panel">

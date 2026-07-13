@@ -3685,6 +3685,688 @@ button,
   }
 }
 
+/* Final iPad corrections: keep landscape exploratory content side by side and
+   reserve a complete touch row for the portrait custom-practice action. */
+@media screen and (min-width: 1024px) and (max-width: 1199px) {
+  .adventure-shell .adventure-two-column {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.72fr);
+    align-items: start;
+  }
+
+  .adventure-shell .adventure-map-panel,
+  .adventure-shell .adventure-detail-panel {
+    min-width: 0;
+  }
+}
+
+/* Compact-operation responsive contract. Desktop rules above remain untouched. */
+.mobile-bottom-nav,
+.adventure-map-toggle,
+.mobile-more-toggle,
+.mobile-reveal-section,
+.mobile-action-label {
+  display: none;
+}
+
+.play-more-actions {
+  display: contents;
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1199px) {
+  .child-shell > .explorer-top-nav {
+    min-height: 74px;
+    height: 74px;
+    padding: 10px 14px;
+  }
+
+  .child-shell .explorer-top-nav :is(.top-actions, .utility-actions) {
+    gap: 5px;
+  }
+
+  .child-shell .explorer-top-nav button {
+    min-height: 38px;
+    padding-inline: 10px;
+  }
+
+  .home-shell .mini-game-panel {
+    min-height: 178px;
+    padding-block: 18px;
+  }
+
+  .adventure-shell .map-title-strip {
+    min-height: 126px;
+    padding: 18px 20px;
+  }
+
+  .adventure-shell .adventure-two-column {
+    gap: 16px;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .app-shell.child-shell {
+    width: calc(100% - 32px);
+    padding-top: 12px;
+  }
+
+  .child-shell > .app-header.compact-hero.explorer-top-nav {
+    width: 100%;
+    height: 104px;
+    min-height: 104px;
+    max-height: 104px;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand tools"
+      "nav nav";
+    gap: 6px 12px;
+    overflow: hidden;
+  }
+
+  .child-shell .explorer-top-nav .brand-lockup { grid-area: brand; min-width: 0; }
+  .child-shell .explorer-top-nav .brand-mark { width: 42px; height: 42px; }
+  .child-shell .explorer-top-nav .brand-lockup h1 { font-size: 1.05rem; }
+  .child-shell .explorer-top-nav .brand-lockup p:not(.eyebrow) {
+    display: block;
+    max-width: 48vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.7rem;
+  }
+
+  .child-shell .explorer-top-nav .utility-actions {
+    grid-area: tools;
+    gap: 5px;
+  }
+
+  .child-shell .explorer-top-nav .top-actions {
+    grid-area: nav;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .child-shell .explorer-top-nav button {
+    min-height: 38px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+
+  .home-shell .home-dashboard-grid {
+    min-height: 0;
+    display: block;
+  }
+
+  .home-shell .today-task-card {
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+    grid-template-rows: minmax(0, 1fr) 66px;
+    grid-template-areas:
+      "copy route"
+      "stats stats";
+    gap: 12px 16px;
+  }
+
+  .home-shell .today-task-sign {
+    top: 14px;
+    left: 20px;
+    min-width: 122px;
+    height: 36px;
+  }
+
+  .home-shell .today-task-copy { grid-area: copy; padding-top: 42px; }
+  .home-shell .today-task-copy h2 { margin: 6px 0; font-size: 1.28rem; }
+  .home-shell .today-task-copy h3 { margin: 4px 0; font-size: 1rem; }
+  .home-shell .today-task-copy > p:not(.eyebrow):not(.today-task-note) { display: none; }
+  .home-shell .today-task-context { margin-top: 10px; gap: 5px; }
+  .home-shell .today-task-context div { grid-template-columns: 66px minmax(0, 1fr); }
+  .home-shell .today-task-context :is(dt, dd),
+  .home-shell .today-task-note { font-size: 0.7rem; }
+  .home-shell .today-task-note { margin-top: 7px; }
+
+  .home-shell .today-route-map {
+    grid-area: route;
+    min-height: 0;
+    height: 100%;
+    padding: 8px;
+  }
+
+  .home-shell .today-task-actions {
+    grid-area: stats;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 176px;
+    gap: 10px;
+    padding: 7px 9px;
+  }
+
+  .home-shell .today-task-stats > span { min-height: 48px; padding: 4px 7px; }
+  .home-shell .today-task-stats i { width: 26px; height: 26px; }
+  .home-shell .today-primary-action { min-height: 46px; }
+
+  .home-shell .home-side-panel {
+    height: auto;
+    display: block;
+  }
+
+  .home-shell .home-side-panel > .home-support-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .home-shell .home-support-card {
+    height: 160px;
+    min-height: 160px;
+    max-height: 160px;
+    padding: 14px;
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .home-shell .support-card-icon { width: 58px; height: 58px; }
+  .home-shell .support-card-copy > p:not(.eyebrow),
+  .home-shell .support-card-meta { font-size: 0.69rem; }
+  .home-shell .support-card-copy > button { min-height: 40px; }
+  .home-shell .bottom-trail-animation { display: none; }
+
+  .home-shell .mini-game-panel {
+    min-height: 82px;
+    margin-top: 14px;
+    padding: 12px 16px;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-areas: "copy actions";
+    gap: 14px;
+  }
+
+  .home-shell .mini-game-panel-copy > :is(.eyebrow, h3, p:last-child),
+  .home-shell .mini-game-panel-scene,
+  .home-shell .mini-game-chips,
+  .home-shell .mini-game-buttons button:last-child { display: none; }
+  .home-shell .mini-game-panel-copy h2 { margin: 0; font-size: 1rem; }
+  .home-shell .mini-game-panel-actions { display: block; }
+  .home-shell .mini-game-buttons { display: block; }
+  .home-shell .mini-game-buttons button { width: 100%; min-height: 44px; }
+
+  .adventure-shell .map-title-strip {
+    min-height: 112px;
+    padding: 16px 18px;
+  }
+
+  .adventure-shell .map-title-strip h2 { font-size: 1.35rem; }
+  .adventure-shell .adventure-context-note { display: none; }
+  .adventure-shell .adventure-stat-grid span { min-height: 56px; padding: 8px; }
+  .adventure-shell .adventure-two-column { display: flex; flex-direction: column; gap: 14px; }
+  .adventure-shell .adventure-detail-panel { order: 1; min-height: 0; padding: 18px; }
+  .adventure-shell .adventure-map-panel { order: 2; }
+  .adventure-shell .adventure-map-panel.map-collapsed { display: none; }
+  .adventure-shell .adventure-map-toggle {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+  }
+  .adventure-shell .stage-card-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .adventure-shell .adventure-stage-card { min-height: 92px; padding: 8px 5px; }
+  .adventure-shell .adventure-reward-panel { display: none; }
+
+  .free-practice-shell .practice-panel { min-height: 0; padding: 18px; }
+  .free-practice-shell .practice-mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .free-practice-shell .practice-mode-card,
+  .free-practice-shell .practice-mode-card.custom-practice-card {
+    height: 158px;
+    min-height: 158px;
+    padding: 12px;
+    grid-template-rows: auto auto minmax(0, 1fr) auto 42px;
+  }
+  .free-practice-shell .practice-mode-card button { min-height: 42px; height: 42px; }
+  .free-practice-shell .practice-garden-decor { height: 90px; margin-top: 14px; }
+
+  .practice-shell .quest-practice {
+    grid-template-columns: minmax(0, 1fr) 240px;
+    grid-template-areas:
+      "info info"
+      "board actions";
+    gap: 10px;
+  }
+  .practice-shell .practice-info {
+    grid-area: info;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+  }
+  .practice-shell .practice-info .play-stat-grid { grid-column: 1 / -1; }
+  .practice-shell .method-card,
+  .practice-shell .candidate-toggle { display: none; }
+  .practice-shell .board-panel { grid-area: board; padding: 8px; align-self: start; }
+  .practice-shell .sudoku-board-wrap { width: min(100%, 500px); }
+  .practice-shell .play-action-panel {
+    grid-area: actions;
+    max-height: calc(100dvh - 132px);
+    overflow-y: auto;
+    padding: 8px;
+    align-self: start;
+  }
+  .practice-shell .number-pad button { min-height: 44px; }
+
+  .growth-shell .growth-report-hero { min-height: 190px; padding: 18px; }
+  .growth-shell .growth-hero-scene { height: 55%; opacity: 0.42; }
+  .growth-shell .growth-core-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .growth-shell .growth-core-metrics article { min-height: 78px; }
+  .growth-shell .growth-insight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .growth-shell .method-mastery-card { grid-column: 1 / -1; }
+}
+
+@media screen and (max-width: 767px) {
+  .app-shell.child-shell {
+    width: calc(100% - 16px);
+    min-height: 100dvh;
+    padding: 8px 0 82px;
+    overflow-x: clip;
+  }
+
+  .child-shell > .app-header.compact-hero.explorer-top-nav,
+  .practice-shell .app-header.compact-hero.explorer-top-nav {
+    position: relative;
+    width: 100%;
+    height: 64px;
+    min-height: 64px;
+    max-height: 64px;
+    margin: 0 0 10px;
+    padding: 7px 9px;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand tools";
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .child-shell .explorer-top-nav .brand-lockup {
+    grid-area: brand;
+    min-width: 0;
+    padding: 0;
+    gap: 7px;
+  }
+  .child-shell .explorer-top-nav .brand-mark { width: 38px; height: 38px; font-size: 1rem; }
+  .child-shell .explorer-top-nav .brand-lockup .eyebrow { display: none; }
+  .child-shell .explorer-top-nav .brand-lockup h1 { font-size: 0.98rem; }
+  .child-shell .explorer-top-nav .brand-lockup p:not(.eyebrow) {
+    display: block;
+    max-width: 42vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.62rem;
+  }
+  .child-shell .explorer-top-nav .top-actions { display: none !important; }
+  .child-shell .explorer-top-nav .utility-actions {
+    position: static;
+    grid-area: tools;
+    width: auto;
+    display: flex;
+    gap: 4px;
+  }
+  .child-shell .explorer-top-nav .utility-actions .logout-action { display: none; }
+  .child-shell .explorer-top-nav .utility-actions button {
+    width: auto;
+    min-height: 44px;
+    padding: 4px 7px;
+    font-size: 0.68rem;
+  }
+
+  .mobile-bottom-nav {
+    position: fixed;
+    z-index: 150;
+    left: 8px;
+    right: 8px;
+    bottom: max(6px, env(safe-area-inset-bottom));
+    height: 60px;
+    padding: 4px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 3px;
+    border: 1px solid rgba(47, 143, 91, 0.24);
+    border-radius: 18px;
+    background: rgba(255, 253, 243, 0.96);
+    box-shadow: 0 10px 30px rgba(24, 48, 74, 0.2);
+    backdrop-filter: blur(14px);
+  }
+  .mobile-bottom-nav button {
+    min-width: 0;
+    min-height: 50px;
+    padding: 4px 2px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 1px;
+    border: 0;
+    border-radius: 14px;
+    box-shadow: none;
+    background: transparent;
+    color: #526a61;
+    font-size: 0.7rem;
+  }
+  .mobile-bottom-nav button span { font-size: 1rem; line-height: 1; }
+  .mobile-bottom-nav button.active { color: #fff; background: #2f8f5b; }
+  .child-shell > .app-footer { display: none; }
+
+  .home-shell .home-dashboard-grid { min-height: 0; display: block; }
+  .home-shell .today-task-card {
+    height: 266px;
+    min-height: 266px;
+    max-height: 266px;
+    padding: 13px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 76px 88px 70px;
+    grid-template-areas: "copy" "route" "stats";
+    gap: 8px;
+  }
+  .home-shell .today-task-sign {
+    top: 12px;
+    left: 13px;
+    min-width: 98px;
+    height: 30px;
+    font-size: 0.78rem;
+  }
+  .home-shell .today-task-copy { grid-area: copy; padding-top: 31px; }
+  .home-shell .today-task-copy .eyebrow,
+  .home-shell .today-task-copy h2,
+  .home-shell .today-task-copy > p,
+  .home-shell .today-task-copy .today-task-note { display: none; }
+  .home-shell .today-task-copy h3 { margin: 2px 0 4px; font-size: 0.98rem; }
+  .home-shell .today-task-context { margin: 0; gap: 1px; }
+  .home-shell .today-task-context div { grid-template-columns: 58px minmax(0, 1fr); }
+  .home-shell .today-task-context :is(dt, dd) { font-size: 0.66rem; line-height: 1.25; }
+  .home-shell .today-route-map { grid-area: route; min-height: 88px; height: 88px; padding: 2px; }
+  .home-shell .today-route-tree,
+  .home-shell .today-route-treasure { display: none; }
+  .home-shell .today-route-node strong { width: 38px; height: 38px; font-size: 0.86rem; }
+  .home-shell .today-route-node small { font-size: 0.62rem; }
+  .home-shell .today-task-actions {
+    grid-area: stats;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 112px;
+    gap: 6px;
+    padding: 5px;
+  }
+  .home-shell .today-task-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+  .home-shell .today-task-stats > span {
+    min-height: 54px;
+    padding: 3px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    justify-items: center;
+    text-align: center;
+  }
+  .home-shell .today-task-stats i { display: none; }
+  .home-shell .today-task-stats strong { font-size: 0.82rem; }
+  .home-shell .today-task-stats small { font-size: 0.58rem; }
+  .home-shell .today-primary-action { min-height: 48px; padding-inline: 6px; font-size: 0.78rem; }
+
+  .home-shell .home-side-panel { height: auto; display: block; }
+  .home-shell .home-side-panel > .home-support-grid,
+  .home-shell .home-support-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .home-shell .home-support-card {
+    height: 146px;
+    min-height: 146px;
+    max-height: 146px;
+    padding: 10px;
+    display: block;
+  }
+  .home-shell .support-card-icon { width: 38px; height: 38px; float: left; margin: 0 7px 4px 0; }
+  .home-shell .support-card-copy .eyebrow,
+  .home-shell .support-card-copy > p,
+  .home-shell .support-card-meta,
+  .home-shell .support-growth-stats { display: none; }
+  .home-shell .support-card-copy h2 { margin: 4px 0 15px; font-size: 0.94rem; }
+  .home-shell .support-card-copy > button { width: 100%; min-height: 44px; font-size: 0.76rem; }
+  .home-shell .bottom-trail-animation { display: none; }
+
+  .home-shell .mini-game-panel {
+    min-height: 62px;
+    height: 62px;
+    margin-top: 10px;
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 104px;
+    grid-template-areas: "copy actions";
+    gap: 8px;
+  }
+  .home-shell .mini-game-panel-copy > :is(.eyebrow, h3, p:last-child),
+  .home-shell .mini-game-panel-scene,
+  .home-shell .mini-game-chips,
+  .home-shell .mini-game-buttons button:last-child { display: none; }
+  .home-shell .mini-game-panel-copy h2 { margin: 0; font-size: 0.84rem; }
+  .home-shell .mini-game-panel-copy h2::after { content: " · 30 秒放松一下"; font-weight: 500; }
+  .home-shell .mini-game-panel-actions,
+  .home-shell .mini-game-buttons { display: block; }
+  .home-shell .mini-game-buttons button { width: 100%; min-height: 44px; padding: 4px; font-size: 0.72rem; }
+
+  .adventure-shell .map-title-strip {
+    min-height: 0;
+    padding: 12px;
+    display: block;
+  }
+  .adventure-shell .map-title-strip h2 { margin: 3px 0; font-size: 1.08rem; }
+  .adventure-shell .map-title-strip > div:first-child > p:not(.eyebrow) { display: none; }
+  .adventure-shell .adventure-stat-grid {
+    margin-top: 7px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .adventure-shell .adventure-stat-grid span:first-child { display: none; }
+  .adventure-shell .adventure-stat-grid span { min-height: 46px; padding: 5px; font-size: 0.66rem; }
+  .adventure-shell .adventure-stat-grid strong { font-size: 0.74rem; }
+  .adventure-shell .adventure-two-column { display: flex; flex-direction: column; gap: 9px; }
+  .adventure-shell .adventure-detail-panel { order: 1; min-height: 0; padding: 12px; }
+  .adventure-shell .adventure-map-panel { order: 2; }
+  .adventure-shell .adventure-map-panel.map-collapsed { display: none; }
+  .adventure-shell .adventure-detail-panel > .eyebrow,
+  .adventure-shell .adventure-detail-panel > .chapter-meta,
+  .adventure-shell .adventure-reward-panel { display: none; }
+  .adventure-shell .adventure-detail-panel h2 { margin: 0 0 4px; font-size: 1.04rem; }
+  .adventure-shell .adventure-detail-panel > p:not(.recommend-pill):not(.chapter-meta) { font-size: 0.72rem; }
+  .adventure-shell .recommend-pill { margin: 6px 0; }
+  .adventure-shell .stage-card-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    margin: 8px 0;
+  }
+  .adventure-shell .adventure-stage-card {
+    min-width: 0;
+    min-height: 74px;
+    padding: 5px 2px;
+    gap: 2px;
+    font-size: 0.62rem;
+  }
+  .adventure-shell .adventure-stage-card strong { font-size: 0.72rem; }
+  .adventure-shell .adventure-primary-action {
+    position: sticky;
+    z-index: 20;
+    bottom: 70px;
+    min-height: 48px;
+  }
+  .adventure-shell .adventure-map-toggle { display: block; width: 100%; min-height: 44px; margin-top: 7px; }
+  .adventure-shell .adventure-map-panel { padding: 12px; }
+  .adventure-shell .adventure-map-panel .section-title { margin-bottom: 8px; }
+  .adventure-shell .chapter-map-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .adventure-shell .adventure-chapter-card { min-height: 104px; padding: 8px; }
+
+  .free-practice-shell .free-practice-page { gap: 8px; }
+  .free-practice-shell .free-practice-hero {
+    min-height: 58px;
+    padding: 9px 12px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 3px 10px;
+  }
+  .free-practice-shell .free-practice-hero .eyebrow { grid-row: 1 / span 2; }
+  .free-practice-shell .free-practice-hero h2 { font-size: 1.08rem; }
+  .free-practice-shell .free-practice-hero > p:last-child { font-size: 0.68rem; }
+  .free-practice-shell .practice-panel { min-height: 0; padding: 10px; }
+  .free-practice-shell .practice-tabs {
+    position: sticky;
+    z-index: 30;
+    top: 0;
+    margin-bottom: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .free-practice-shell .practice-tabs button { min-height: 44px; }
+  .free-practice-shell .practice-intro { margin-bottom: 7px; }
+  .free-practice-shell .practice-intro :is(.eyebrow, p) { display: none; }
+  .free-practice-shell .practice-intro h3 { font-size: 0.98rem; }
+  .free-practice-shell .practice-mode-grid { grid-template-columns: 1fr; gap: 7px; }
+  .free-practice-shell .practice-mode-card,
+  .free-practice-shell .practice-mode-card.custom-practice-card {
+    height: 126px;
+    min-height: 126px;
+    padding: 9px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 110px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 2px 8px;
+  }
+  .free-practice-shell .practice-mode-card .eyebrow { display: none; }
+  .free-practice-shell .practice-mode-card h3 { grid-column: 1; font-size: 0.96rem; }
+  .free-practice-shell .practice-mode-card > p:not(.eyebrow) {
+    grid-column: 1;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 0.7rem;
+    line-height: 1.3;
+  }
+  .free-practice-shell .practice-mode-card :is(.quest-meta-row, .custom-config-summary) {
+    grid-column: 1;
+    align-self: end;
+    font-size: 0.64rem;
+  }
+  .free-practice-shell .practice-mode-card button {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: center;
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    padding: 4px;
+    font-size: 0.72rem;
+  }
+  .free-practice-shell .practice-garden-decor { display: none; }
+
+  .practice-shell .quest-practice {
+    grid-template-columns: 1fr;
+    grid-template-areas: "info" "board" "actions";
+    gap: 6px;
+  }
+  .practice-shell .practice-info {
+    grid-area: info;
+    min-height: 0;
+    padding: 6px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 4px 8px;
+  }
+  .practice-shell .back-button { min-height: 40px; padding: 4px 8px; font-size: 0.72rem; }
+  .practice-shell .practice-title-block { min-width: 0; }
+  .practice-shell .practice-title-block .eyebrow { display: none; }
+  .practice-shell .practice-title-block h2 { margin: 0; font-size: 0.88rem; }
+  .practice-shell .practice-title-block p { margin: 0; font-size: 0.66rem; }
+  .practice-shell .play-stat-grid {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 3px;
+    overflow-x: auto;
+  }
+  .practice-shell .status-row span { flex: 1 0 auto; min-height: 28px; padding: 3px 6px; font-size: 0.66rem; }
+  .practice-shell .method-card,
+  .practice-shell .candidate-toggle { display: none; }
+  .practice-shell .board-panel { grid-area: board; padding: 3px; gap: 0; }
+  .practice-shell .sudoku-board-wrap { width: min(92vw, 100%); }
+  .practice-shell .selected-cell-note { display: none; }
+  .practice-shell .play-action-panel {
+    position: sticky;
+    z-index: 40;
+    bottom: 70px;
+    grid-area: actions;
+    padding: 6px;
+    gap: 5px;
+    border: 1px solid rgba(47, 143, 91, 0.22);
+    border-radius: 16px;
+    background: rgba(255, 253, 243, 0.97);
+    box-shadow: 0 -8px 24px rgba(24, 48, 74, 0.12);
+  }
+  .practice-shell .action-section { padding: 4px; gap: 4px; }
+  .practice-shell .action-section h3 { display: none; }
+  .practice-shell .number-pad { gap: 4px; }
+  .practice-shell .number-pad button { min-height: 42px; height: 42px; padding: 2px; }
+  .practice-shell .number-pad .delete-key { min-height: 42px; }
+  .practice-shell .primary-action-section .action-button-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .practice-shell .primary-action-section .check-action { grid-column: auto; }
+  .practice-shell .desktop-reveal-action { display: none; }
+  .practice-shell .mobile-more-toggle { display: block; width: 100%; min-height: 44px; }
+  .practice-shell .play-more-actions { display: none; }
+  .practice-shell .play-more-actions.open { display: grid; gap: 5px; }
+  .practice-shell .mobile-reveal-section { display: block; }
+  .practice-shell .mobile-reveal-section button { width: 100%; min-height: 44px; }
+  .practice-shell .continue-action-section .action-button-grid,
+  .practice-shell .print-action-section .action-button-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .practice-shell .guided-hint-panel { max-height: 180px; overflow-y: auto; }
+
+  .growth-shell .growth-report-page { gap: 8px; }
+  .growth-shell .growth-report-hero {
+    min-height: 170px;
+    max-height: 190px;
+    padding: 12px;
+  }
+  .growth-shell .growth-report-hero h2 { font-size: 1.2rem; }
+  .growth-shell .growth-report-hero > .growth-conclusion-copy > p:not(.eyebrow) { display: none; }
+  .growth-shell .growth-conclusion-lines { margin-top: 8px; gap: 5px; }
+  .growth-shell .growth-conclusion-lines p { padding: 5px; font-size: 0.7rem; }
+  .growth-shell .growth-context-chips { gap: 5px; }
+  .growth-shell :is(.growth-level-chip, .growth-progress-chip) { min-height: 30px; padding: 4px 8px; font-size: 0.68rem; }
+  .growth-shell .growth-hero-scene { display: none; }
+  .growth-shell :is(.growth-overview-card, .growth-insights-panel, .growth-record-log) { padding: 10px; }
+  .growth-shell .growth-core-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .growth-shell .growth-core-metrics article { min-height: 70px; padding: 7px; }
+  .growth-shell .growth-core-metrics article i { width: 34px; height: 34px; flex-basis: 34px; }
+  .growth-shell .growth-insight-grid { grid-template-columns: 1fr; gap: 7px; }
+  .growth-shell .growth-insight-grid > .growth-section { padding: 9px; }
+  .growth-shell .method-mastery-card { display: none; }
+  .growth-shell .recent-performance-metrics { gap: 5px; }
+  .growth-shell .growth-stage-route { overflow-x: auto; padding-bottom: 3px; }
+  .growth-shell .growth-stage-route > span { flex: 0 0 68px; }
+  .growth-shell .growth-record-table { display: none; }
+  .growth-shell .growth-record-cards { display: grid; }
+  .growth-shell .growth-record-toggle { min-height: 44px; }
+}
+
 /* Free-practice garden responsive contract. */
 @media screen and (min-width: 1024px) and (max-width: 1199px) {
   .app-shell.child-shell.free-practice-shell {
@@ -4250,6 +4932,96 @@ button,
     font-size: 13px;
     line-height: 24px;
     opacity: 0.72;
+  }
+}
+
+/* Last portrait-tablet fit correction, after all legacy free-practice rules. */
+@media screen and (max-width: 767px) {
+  .child-shell > .app-header.compact-hero.explorer-top-nav .utility-actions {
+    position: static;
+    grid-area: tools;
+    width: 92px;
+    justify-self: end;
+    display: grid;
+    grid-template-columns: repeat(2, 44px);
+    gap: 4px;
+  }
+
+  .child-shell > .app-header.compact-hero.explorer-top-nav .utility-actions button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    overflow: hidden;
+    font-size: 0.7rem;
+  }
+
+  .child-shell > .app-header.compact-hero.explorer-top-nav .desktop-action-label { display: none; }
+  .child-shell > .app-header.compact-hero.explorer-top-nav .mobile-action-label { display: inline; }
+
+  .free-practice-shell .practice-mode-card,
+  .free-practice-shell .practice-mode-card.custom-practice-card {
+    height: 148px;
+    min-height: 148px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 108px;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 4px 8px;
+  }
+
+  .free-practice-shell .practice-mode-card h3,
+  .free-practice-shell .practice-mode-card > p:not(.eyebrow),
+  .free-practice-shell .practice-mode-card :is(.quest-meta-row, .custom-config-summary) {
+    grid-column: 1;
+  }
+
+  .free-practice-shell .practice-mode-card > p:not(.eyebrow) {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .free-practice-shell .practice-mode-card button {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: center;
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    padding: 4px;
+  }
+
+  .adventure-shell .adventure-stage-card,
+  .adventure-shell .adventure-stage-card.recommended {
+    grid-column: auto;
+    min-height: 68px;
+  }
+
+  .adventure-shell .adventure-stage-card strong,
+  .adventure-shell .adventure-stage-card em {
+    display: none;
+  }
+
+  .practice-shell .number-pad button,
+  .practice-shell .number-pad .delete-key {
+    height: 44px;
+    min-height: 44px;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .free-practice-shell .practice-mode-card.custom-practice-card {
+    height: 220px;
+    min-height: 220px;
+    grid-template-rows: auto auto minmax(0, 1fr) auto 44px;
+  }
+
+  .free-practice-shell .practice-mode-card.custom-practice-card button {
+    height: 44px;
+    min-height: 44px;
   }
 }
 
