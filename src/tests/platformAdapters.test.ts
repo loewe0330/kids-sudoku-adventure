@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { classifyDevice } from "../platform/web/webDeviceAdapter";
 import { webPrintAdapter } from "../platform/web/webPrintAdapter";
 import { createWebStorageAdapter } from "../platform/web/webStorageAdapter";
+import { addWebBasePath, stripWebBasePath } from "../platform/web/webNavigationAdapter";
 import { playRewardSound } from "../lib/sound";
 import type { ChildProfile } from "../types";
 
@@ -19,6 +20,12 @@ beforeEach(() => {
 });
 
 describe("platform adapters", () => {
+  test("adds and strips a GitHub Pages repository base path", () => {
+    expect(addWebBasePath("/child/demo/home", "/kids-sudoku-adventure/")).toBe("/kids-sudoku-adventure/child/demo/home");
+    expect(stripWebBasePath("/kids-sudoku-adventure/child/demo/home", "/kids-sudoku-adventure/")).toBe("/child/demo/home");
+    expect(stripWebBasePath("/kids-sudoku-adventure/", "/kids-sudoku-adventure/")).toBe("/");
+  });
+
   test("web storage adapter reads, writes, and restores fallback after corrupted JSON", async () => {
     const adapter = createWebStorageAdapter();
     await adapter.setItem("demo", { ok: true });

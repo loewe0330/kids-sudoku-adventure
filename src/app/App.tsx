@@ -26,7 +26,7 @@ import {
 } from "../lib/storage";
 import { generatePracticePuzzle } from "../lib/practiceRules";
 import { generatePuzzleForChild } from "../lib/sudoku";
-import { webNavigationAdapter } from "../platform/web/webNavigationAdapter";
+import { getWebAppPathname, webNavigationAdapter } from "../platform/web/webNavigationAdapter";
 import type { AdventureStage, PracticeMode, PracticeSource, SudokuDifficulty, SudokuPuzzleItem, SudokuSize, ViewMode } from "../types";
 
 const defaultManual = { size: 4 as SudokuSize, difficulty: "starter" as SudokuDifficulty };
@@ -39,7 +39,7 @@ const sectionToView = (section: ChildRouteSection): ViewMode => {
 
 export default function App() {
   const [version, setVersion] = useState(0);
-  const [path, setPath] = useState(window.location.pathname);
+  const [path, setPath] = useState(getWebAppPathname);
   const [view, setView] = useState<ViewMode>(() => (getActiveChild() ? "home" : "selector"));
   const [activePuzzle, setActivePuzzle] = useState<SudokuPuzzleItem | null>(null);
   const [manual, setManual] = useState(defaultManual);
@@ -58,7 +58,7 @@ export default function App() {
 
   useEffect(() => {
     void initDefaultAdminIfNeeded();
-    const onPop = () => setPath(window.location.pathname);
+    const onPop = () => setPath(getWebAppPathname());
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
