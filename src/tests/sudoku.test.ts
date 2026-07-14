@@ -8,6 +8,39 @@ import {
 } from "../lib/sudoku";
 
 describe("sudoku engine", () => {
+  test("uses the upgraded clue calibration across every board size", () => {
+    expect(clueRanges[4]).toEqual({
+      starter: [8, 9],
+      easy: [7, 8],
+      normal: [6, 7],
+      hard: [5, 6],
+      challenge: [5, 6]
+    });
+    expect(clueRanges[6]).toEqual({
+      starter: [21, 24],
+      easy: [18, 21],
+      normal: [15, 18],
+      hard: [13, 15],
+      challenge: [12, 14]
+    });
+    expect(clueRanges[9]).toEqual({
+      starter: [40, 44],
+      easy: [34, 39],
+      normal: [29, 34],
+      hard: [24, 29],
+      challenge: [21, 24]
+    });
+  });
+
+  test("keeps 4x4 starter puzzles challenging but solvable for early learners", () => {
+    const puzzle = generatePuzzleByLevel(1);
+
+    expect(puzzle.clues).toBeGreaterThanOrEqual(8);
+    expect(puzzle.clues).toBeLessThanOrEqual(9);
+    expect(puzzle.emptyCount).toBeGreaterThanOrEqual(7);
+    expect(countSolutions(puzzle.puzzle, 4, 2, 2)).toBe(1);
+  });
+
   test.each(difficultyLevels)("level L$level generates a unique puzzle in its configured difficulty range", (config) => {
     const item = generatePuzzleByLevel(config.level);
     const [minClues, maxClues] = clueRanges[config.size][config.difficulty];

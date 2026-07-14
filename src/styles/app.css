@@ -720,6 +720,58 @@ fieldset { border: 0; padding: 0; margin: 0; font-weight: 850; }
   font-weight: 850;
   text-align: center;
 }
+.play-feedback-backdrop {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(24, 48, 74, 0.34);
+  backdrop-filter: blur(4px);
+}
+.play-feedback-dialog {
+  width: min(440px, calc(100vw - 40px));
+  padding: 28px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  border: 2px solid rgba(104, 165, 115, 0.52);
+  border-radius: 26px;
+  color: #18304a;
+  background: linear-gradient(180deg, #fffdf3, #edf8ec);
+  box-shadow: 0 28px 70px rgba(24, 48, 74, 0.28), inset 0 1px 0 #fff;
+  text-align: center;
+  animation: play-feedback-enter 260ms ease-out both;
+}
+.play-feedback-dialog h3,
+.play-feedback-dialog p { margin: 0; }
+.play-feedback-dialog h3 { font-size: 1.7rem; }
+.play-feedback-dialog p { color: #49655a; font-weight: 750; line-height: 1.6; }
+.feedback-symbol {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #2f8f5b;
+  box-shadow: 0 7px 0 rgba(31, 111, 70, 0.26);
+  font-size: 1.9rem;
+  font-weight: 950;
+}
+.feedback-try-again .feedback-symbol,
+.feedback-encouragement .feedback-symbol { background: #d99b2f; box-shadow: 0 7px 0 rgba(159, 103, 29, 0.25); }
+.feedback-incomplete .feedback-symbol { background: #5b9fc4; box-shadow: 0 7px 0 rgba(50, 120, 155, 0.25); }
+.feedback-success .feedback-symbol { animation: feedback-star-pop 620ms cubic-bezier(0.2, 1.45, 0.35, 1) both; }
+.feedback-actions { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 4px; }
+.play-feedback-dialog > button { min-width: 180px; }
+@keyframes play-feedback-enter { from { opacity: 0; transform: translateY(14px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes feedback-star-pop { 0% { transform: scale(0.45) rotate(-18deg); } 65% { transform: scale(1.2) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .play-feedback-dialog,
+  .feedback-success .feedback-symbol { animation: none; }
+}
 .cell {
   box-sizing: border-box;
   width: 100%;
@@ -6915,6 +6967,88 @@ th {
   background: rgba(255, 255, 255, 0.64);
   font-size: 0.84rem;
 }
+
+/* Practice selection keeps one primary recommendation and one compact custom entry. */
+.practice-choice-stack {
+  display: grid;
+  gap: 16px;
+}
+.recommended-practice-card {
+  min-height: 276px;
+  padding: 22px;
+  border-color: rgba(242, 184, 75, 0.76);
+  background:
+    radial-gradient(circle at 88% 20%, rgba(242, 184, 75, 0.2), transparent 26%),
+    radial-gradient(circle at 10% 100%, rgba(103, 183, 122, 0.18), transparent 30%),
+    linear-gradient(145deg, rgba(255, 251, 229, 0.98), rgba(236, 249, 232, 0.93));
+}
+.recommended-card-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.recommended-card-heading h3,
+.recommended-card-heading p,
+.recommendation-content h4,
+.recommendation-content p { margin: 0; }
+.recommended-card-heading h3 { margin-top: 4px; }
+.recommended-card-heading > div:first-child > p:last-child { margin-top: 7px; color: var(--muted); }
+.practice-mode-switcher {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(88, 151, 92, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 253, 243, 0.74);
+}
+.practice-mode-switcher button {
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  color: #286944;
+  background: transparent;
+  box-shadow: none;
+  font-size: 0.88rem;
+}
+.practice-mode-switcher button.active {
+  color: #fff;
+  background: #2f8f5b;
+  box-shadow: 0 3px 0 #1f6f46;
+}
+.recommendation-content {
+  min-height: 132px;
+  margin-top: 18px;
+  padding: 18px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid rgba(84, 151, 92, 0.24);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.54);
+}
+.recommendation-content h4 { color: #1e5e3c; font-size: 1.24rem; }
+.recommendation-content p { margin-top: 6px; color: var(--muted); }
+.recommendation-content .quest-meta-row { margin-top: 12px; }
+.recommendation-content > button { width: min(250px, 36%); min-height: 46px; }
+.compact-custom-practice-card {
+  min-height: 118px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(145deg, rgba(255, 253, 243, 0.98), rgba(225, 244, 239, 0.93));
+}
+.compact-custom-practice-card h3,
+.compact-custom-practice-card p { margin: 0; }
+.compact-custom-practice-card h3 { margin-top: 4px; }
+.compact-custom-practice-card p:not(.eyebrow) { margin-top: 5px; color: var(--muted); }
+.compact-custom-practice-card .custom-config-summary { display: inline-block; margin-top: 8px; }
+.compact-custom-practice-card > button { flex: 0 0 190px; min-height: 44px; }
 
 .practice-drawer-backdrop {
   position: fixed;

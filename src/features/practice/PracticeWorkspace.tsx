@@ -32,6 +32,7 @@ export function PracticeWorkspace({
   onPrint
 }: PracticeWorkspaceProps) {
   const [customOpen, setCustomOpen] = useState(false);
+  const [recommendedMode, setRecommendedMode] = useState<Exclude<PracticeSource, "custom" | "bank" | "stage">>("smart");
   const [customCount, setCustomCount] = useState(1);
   const [saveToBank, setSaveToBank] = useState(false);
   const [showCandidates, setShowCandidates] = useState(false);
@@ -45,10 +46,13 @@ export function PracticeWorkspace({
     description: string;
     button: string;
   }> = [
-    { source: "smart", title: "今日路线", subtitle: "智能推荐", description: "按当前能力等级推荐一题，适合今天的第一站。", button: "开始今日路线" },
-    { source: "review", title: "回到营地", subtitle: "巩固一下", description: "练一题稍微简单的题，打好基础。", button: "回到营地练习" },
-    { source: "challenge", title: "前往新区域", subtitle: "挑战一下", description: "试试下一等级的题，看看能不能点亮新路线。", button: "挑战新区域" }
+    { source: "smart", title: "今日推荐", subtitle: "推荐", description: "按当前能力等级推荐一题，适合今天的第一站。", button: "开始今日练习" },
+    { source: "review", title: "巩固练习", subtitle: "巩固", description: "练一道稍简单的题，把基础练得更稳。", button: "开始巩固" },
+    { source: "challenge", title: "挑战练习", subtitle: "挑战", description: "试试下一等级的题，看看能不能点亮新区域。", button: "开始挑战" }
   ];
+  const selectedOption = quickOptions.find((option) => option.source === recommendedMode) ?? quickOptions[0];
+  const selectedLevel = getPracticeLevelForSource(child.currentLevel, selectedOption.source);
+  const selectedConfig = getDifficultyLevel(selectedLevel);
   const customDifficultyOptions = useMemo(
     () => allowedDifficulties.map((difficulty) => ({ value: difficulty, label: difficultyLabels[difficulty] })),
     [allowedDifficulties]
@@ -78,34 +82,49 @@ export function PracticeWorkspace({
         <p>根据当前能力等级推荐题目，也可以选择今天想练的题型和难度。</p>
       </div>
 
-      <div className="practice-mode-grid task-camp-grid free-practice-actions">
-        {quickOptions.map((option) => {
-          const level = getPracticeLevelForSource(child.currentLevel, option.source);
-          const config = getDifficultyLevel(level);
-          return (
-          <article className={`quest-card practice-mode-card practice-choice-card ${option.source === "smart" ? "featured" : ""}`} key={option.source}>
-            <p className="eyebrow">{option.subtitle}</p>
-            <h3>{option.title}</h3>
-            <p>{option.description}</p>
-            <div className="quest-meta-row">
-              <span>L{level}</span>
-              <span>{sizeLabels[config.size]}</span>
-              <span>{difficultyLabels[config.difficulty]}</span>
+      <div className="practice-choice-stack">
+        <article className="quest-card recommended-practice-card">
+          <div className="recommended-card-heading">
+            <div>
+              <p className="eyebrow">今日推荐</p>
+              <h3>今日推荐练习</h3>
+              <p>系统根据你的当前水平，为你准备了一道适合今天的题。</p>
             </div>
-            <button
-              type="button"
-              className={option.source === "smart" ? "primary" : ""}
-              onClick={() => onQuickPractice(option.source)}
-            >
-              {option.button}
-            </button>
-          </article>
-        );})}
-        <article className="quest-card practice-mode-card practice-choice-card custom-practice-card custom-choice-card">
-          <p className="eyebrow">自己决定</p>
-          <h3>自选练习</h3>
-          <p>自己选择题型、难度和题目数量。</p>
-          <strong className="custom-config-summary">{customSummary}</strong>
+            <div className="practice-mode-switcher" role="group" aria-label="推荐练习模式">
+              {quickOptions.map((option) => (
+                <button
+                  key={option.source}
+                  type="button"
+                  className={recommendedMode === option.source ? "active" : ""}
+                  aria-pressed={recommendedMode === option.source}
+                  onClick={() => setRecommendedMode(option.source)}
+                >
+                  {option.subtitle}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="recommendation-content">
+            <div>
+              <h4>{selectedOption.title}</h4>
+              <p>{selectedOption.description}</p>
+              <div className="quest-meta-row">
+                <span>L{selectedLevel}</span>
+                <span>{sizeLabels[selectedConfig.size]}</span>
+                <span>{difficultyLabels[selectedConfig.difficulty]}</span>
+              </div>
+            </div>
+            <button type="button" className="primary" onClick={() => onQuickPractice(selectedOption.source)}>{selectedOption.button}</button>
+          </div>
+        </article>
+
+        <article className="quest-card custom-practice-card compact-custom-practice-card">
+          <div>
+            <p className="eyebrow">自由选择</p>
+            <h3>自己选一题</h3>
+            <p>自己选择题型、难度和题目数量。</p>
+            <strong className="custom-config-summary">{customSummary}</strong>
+          </div>
           <button type="button" onClick={() => setCustomOpen(true)}>设置并开始</button>
         </article>
       </div>

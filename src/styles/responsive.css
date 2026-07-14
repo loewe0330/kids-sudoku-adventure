@@ -3241,6 +3241,21 @@ button,
     padding-block: 0;
   }
 
+  .recommended-practice-card { min-height: 0; padding: 16px; }
+  .recommended-card-heading,
+  .recommendation-content,
+  .compact-custom-practice-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .practice-mode-switcher { width: 100%; }
+  .practice-mode-switcher button { flex: 1 1 0; padding-inline: 8px; }
+  .recommendation-content { min-height: 0; margin-top: 14px; padding: 14px; }
+  .recommendation-content > button,
+  .compact-custom-practice-card > button { width: 100%; }
+  .compact-custom-practice-card { min-height: 0; padding: 16px; }
+
   .practice-drawer-backdrop {
     align-items: flex-end;
   }
@@ -5021,6 +5036,57 @@ button,
 
   .free-practice-shell .practice-mode-card.custom-practice-card button {
     height: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Desktop play page: balance the three working columns and keep controls in
+   consistent pairs, instead of a visually heavy stack on the right. */
+@media screen and (min-width: 1200px) {
+  .practice-shell .quest-practice {
+    grid-template-columns: minmax(232px, 0.78fr) minmax(520px, 1.7fr) minmax(288px, 0.92fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .practice-shell .practice-info {
+    padding: 20px;
+  }
+
+  .practice-shell .board-panel {
+    min-height: min(70vh, 640px);
+    padding: 20px;
+  }
+
+  .practice-shell .play-action-panel {
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .practice-shell .action-section {
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .practice-shell .number-pad {
+    gap: 8px;
+  }
+
+  .practice-shell .number-pad button {
+    min-height: 50px;
+  }
+
+  .practice-shell .action-button-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .practice-shell .primary-action-section .check-action,
+  .practice-shell .continue-action-section .quiet-action {
+    grid-column: 1 / -1;
+  }
+
+  .practice-shell .action-button-grid button {
     min-height: 44px;
   }
 }

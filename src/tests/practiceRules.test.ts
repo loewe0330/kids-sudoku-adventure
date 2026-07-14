@@ -4,7 +4,8 @@ import {
   getAllowedCustomDifficulties,
   getCustomPracticeValidity,
   getPracticeLevelForSource,
-  generatePracticePuzzle
+  generatePracticePuzzle,
+  generateReplacementPuzzle
 } from "../lib/practiceRules";
 
 describe("free practice rules", () => {
@@ -57,5 +58,40 @@ describe("free practice rules", () => {
 
     expect(puzzle.mode).toBe("practice");
     expect(puzzle.source).toBe("custom");
+  });
+
+  test("replacement keeps the active puzzle configuration and session context", () => {
+    const current = {
+      ...generatePracticePuzzle({
+        parentId: "parent-a",
+        childId: "child-a",
+        gradeLevel: "grade3",
+        currentLevel: 7,
+        source: "custom",
+        custom: { size: 9, difficulty: "hard" }
+      }),
+      level: 7,
+      mode: "adventure" as const,
+      source: "stage" as const,
+      stageIndex: 4
+    };
+
+    const next = generateReplacementPuzzle(current);
+
+    expect(next.id).not.toBe(current.id);
+    expect(next).toMatchObject({
+      parentId: current.parentId,
+      childId: current.childId,
+      gradeLevel: current.gradeLevel,
+      size: current.size,
+      boxRows: current.boxRows,
+      boxCols: current.boxCols,
+      difficulty: current.difficulty,
+      level: current.level,
+      mode: "adventure",
+      source: "stage",
+      stageIndex: 4
+    });
+    expect(countSolutions(next.puzzle, next.size, next.boxRows, next.boxCols)).toBe(1);
   });
 });

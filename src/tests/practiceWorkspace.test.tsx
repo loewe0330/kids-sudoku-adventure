@@ -35,6 +35,7 @@ describe("PracticeWorkspace copy", () => {
   test("uses child-friendly practice selection naming and tab labels", () => {
     const onManualChange = vi.fn();
     const onGenerateCustom = vi.fn();
+    const onQuickPractice = vi.fn();
     function Harness() {
       const [activeTab, setActiveTab] = useState<PracticeTab>("select");
       return (
@@ -44,7 +45,7 @@ describe("PracticeWorkspace copy", () => {
           onTabChange={setActiveTab}
           manual={{ size: 4, difficulty: "starter" }}
           onManualChange={onManualChange}
-          onQuickPractice={vi.fn()}
+          onQuickPractice={onQuickPractice}
           onGenerateCustom={onGenerateCustom}
           onChanged={vi.fn()}
           onPractice={vi.fn()}
@@ -63,17 +64,28 @@ describe("PracticeWorkspace copy", () => {
     expect(screen.getByRole("button", { name: "打印练习" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "选择今天的探索任务" })).toBeTruthy();
     expect(screen.getByText("根据当前能力等级推荐题目，也可以选择今天想练的题型和难度。")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "今日路线" })).toBeTruthy();
-    const featuredCard = screen.getByRole("heading", { name: "今日路线" }).closest("article");
-    expect(featuredCard?.classList.contains("featured")).toBe(true);
-    expect(featuredCard?.classList.contains("primary")).toBe(false);
-    expect(screen.getByRole("button", { name: "开始今日路线" })).toBeTruthy();
-    expect(screen.getByText("练一题稍微简单的题，打好基础。")).toBeTruthy();
-    expect(screen.getByText("试试下一等级的题，看看能不能点亮新路线。")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "自选练习" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "今日推荐练习" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "推荐" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("heading", { name: "今日推荐" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "开始今日练习" })).toBeTruthy();
+    expect(document.querySelectorAll(".recommended-practice-card")).toHaveLength(1);
+    expect(document.querySelectorAll(".practice-choice-card")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "巩固" }));
+    expect(screen.getByRole("heading", { name: "巩固练习" })).toBeTruthy();
+    expect(screen.getByText("L4")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "开始巩固" }));
+    expect(onQuickPractice).toHaveBeenLastCalledWith("review");
+    fireEvent.click(screen.getByRole("button", { name: "挑战" }));
+    expect(screen.getByRole("heading", { name: "挑战练习" })).toBeTruthy();
+    expect(screen.getByText("L6")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "开始挑战" }));
+    expect(onQuickPractice).toHaveBeenLastCalledWith("challenge");
+    fireEvent.click(screen.getByRole("button", { name: "推荐" }));
+    fireEvent.click(screen.getByRole("button", { name: "开始今日练习" }));
+    expect(onQuickPractice).toHaveBeenLastCalledWith("smart");
+    expect(screen.getByRole("heading", { name: "自己选一题" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "设置并开始" })).toBeTruthy();
     expect(screen.getByText("自己选择题型、难度和题目数量。")).toBeTruthy();
-    expect(document.querySelectorAll(".practice-choice-card")).toHaveLength(4);
     expect(document.querySelector(".practice-garden-decor")).toBeTruthy();
     expect(document.querySelector(".garden-sudoku-board")).toBeTruthy();
     expect(document.querySelector(".garden-path")).toBeTruthy();

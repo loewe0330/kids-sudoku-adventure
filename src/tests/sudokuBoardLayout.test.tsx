@@ -70,6 +70,17 @@ const puzzle9: SudokuPuzzleItem = {
   emptyCount: 0
 };
 
+const fillPuzzle = (container: HTMLElement, values: number[][]) => {
+  const cells = Array.from(container.querySelectorAll<HTMLButtonElement>(".cell"));
+  const numberSection = screen.getByRole("heading", { name: "选择数字" }).closest("section");
+  expect(numberSection).toBeTruthy();
+  values.flat().forEach((value, index) => {
+    if (puzzle.puzzle.flat()[index] !== 0) return;
+    fireEvent.click(cells[index]);
+    fireEvent.click(within(numberSection!).getByRole("button", { name: String(value) }));
+  });
+};
+
 beforeEach(() => {
   localStorage.clear();
 });
@@ -195,15 +206,7 @@ describe("SudokuBoard layout", () => {
         onChildChanged={onChildChanged}
       />
     );
-    const cells = Array.from(container.querySelectorAll<HTMLButtonElement>(".cell"));
-    const numberSection = screen.getByRole("heading", { name: "选择数字" }).closest("section");
-    expect(numberSection).toBeTruthy();
-
-    puzzle.solution.flat().forEach((value, index) => {
-      if (puzzle.puzzle.flat()[index] !== 0) return;
-      fireEvent.click(cells[index]);
-      fireEvent.click(within(numberSection!).getByRole("button", { name: String(value) }));
-    });
+    fillPuzzle(container, puzzle.solution);
 
     fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
 
@@ -211,6 +214,69 @@ describe("SudokuBoard layout", () => {
     expect(screen.getByRole("status").textContent).toContain("太棒了！");
     expect(screen.getByRole("status").textContent).toContain("全部答对啦");
     expect(onChildChanged).toHaveBeenCalledTimes(1);
+  });
+
+  test("gives lightweight feedback for an incomplete board without recording a result", () => {
+    const onChildChanged = vi.fn();
+    render(
+      <SudokuBoard child={child} puzzle={puzzle} onBack={vi.fn()} onNext={vi.fn()} onSave={vi.fn()} onPrint={vi.fn()} onBackToMap={vi.fn()} onBackToPractice={vi.fn()} onChildChanged={onChildChanged} />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+
+    expect(screen.getByRole("dialog").textContent).toContain("还有空格没有填完哦");
+    expect(screen.getByRole("dialog").textContent).toContain("先把数独完成，再来检查答案吧。");
+    expect(screen.getByText("错误 0")).toBeTruthy();
+    expect(onChildChanged).not.toHaveBeenCalled();
+  });
+
+  test("allows one incorrect completed attempt to be corrected, then ends on a later incorrect check", () => {
+    const onChildChanged = vi.fn();
+    const { container } = render(
+      <SudokuBoard child={child} puzzle={puzzle} onBack={vi.fn()} onNext={vi.fn()} onSave={vi.fn()} onPrint={vi.fn()} onBackToMap={vi.fn()} onBackToPractice={vi.fn()} onChildChanged={onChildChanged} />
+    );
+    const wrong = puzzle.solution.map((row) => [...row]);
+    wrong[0][1] = 3;
+    fillPuzzle(container, wrong);
+
+    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    expect(screen.getByRole("dialog").textContent).toContain("再想一想");
+    expect(container.querySelector(".cell.error")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "继续修改" }));
+
+    const cells = Array.from(container.querySelectorAll<HTMLButtonElement>(".cell"));
+    const numberSection = screen.getByRole("heading", { name: "选择数字" }).closest("section");
+    fireEvent.click(cells[1]);
+    fireEvent.click(within(numberSection!).getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    expect(screen.getByRole("dialog").textContent).toContain("太棒了！");
+    expect(onChildChanged).toHaveBeenCalledTimes(1);
+  });
+
+  test("shows encouragement after a second incorrect completed check without revealing the answer", () => {
+    const { container } = render(
+      <SudokuBoard child={child} puzzle={puzzle} onBack={vi.fn()} onNext={vi.fn()} onSave={vi.fn()} onPrint={vi.fn()} onBackToMap={vi.fn()} onBackToPractice={vi.fn()} onChildChanged={vi.fn()} />
+    );
+    const wrong = puzzle.solution.map((row) => [...row]);
+    wrong[0][1] = 3;
+    fillPuzzle(container, wrong);
+    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续修改" }));
+    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+
+    expect(screen.getByRole("dialog").textContent).toContain("下次努力");
+    expect(container.querySelectorAll(".cell")[1].textContent).toBe("3");
+    expect((screen.getByRole("button", { name: "检查答案" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  test("generates the next same-config puzzle through the continue action", () => {
+    const onNext = vi.fn();
+    render(
+      <SudokuBoard child={child} puzzle={puzzle} onBack={vi.fn()} onNext={onNext} onSave={vi.fn()} onPrint={vi.fn()} onBackToMap={vi.fn()} onBackToPractice={vi.fn()} onChildChanged={vi.fn()} />
+    );
+    expect(screen.queryByRole("button", { name: "换一题" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "生成下一题" }));
+    expect(onNext).toHaveBeenCalledTimes(1);
   });
 
   test("reveals the answer and ends the puzzle", () => {

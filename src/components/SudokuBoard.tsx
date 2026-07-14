@@ -1,17 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getDifficultyLevel } from "../constants/difficultyLevels";
 import { difficultyLabels, gradeLabels, sizeLabels } from "../constants/gradeLabels";
 import { evaluateNextLevel } from "../lib/adaptiveDifficulty";
-import { getRecommendedAdventureStage, updateAdventureProgress } from "../lib/adventure";
-import { getLevelDisplay } from "../lib/gamification";
+import { updateAdventureProgress } from "../lib/adventure";
 import { calculateCandidates, getGuidedHint, type GuidedHint } from "../lib/hintEngine";
 import { getLevelMethods, getPracticeMethod } from "../lib/methodGuide";
-import { calculateStars, getNewlyEarnedBadges } from "../lib/reward";
+import { calculateStars } from "../lib/reward";
 import { addPracticeRecord, getPracticeRecordsByChild, updateChild } from "../lib/storage";
 import { formatDuration } from "../lib/time";
 import { webSoundAdapter } from "../platform/web/webSoundAdapter";
-import type { Badge, ChildProfile, PracticeMode, PracticeRecord, SudokuPuzzleItem } from "../types";
-import { RewardResultCard } from "./RewardResultCard";
+import type { ChildProfile, PracticeMode, PracticeRecord, SudokuPuzzleItem } from "../types";
+
+type CheckFeedback = "incomplete" | "try-again" | "success" | "encouragement" | null;
 
 interface SudokuBoardProps {
   child: ChildProfile;
@@ -31,23 +31,12 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
   const [mistakes, setMistakes] = useState(0);
   const [hints, setHints] = useState(0);
   const [elapsed, setElapsed] = useState(0);
-  const [startedAt] = useState(new Date().toISOString());
+  const [startedAt, setStartedAt] = useState(new Date().toISOString());
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<string>("");
-  const [resultCard, setResultCard] = useState<{
-    completed: boolean;
-    duration: number;
-    mistakes: number;
-    hints: number;
-    stars: number;
-    mode: PracticeMode;
-    title: string;
-    change: string;
-    nextSuggestion: string;
-    unlockMessage: string;
-    badges: Badge[];
-  } | null>(null);
   const [finished, setFinished] = useState(false);
+  const [wrongCheckCount, setWrongCheckCount] = useState(0);
+  const [checkFeedback, setCheckFeedback] = useState<CheckFeedback>(null);
   const [guidedHint, setGuidedHint] = useState<GuidedHint | null>(null);
   const [hintTarget, setHintTarget] = useState<string | null>(null);
   const [hintLevel, setHintLevel] = useState<1 | 2 | 3>(1);
@@ -55,17 +44,21 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
   const [methodOpen, setMethodOpen] = useState(false);
   const [showBoardCelebration, setShowBoardCelebration] = useState(false);
   const [moreActionsOpen, setMoreActionsOpen] = useState(false);
+  const errorTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (errorTimerRef.current !== null) window.clearTimeout(errorTimerRef.current);
     setBoard(puzzle.puzzle.map((row) => [...row]));
     setSelected(null);
     setMistakes(0);
     setHints(0);
     setElapsed(0);
+    setStartedAt(new Date().toISOString());
     setErrors(new Set());
     setResult("");
-    setResultCard(null);
     setFinished(false);
+    setWrongCheckCount(0);
+    setCheckFeedback(null);
     setGuidedHint(null);
     setHintTarget(null);
     setHintLevel(1);
@@ -74,6 +67,10 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     setShowBoardCelebration(false);
     setMoreActionsOpen(false);
   }, [puzzle.id, puzzle.puzzle]);
+
+  useEffect(() => () => {
+    if (errorTimerRef.current !== null) window.clearTimeout(errorTimerRef.current);
+  }, []);
 
   useEffect(() => {
     if (!showBoardCelebration) return;
@@ -96,7 +93,6 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
 
   const commitRecord = (completed: boolean, gaveUp: boolean, duration = elapsed, mistakeCount = mistakes, hintCount = hints) => {
     if (finished) return;
-    const previousRecords = getPracticeRecordsByChild(child.parentId, child.id);
     const record: PracticeRecord = {
       id: crypto.randomUUID(),
       parentId: child.parentId,
@@ -136,15 +132,6 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
       updateChild(child.parentId, child.id, { currentLevel: evaluation.nextLevel, adventureProgress: updatedProgress });
     }
     setFinished(true);
-    const badges = getNewlyEarnedBadges(previousRecords, records);
-    const nextChild = { ...child, currentLevel: evaluation.nextLevel, adventureProgress: updatedProgress };
-    const recommendedStage = getRecommendedAdventureStage(nextChild);
-    const nextSuggestion = recommendedStage
-      ? `下一题建议：继续挑战 L${recommendedStage.level}-${recommendedStage.stageIndex}。`
-      : "下一题建议：可以复盘已经完成的小关，争取更高星级。";
-    const unlockMessage = mode === "adventure" && puzzle.stageIndex
-      ? `闯关地图已记录 L${puzzle.level}-${puzzle.stageIndex}，当前最好成绩 ${record.stars} 星。`
-      : "";
     const soundKind = evaluation.action === "up" ? "levelUp" : record.stars >= 3 ? "threeStar" : "success";
     webSoundAdapter.setEnabled(child.settings.soundEnabled);
     if (soundKind === "levelUp") webSoundAdapter.playLevelUp();
@@ -152,20 +139,16 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     else webSoundAdapter.playCelebration();
     setShowBoardCelebration(completed && child.settings.successAnimationEnabled && !child.settings.reducedMotion);
     setResult(`${completed ? "本题完成" : "本题已结束"} · ${evaluation.reason}`);
-    setResultCard({
-      completed,
-      duration,
-      mistakes: mistakeCount,
-      hints: hintCount,
-      stars: record.stars,
-      mode,
-      title: getLevelDisplay(evaluation.nextLevel),
-      change: evaluation.reason,
-      nextSuggestion,
-      unlockMessage,
-      badges
-    });
     onChildChanged();
+  };
+
+  const highlightErrorsTemporarily = (nextErrors: Set<string>) => {
+    if (errorTimerRef.current !== null) window.clearTimeout(errorTimerRef.current);
+    setErrors(nextErrors);
+    errorTimerRef.current = window.setTimeout(() => {
+      setErrors(new Set());
+      errorTimerRef.current = null;
+    }, 1800);
   };
 
   const setCell = (value: number) => {
@@ -201,17 +184,23 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
         if (board[row][col] !== 0 && board[row][col] !== puzzle.solution[row][col]) nextErrors.add(`${row}-${col}`);
       }
     }
-    if (nextErrors.size > 0) {
-      setMistakes((value) => value + nextErrors.size);
-      setErrors(nextErrors);
-      setResult(puzzle.size <= 6 ? "这里好像和同一行/同一列的数字重复了，再看看。" : `发现 ${nextErrors.size} 个错误，改一改再检查。`);
+    if (hasEmpty) {
+      setResult("还有空格没有填完哦");
+      setCheckFeedback("incomplete");
       return;
     }
-    if (hasEmpty) {
-      setResult("还有空格没有填写。");
+    if (nextErrors.size > 0) {
+      setMistakes((value) => value + nextErrors.size);
+      highlightErrorsTemporarily(nextErrors);
+      const nextCount = wrongCheckCount + 1;
+      setWrongCheckCount(nextCount);
+      setResult(nextCount === 1 ? "再想一想，修改后可以再检查。" : "下次努力，也可以换一题重新开始。");
+      setCheckFeedback(nextCount === 1 ? "try-again" : "encouragement");
+      if (nextCount >= 2) setFinished(true);
       return;
     }
     commitRecord(true, false);
+    setCheckFeedback("success");
   };
 
   const hint = (excludeCurrent = false) => {
@@ -247,8 +236,9 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     setBoard(puzzle.puzzle.map((row) => [...row]));
     setErrors(new Set());
     setResult("");
-    setResultCard(null);
     setFinished(false);
+    setWrongCheckCount(0);
+    setCheckFeedback(null);
     setMistakes(0);
     setHints(0);
     setElapsed(0);
@@ -257,6 +247,8 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     setHintLevel(1);
     setShowBoardCelebration(false);
   };
+
+  const closeFeedback = () => setCheckFeedback(null);
 
   const sameBox = (row: number, col: number) => {
     if (!selected) return false;
@@ -303,24 +295,6 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
           显示候选数
         </label>
         {result && <p className="result-note">{result}</p>}
-        {resultCard && (
-          <RewardResultCard
-            settings={child.settings}
-            completed={resultCard.completed}
-            mode={resultCard.mode}
-            duration={resultCard.duration}
-            mistakes={resultCard.mistakes}
-            hints={resultCard.hints}
-            stars={resultCard.stars}
-            currentTitle={resultCard.title}
-            adaptiveMessage={resultCard.change}
-            nextSuggestion={resultCard.nextSuggestion}
-            unlockMessage={resultCard.unlockMessage}
-            badges={resultCard.badges}
-            onPrimaryAction={onNext}
-            onSecondaryAction={mode === "adventure" ? onBackToMap : mode === "practice" ? onBackToPractice : onBack}
-          />
-        )}
       </aside>
 
       <section className="board-panel">
@@ -462,6 +436,16 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
           </section>
         </div>
       </aside>
+      {checkFeedback && (
+        <div className="play-feedback-backdrop" role="presentation">
+          <section className={`play-feedback-dialog feedback-${checkFeedback}`} role="dialog" aria-modal="true" aria-labelledby="play-feedback-title">
+            {checkFeedback === "incomplete" && <><span className="feedback-symbol">?</span><h3 id="play-feedback-title">还有空格没有填完哦</h3><p>先把数独完成，再来检查答案吧。</p><button className="primary" onClick={closeFeedback}>继续做题</button></>}
+            {checkFeedback === "try-again" && <><span className="feedback-symbol">!</span><h3 id="play-feedback-title">再想一想</h3><p>你已经完成大部分内容了，修改后可以再检查。</p><button className="primary" onClick={closeFeedback}>继续修改</button></>}
+            {checkFeedback === "success" && <><span className="feedback-symbol">★</span><h3 id="play-feedback-title">太棒了！</h3><p>全部答对啦，继续保持！</p><div className="feedback-actions"><button className="primary" onClick={onNext}>再来一题</button><button onClick={onBackToPractice}>回到练习</button></div></>}
+            {checkFeedback === "encouragement" && <><span className="feedback-symbol">✦</span><h3 id="play-feedback-title">下次努力</h3><p>这题有点难，已经很接近了。休息一下，再换一题试试吧。</p><div className="feedback-actions"><button className="primary" onClick={onNext}>再来一题</button><button onClick={closeFeedback}>继续看看</button></div></>}
+          </section>
+        </div>
+      )}
     </main>
   );
 }

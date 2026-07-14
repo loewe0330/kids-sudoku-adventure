@@ -83,3 +83,14 @@ export const generatePracticePuzzle = ({
     createdAt: new Date().toISOString()
   };
 };
+
+/** Creates a fresh board without changing the current practice or adventure context. */
+export const generateReplacementPuzzle = (puzzle: SudokuPuzzleItem): SudokuPuzzleItem => {
+  const generated = generatePuzzleByConfig(puzzle.size, puzzle.boxRows, puzzle.boxCols, puzzle.difficulty);
+  return {
+    ...puzzle,
+    ...generated,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString()
+  };
+};

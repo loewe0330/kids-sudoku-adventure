@@ -24,7 +24,7 @@ import {
   updateCurrentParentPassword,
   updateChild
 } from "../lib/storage";
-import { generatePracticePuzzle } from "../lib/practiceRules";
+import { generatePracticePuzzle, generateReplacementPuzzle } from "../lib/practiceRules";
 import { generatePuzzleForChild } from "../lib/sudoku";
 import { isCloudAccountEnabled } from "../lib/cloudClient";
 import { getWebAppPathname, webNavigationAdapter } from "../platform/web/webNavigationAdapter";
@@ -173,6 +173,11 @@ export default function App() {
     navigate(childPath(current.id, "play"));
   };
 
+  const replaceActivePuzzle = () => {
+    if (!activePuzzle) return;
+    setActivePuzzle(generateReplacementPuzzle(activePuzzle));
+  };
+
   const startPracticeBySource = (source: Exclude<PracticeSource, "custom" | "bank" | "stage">) => {
     const current = getActiveChild();
     if (!current) return;
@@ -291,7 +296,7 @@ export default function App() {
             refresh();
             goChild("home");
           }}
-          onNext={() => startPuzzle()}
+          onNext={replaceActivePuzzle}
           onSave={saveActivePuzzle}
           onPrint={(includeAnswer) => openPrint([activePuzzle], includeAnswer)}
           onBackToMap={() => goChild("adventure")}
