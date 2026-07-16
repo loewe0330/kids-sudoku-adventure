@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getDifficultyLevel } from "../constants/difficultyLevels";
 import { difficultyLabels, gradeLabels, sizeLabels } from "../constants/gradeLabels";
-import { ROUTES, childPath, matchChildRoute, type ChildRouteSection, type PracticeTab } from "./routes";
+import { ROUTES, childAdventurePath, childPath, matchChildRoute, type ChildRouteSection, type PracticeTab } from "./routes";
 import { AdminDashboard, AdminLogin } from "../features/admin";
 import { AdventureMap } from "../features/adventure";
 import { ParentLogin, PasswordField } from "../features/auth";
@@ -56,6 +56,10 @@ export default function App() {
   const session = useMemo(() => getCurrentSession(), [version]);
   const parent = useMemo(() => getCurrentParent(), [version]);
   const child = useMemo(() => getActiveChild(), [version]);
+  const adventureLevel = useMemo(() => {
+    const matched = matchChildRoute(path);
+    return matched?.section === "adventure" ? matched.adventureLevel : undefined;
+  }, [path]);
 
   useEffect(() => {
     void initDefaultAdminIfNeeded();
@@ -252,14 +256,17 @@ export default function App() {
   }
 
   return (
-    <div className={`app-shell child-shell ${view === "home" ? "home-shell" : ""} ${view === "play" ? "practice-shell" : ""} ${view === "practice" ? "free-practice-shell" : ""} ${view === "adventure" ? "adventure-shell" : ""} ${view === "growth" ? "growth-shell" : ""}`}>
+    <div className={`app-shell child-shell ${view === "home" ? "home-shell" : ""} ${view === "play" ? "practice-shell" : ""} ${view === "practice" ? "free-practice-shell" : ""} ${view === "adventure" ? "adventure-shell" : ""} ${adventureLevel ? "adventure-detail-route" : ""} ${view === "growth" ? "growth-shell" : ""}`}>
       <header className="app-header compact-hero explorer-top-nav explorer-topbar no-print">
         <div className="brand-lockup">
           <span className="brand-mark" aria-hidden="true">数</span>
           <div>
             <p className="eyebrow">儿童数独分级训练</p>
             <h1>数独探险家</h1>
-            <p>{child.name} · {gradeLabels[child.gradeLevel]} · 能力等级：{getDifficultyLevel(child.currentLevel).label}</p>
+            <p>
+              <span>{child.name} · {gradeLabels[child.gradeLevel]}</span>
+              <span className="child-level-summary"> · 能力等级：{getDifficultyLevel(child.currentLevel).label}</span>
+            </p>
           </div>
         </div>
         <nav className="top-actions">
@@ -325,6 +332,9 @@ export default function App() {
           onOpenPractice={() => goChild("practice")}
           onOpenGrowth={() => goChild("growth")}
           onSwitchChild={() => { setActiveChild(null); setView("selector"); navigate(ROUTES.CHILDREN); }}
+          detailLevel={adventureLevel}
+          onOpenChapter={(level) => navigate(childAdventurePath(child.id, level))}
+          onBackToMap={() => navigate(childAdventurePath(child.id))}
           onStartStage={startAdventureStage}
         />
       )}

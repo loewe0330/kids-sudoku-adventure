@@ -5,6 +5,7 @@ export const ROUTES = {
   CHILDREN: "/children",
   CHILD_HOME: "/child/:childId/home",
   CHILD_ADVENTURE: "/child/:childId/adventure",
+  CHILD_ADVENTURE_LEVEL: "/child/:childId/adventure/:level",
   CHILD_PRACTICE: "/child/:childId/free-practice",
   CHILD_PRACTICE_LEGACY: "/child/:childId/practice",
   CHILD_BANK_LEGACY: "/child/:childId/bank",
@@ -27,6 +28,7 @@ export type PracticeTab = "select" | "bank" | "batch" | "print";
 export interface MatchedChildRoute {
   childId: string;
   section: ChildRouteSection;
+  adventureLevel?: number;
   practiceTab?: PracticeTab;
   canonicalPath?: string;
 }
@@ -39,12 +41,18 @@ export const childPath = (childId: string, section: ChildRouteSection): string =
   return `/child/${encodedChildId}/${section}`;
 };
 
+export const childAdventurePath = (childId: string, level?: number): string => {
+  const basePath = childPath(childId, "adventure");
+  return level && level >= 1 && level <= 11 ? `${basePath}/${level}` : basePath;
+};
+
 export const matchChildRoute = (pathname: string): MatchedChildRoute | null => {
-  const match = pathname.match(/^\/child\/([^/]+)\/([^/]+)\/?$/);
+  const match = pathname.match(/^\/child\/([^/]+)\/([^/]+)(?:\/([^/]+))?\/?$/);
   if (!match) return null;
   const childId = decodeURIComponent(match[1]);
   const encodedChildId = encodeURIComponent(childId);
   const rawSection = match[2];
+  const rawDetail = match[3];
   if (rawSection === "free-practice") {
     return {
       childId,
@@ -70,6 +78,18 @@ export const matchChildRoute = (pathname: string): MatchedChildRoute | null => {
   }
   const section = rawSection as ChildRouteSection;
   if (!childSections.has(section)) return null;
+  if (section === "adventure" && rawDetail) {
+    const adventureLevel = Number(rawDetail);
+    if (!Number.isInteger(adventureLevel) || adventureLevel < 1 || adventureLevel > 11) {
+      return {
+        childId,
+        section: "adventure",
+        canonicalPath: `/child/${encodedChildId}/adventure`
+      };
+    }
+    return { childId, section, adventureLevel };
+  }
+  if (rawDetail) return null;
   return {
     childId,
     section

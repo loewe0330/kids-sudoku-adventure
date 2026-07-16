@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { childPath, matchChildRoute, ROUTES } from "../app/routes";
+import { childAdventurePath, childPath, matchChildRoute, ROUTES } from "../app/routes";
 
 describe("product route map", () => {
   test("exposes named routes for every product area", () => {
@@ -9,6 +9,7 @@ describe("product route map", () => {
     expect(ROUTES.CHILDREN).toBe("/children");
     expect(ROUTES.CHILD_HOME).toBe("/child/:childId/home");
     expect(ROUTES.CHILD_ADVENTURE).toBe("/child/:childId/adventure");
+    expect(ROUTES.CHILD_ADVENTURE_LEVEL).toBe("/child/:childId/adventure/:level");
     expect(ROUTES.CHILD_PRACTICE).toBe("/child/:childId/free-practice");
     expect(ROUTES.CHILD_PRACTICE_LEGACY).toBe("/child/:childId/practice");
     expect(ROUTES.CHILD_BANK_LEGACY).toBe("/child/:childId/bank");
@@ -25,6 +26,17 @@ describe("product route map", () => {
       childId: "child-1",
       section: "adventure",
       practiceTab: undefined
+    });
+    expect(childAdventurePath("child-1", 5)).toBe("/child/child-1/adventure/5");
+    expect(matchChildRoute("/child/child-1/adventure/5")).toEqual({
+      childId: "child-1",
+      section: "adventure",
+      adventureLevel: 5
+    });
+    expect(matchChildRoute("/child/child-1/adventure/12")).toEqual({
+      childId: "child-1",
+      section: "adventure",
+      canonicalPath: "/child/child-1/adventure"
     });
     expect(matchChildRoute("/child/child-1/free-practice")).toEqual({
       childId: "child-1",
