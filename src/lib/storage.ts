@@ -22,6 +22,7 @@ import {
   logoutCloudSession,
   syncCloudStorage
 } from "./cloudClient";
+import { createUuid, sha256 } from "./browserCrypto";
 import { nowIso } from "./time";
 
 const DEFAULT_ADMIN_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
@@ -153,11 +154,7 @@ const mutateStorage = (updater: (storage: AppStorage) => AppStorage): AppStorage
 };
 
 export const hashPassword = async (password: string): Promise<string> => {
-  const bytes = new TextEncoder().encode(password);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+  return sha256(password);
 };
 
 export const initDefaultAdminIfNeeded = async (): Promise<AdminAccount> => {
@@ -224,7 +221,7 @@ export const createParentAccount = async (input: ParentAccountInput): Promise<Pa
   validateParentInput(input, storage.parentAccounts);
   const timestamp = nowIso();
   const parent: ParentAccount = {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     username: input.username.trim(),
     displayName: input.displayName.trim(),
     passwordHash: await hashPassword(input.password),
@@ -357,7 +354,7 @@ export const createChild = (parentId: string, input: ChildProfileInput): ChildPr
   if (existing.length >= 2) throw new Error("当前测试版每个家长账号最多创建 2 个学习账号。");
   const timestamp = nowIso();
   const child: ChildProfile = {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     parentId,
     name: input.name.trim(),
     gradeLevel: input.gradeLevel,

@@ -1,4 +1,5 @@
 import { clampLevel, difficultyLevels, getDifficultyLevel } from "../constants/difficultyLevels";
+import { createUuid } from "./browserCrypto";
 import { generatePuzzleByConfig, generatePuzzleByLevel } from "./sudoku";
 import type { GradeLevel, PracticeSource, SudokuDifficulty, SudokuPuzzleItem, SudokuSize } from "../types";
 
@@ -73,7 +74,7 @@ export const generatePracticePuzzle = ({
   const generated = generatePuzzleByConfig(custom.size, box.rows, box.cols, custom.difficulty);
   return {
     ...generated,
-    id: crypto.randomUUID(),
+    id: createUuid(),
     parentId,
     childId,
     gradeLevel,
@@ -90,7 +91,7 @@ export const generateReplacementPuzzle = (puzzle: SudokuPuzzleItem): SudokuPuzzl
   return {
     ...puzzle,
     ...generated,
-    id: crypto.randomUUID(),
+    id: createUuid(),
     createdAt: new Date().toISOString()
   };
 };

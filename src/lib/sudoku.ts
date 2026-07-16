@@ -1,5 +1,6 @@
 import { clueRanges, getDifficultyLevel } from "../constants/difficultyLevels";
 import type { ChildProfile, SudokuDifficulty, SudokuPuzzleItem, SudokuSize } from "../types";
+import { createUuid } from "./browserCrypto";
 
 export const createEmptyBoard = (size: SudokuSize): number[][] =>
   Array.from({ length: size }, () => Array.from({ length: size }, () => 0));
@@ -212,7 +213,7 @@ export const generatePuzzleByLevel = (level: number): SudokuPuzzleItem => {
   const config = getDifficultyLevel(level);
   const generated = generatePuzzleByConfig(config.size, config.boxRows, config.boxCols, config.difficulty);
   return {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     parentId: "",
     childId: "",
     gradeLevel: "grade1",
@@ -226,7 +227,7 @@ export const generatePuzzleForChild = (child: ChildProfile): SudokuPuzzleItem =>
   const config = getDifficultyLevel(child.currentLevel);
   const generated = generatePuzzleByConfig(config.size, config.boxRows, config.boxCols, config.difficulty);
   return {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     parentId: child.parentId,
     childId: child.id,
     gradeLevel: child.gradeLevel,

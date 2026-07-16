@@ -8,9 +8,21 @@ describe("cloud account endpoint resolution", () => {
     );
   });
 
-  test("uses a same-origin endpoint on Netlify and stays offline locally", () => {
+  test("uses a same-origin endpoint on Netlify and stays offline on localhost", () => {
     expect(resolveCloudApiUrl("kids-sudoku-adventure-cloud.netlify.app")).toBe("/api/cloud");
     expect(resolveCloudApiUrl("localhost")).toBe("");
+  });
+
+  test("connects private-network devices to the shared account API", () => {
+    expect(resolveCloudApiUrl("192.168.31.188")).toBe(
+      "https://kids-sudoku-adventure-cloud.netlify.app/api/cloud"
+    );
+    expect(resolveCloudApiUrl("10.0.0.8")).toBe(
+      "https://kids-sudoku-adventure-cloud.netlify.app/api/cloud"
+    );
+    expect(resolveCloudApiUrl("172.20.10.2")).toBe(
+      "https://kids-sudoku-adventure-cloud.netlify.app/api/cloud"
+    );
   });
 
   test("allows an explicit endpoint override", () => {

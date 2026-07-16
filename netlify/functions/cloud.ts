@@ -63,7 +63,9 @@ const scopedStorage = (storage: AppStorage, parent: ParentAccount, session: Auth
 
 const corsHeaders = (request: Request): HeadersInit => {
   const origin = request.headers.get("origin") ?? "";
-  const allowedOrigin = allowedOrigins.has(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ? origin : "";
+  const isLocalOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const isPrivateNetworkOrigin = /^https?:\/\/(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$/.test(origin);
+  const allowedOrigin = allowedOrigins.has(origin) || isLocalOrigin || isPrivateNetworkOrigin ? origin : "";
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "Content-Type",

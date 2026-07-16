@@ -19,6 +19,7 @@ export const resolveCloudApiUrl = (hostname: string, configured = ""): string =>
   if (configured) return configured;
   if (hostname === "loewe0330.github.io") return GITHUB_PAGES_API;
   if (hostname.endsWith("netlify.app")) return "/api/cloud";
+  if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname)) return GITHUB_PAGES_API;
   return "";
 };
 

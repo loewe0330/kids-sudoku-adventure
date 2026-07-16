@@ -3,6 +3,7 @@ import { getDifficultyLevel } from "../constants/difficultyLevels";
 import { difficultyLabels, gradeLabels, sizeLabels } from "../constants/gradeLabels";
 import { evaluateNextLevel } from "../lib/adaptiveDifficulty";
 import { updateAdventureProgress } from "../lib/adventure";
+import { createUuid } from "../lib/browserCrypto";
 import { calculateCandidates, getGuidedHint, type GuidedHint } from "../lib/hintEngine";
 import { getLevelMethods, getPracticeMethod } from "../lib/methodGuide";
 import { calculateStars } from "../lib/reward";
@@ -94,7 +95,7 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
   const commitRecord = (completed: boolean, gaveUp: boolean, duration = elapsed, mistakeCount = mistakes, hintCount = hints) => {
     if (finished) return;
     const record: PracticeRecord = {
-      id: crypto.randomUUID(),
+      id: createUuid(),
       parentId: child.parentId,
       childId: child.id,
       puzzleId: puzzle.id,
