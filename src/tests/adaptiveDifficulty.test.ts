@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { gradeDefaultLevels } from "../constants/difficultyLevels";
+import { getColdStartPracticeConfig } from "../constants/difficultyLevels";
 import { evaluateNextLevel } from "../lib/adaptiveDifficulty";
 import type { PracticeRecord } from "../types";
 
@@ -26,10 +26,11 @@ const record = (overrides: Partial<PracticeRecord>): PracticeRecord => ({
 });
 
 describe("adaptive difficulty", () => {
-  test("grade defaults match the requested starting levels", () => {
-    expect(gradeDefaultLevels.grade1).toBe(1);
-    expect(gradeDefaultLevels.grade3).toBe(5);
-    expect(gradeDefaultLevels.middle).toBe(10);
+  test("grade cold start maps the first practice without assigning an ability level", () => {
+    expect(getColdStartPracticeConfig("grade1")).toMatchObject({ size: 4, difficulty: "starter", reason: "grade-cold-start" });
+    expect(getColdStartPracticeConfig("grade3")).toMatchObject({ size: 4, difficulty: "normal", reason: "grade-cold-start" });
+    expect(getColdStartPracticeConfig("grade5")).toMatchObject({ size: 6, difficulty: "easy", reason: "grade-cold-start" });
+    expect(getColdStartPracticeConfig("grade6")).toMatchObject({ size: 6, difficulty: "normal", reason: "grade-cold-start" });
   });
 
   test("three excellent completed records upgrade one level", () => {

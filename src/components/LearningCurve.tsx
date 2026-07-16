@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getDifficultyLevel } from "../constants/difficultyLevels";
+import { getAbilityDisplayModel } from "../lib/ability";
 import { difficultyLabels, gradeLabels, sizeLabels } from "../constants/gradeLabels";
 import { getAdventureDisplayContext, getAdventureMap, getAdventureStats } from "../lib/adventure";
 import { getTotalEarnedStars } from "../lib/gamification";
@@ -104,6 +105,7 @@ export function LearningCurve({ child }: LearningCurveProps) {
   const [showAllRecords, setShowAllRecords] = useState(false);
   const [activeInsight, setActiveInsight] = useState<"recent" | "adventure" | "methods" | null>(null);
   const recent = getRecentRecords(child.parentId, child.id, 20);
+  const ability = getAbilityDisplayModel(child, recent);
   const recent10 = recent.slice(0, 10);
   const visibleRecords = showAllRecords ? recent : recent.slice(0, 3);
   const adventureStats = getAdventureStats(child);
@@ -202,7 +204,7 @@ export function LearningCurve({ child }: LearningCurveProps) {
           </div>
         </div>
         <div className="growth-context-chips">
-          <span className="growth-level-chip">能力等级：L{child.currentLevel}</span>
+          <span className="growth-level-chip">能力等级：{ability.title}</span>
           <span className="growth-progress-chip">闯关进度：{adventureContext.progressLabel}</span>
         </div>
         <div className="growth-hero-scene" aria-hidden="true">

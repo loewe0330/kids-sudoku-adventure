@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { getDifficultyLevel } from "../constants/difficultyLevels";
 import { gradeLabels } from "../constants/gradeLabels";
+import { getAbilityDisplayModel } from "../lib/ability";
 import { ChildForm } from "./ChildForm";
 import { createChild, deleteChild, getChildrenByParent, getPracticeRecordsByChild, logoutParent, updateChild } from "../lib/storage";
 import { formatDateTime } from "../lib/time";
@@ -24,7 +24,11 @@ export function ChildSelector({ parent, onChanged, onEnter, onLogout }: ChildSel
       if (editing) {
         updateChild(parent.id, editing.id, input);
       } else {
-        createChild(parent.id, input);
+        const created = createChild(parent.id, input);
+        setShowForm(false);
+        onChanged();
+        onEnter(created.id);
+        return;
       }
       setShowForm(false);
       setEditing(undefined);
@@ -74,13 +78,15 @@ export function ChildSelector({ parent, onChanged, onEnter, onLogout }: ChildSel
           {children.map((child) => {
             const records = getPracticeRecordsByChild(parent.id, child.id);
             const completed = records.filter((record) => record.completed).length;
+            const ability = getAbilityDisplayModel(child, records);
             return (
               <article className="child-card" key={child.id} onClick={() => onEnter(child.id)}>
                 <div className={`avatar avatar-${child.avatar ?? "sun"}`}>{child.name.slice(0, 1)}</div>
                 <div>
                   <h3>{child.name}</h3>
                   <p>{gradeLabels[child.gradeLevel]}</p>
-                  <p>{getDifficultyLevel(child.currentLevel).label}</p>
+                  <p>能力等级：{ability.title}</p>
+                  <p>{ability.subtitle}</p>
                   <p>已完成 {completed} 题 · 最近 {formatDateTime(records[0]?.finishedAt ?? records[0]?.startedAt)}</p>
                 </div>
                 <div className="card-actions" onClick={(event) => event.stopPropagation()}>

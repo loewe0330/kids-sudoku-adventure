@@ -67,6 +67,9 @@ describe("PracticeWorkspace copy", () => {
     expect(screen.getByRole("heading", { name: "今日推荐练习" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "推荐" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("heading", { name: "今日推荐" })).toBeTruthy();
+    expect(screen.getByText("年级起步")).toBeTruthy();
+    expect(screen.getByText("4×4")).toBeTruthy();
+    expect(screen.getByText("中等")).toBeTruthy();
     expect(screen.getByRole("button", { name: "开始今日练习" })).toBeTruthy();
     expect(document.querySelectorAll(".recommended-practice-card")).toHaveLength(1);
     expect(document.querySelectorAll(".practice-choice-card")).toHaveLength(0);

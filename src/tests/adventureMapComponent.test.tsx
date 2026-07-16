@@ -71,13 +71,13 @@ describe("AdventureMap", () => {
     expect(onOpenChapter).toHaveBeenCalledWith(2);
   });
 
-  test("separates a higher ability level from an unstarted adventure route", () => {
+  test("keeps an unstarted adventure route independent from an internal ability value", () => {
     const highAbilityChild = { ...child([]), currentLevel: 7 };
     render(<AdventureMap child={highAbilityChild} onStartStage={vi.fn()} />);
 
-    expect(screen.getByText("能力等级").parentElement?.textContent).toContain("L7 九宫格勇士");
+    expect(screen.getByText("能力等级").parentElement?.textContent).toContain("待探索");
     expect(screen.getByText("闯关进度").parentElement?.textContent).toContain("L1-1 数字小苗村");
-    expect(screen.getByText("能力已到 L7，闯关地图可从 L1-1 开始补星。")).toBeTruthy();
+    expect(screen.getByText("能力等级和闯关进度会分别记录，完成小关即可继续点亮地图。")).toBeTruthy();
     expect(screen.getByRole("button", { name: /L1 数字小苗村，当前挑战/ })).toBeTruthy();
   });
 

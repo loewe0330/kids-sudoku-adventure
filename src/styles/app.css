@@ -293,6 +293,7 @@ fieldset { border: 0; padding: 0; margin: 0; font-weight: 850; }
 .avatar-leaf { background: var(--sky); }
 .avatar-moon { background: var(--lake); color: #fff; }
 .avatar-heart { background: var(--trail); color: #fff; }
+.avatar-none { background: #fffdf4; color: var(--muted); font-size: 0.75rem; }
 .child-grid, .puzzle-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));

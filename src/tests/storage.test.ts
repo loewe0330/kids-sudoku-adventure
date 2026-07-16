@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest";
+import { APP_STORAGE_KEY } from "../data/storageSchema";
 import {
   addPracticeRecord,
   addPuzzleToBank,
@@ -120,6 +121,51 @@ describe("test-version account repository", () => {
     expect(() => createChild(parent.id, { name: "多多", gradeLevel: "grade5", smartDifficultyEnabled: true })).not.toThrow();
   });
 
+  test("new child starts at L1-1 without treating grade as an ability result", async () => {
+    const parent = await createParentAccount(parentInput("parent-cold-start"));
+    const child = createChild(parent.id, { name: "安安", gradeLevel: "grade3" });
+
+    expect(child).toMatchObject({ currentLevel: 1, abilityAssessmentStatus: "unassessed" });
+    expect(child.adventureProgress).toHaveLength(1);
+    expect(child.adventureProgress[0]).toMatchObject({ level: 1, stageIndex: 1, unlocked: true, completed: false });
+
+    updateChild(parent.id, child.id, { name: "安安改", gradeLevel: "grade4" });
+    const saved = getChildrenByParent(parent.id)[0];
+    expect(saved).toMatchObject({ name: "安安改", gradeLevel: "grade4", currentLevel: 1 });
+  });
+
+  test("legacy children keep their ability level and adventure progress during normalization", () => {
+    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify({
+      children: [{
+        id: "legacy-child",
+        parentId: "legacy-parent",
+        name: "乐乐",
+        gradeLevel: "grade5",
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-02T00:00:00.000Z",
+        smartDifficultyEnabled: true,
+        currentLevel: 7,
+        adventureProgress: [{
+          parentId: "legacy-parent",
+          childId: "legacy-child",
+          level: 2,
+          stageIndex: 3,
+          bestStars: 2,
+          completed: true,
+          unlocked: true,
+          createdAt: "2026-01-02T00:00:00.000Z",
+          updatedAt: "2026-01-02T00:00:00.000Z"
+        }]
+      }],
+      practiceRecords: [],
+      puzzleBank: []
+    }));
+
+    const legacy = getAppStorage().children[0];
+    expect(legacy.currentLevel).toBe(7);
+    expect(legacy.adventureProgress[0]).toMatchObject({ level: 2, stageIndex: 3, bestStars: 2 });
+  });
+
   test("parent and child data are isolated by parentId and childId", async () => {
     const parentA = await createParentAccount(parentInput("parent-a"));
     const parentB = await createParentAccount(parentInput("parent-b"));
@@ -140,7 +186,7 @@ describe("test-version account repository", () => {
     expect(getPracticeRecordsByChild(parentA.id, childA.id)).toHaveLength(1);
     expect(getPracticeRecordsByChild(parentA.id, sibling.id)).toHaveLength(1);
     expect(getPracticeRecordsByParent(parentB.id)).toHaveLength(1);
-    expect(getChildrenByParent(parentA.id).find((child) => child.id === sibling.id)?.currentLevel).toBe(5);
+    expect(getChildrenByParent(parentA.id).find((child) => child.id === sibling.id)?.currentLevel).toBe(1);
   });
 
   test("deleting a parent clears children puzzles records and active sessions", async () => {

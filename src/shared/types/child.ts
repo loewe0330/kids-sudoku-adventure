@@ -1,6 +1,7 @@
 export type {
   ChildProfile,
   ChildProfileInput,
+  AbilityAssessmentStatus,
   ChildSettings,
   ChildSettingsRecord,
   GradeLevel,

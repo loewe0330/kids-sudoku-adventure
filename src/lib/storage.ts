@@ -1,4 +1,4 @@
-import { gradeDefaultLevels } from "../constants/difficultyLevels";
+import { clampLevel } from "../constants/difficultyLevels";
 import { APP_STORAGE_KEY } from "../data/storageSchema";
 import type {
   AdminAccount,
@@ -56,8 +56,10 @@ const isStorageLike = (value: unknown): value is Partial<AppStorage> => {
 
 const normalizeChild = (child: ChildProfile): ChildProfile => {
   const fallbackTimestamp = child.updatedAt ?? child.createdAt ?? nowIso();
+  const currentLevel = clampLevel(typeof child.currentLevel === "number" ? child.currentLevel : 1);
   return {
     ...child,
+    currentLevel,
     settings: {
       soundEnabled: child.settings?.soundEnabled ?? false,
       immediateErrorFeedback: child.settings?.immediateErrorFeedback ?? true,
@@ -353,17 +355,29 @@ export const createChild = (parentId: string, input: ChildProfileInput): ChildPr
   const existing = getChildrenByParent(parentId);
   if (existing.length >= 2) throw new Error("当前测试版每个家长账号最多创建 2 个学习账号。");
   const timestamp = nowIso();
+  const childId = createUuid();
   const child: ChildProfile = {
-    id: createUuid(),
+    id: childId,
     parentId,
     name: input.name.trim(),
     gradeLevel: input.gradeLevel,
     avatar: input.avatar,
     createdAt: timestamp,
     updatedAt: timestamp,
-    smartDifficultyEnabled: input.smartDifficultyEnabled,
-    currentLevel: gradeDefaultLevels[input.gradeLevel],
-    adventureProgress: [],
+    smartDifficultyEnabled: input.smartDifficultyEnabled ?? true,
+    currentLevel: 1,
+    abilityAssessmentStatus: "unassessed",
+    adventureProgress: [{
+      parentId,
+      childId,
+      level: 1,
+      stageIndex: 1,
+      bestStars: 0,
+      completed: false,
+      unlocked: true,
+      createdAt: timestamp,
+      updatedAt: timestamp
+    }],
     settings: {
       soundEnabled: false,
       immediateErrorFeedback: true,

@@ -63,9 +63,32 @@ describe("adventure map", () => {
     expect(map.find((stage) => stage.level === 2 && stage.stageIndex === 1)?.unlocked).toBe(true);
   });
 
-  test("smart currentLevel unlocks the matching big level", () => {
-    const map = getAdventureMap(child({ currentLevel: 4 }));
-    expect(map.find((stage) => stage.level === 4 && stage.stageIndex === 1)?.unlocked).toBe(true);
+  test("keeps L7 and L11 locked when only the ability level is higher", () => {
+    const levelSevenMap = getAdventureMap(child({ currentLevel: 7, abilityAssessmentStatus: "established" }));
+    const levelElevenMap = getAdventureMap(child({ currentLevel: 11, abilityAssessmentStatus: "established" }));
+
+    expect(levelSevenMap.find((stage) => stage.level === 1 && stage.stageIndex === 1)?.unlocked).toBe(true);
+    expect(levelSevenMap.find((stage) => stage.level === 7 && stage.stageIndex === 1)?.unlocked).toBe(false);
+    expect(levelElevenMap.find((stage) => stage.level === 11 && stage.stageIndex === 1)?.unlocked).toBe(false);
+    expect(getRecommendedAdventureStage(child({ currentLevel: 7, abilityAssessmentStatus: "established" }))?.title).toContain("L1-1");
+  });
+
+  test("preserves explicitly saved unlocked stages from existing adventure progress", () => {
+    const progress: AdventureStageProgress[] = [{
+      parentId: "parent-a",
+      childId: "child-a",
+      level: 3,
+      stageIndex: 1,
+      bestStars: 2,
+      completed: false,
+      unlocked: true,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z"
+    }];
+    const map = getAdventureMap(child({ currentLevel: 1, adventureProgress: progress }));
+
+    expect(map.find((stage) => stage.level === 3 && stage.stageIndex === 1)).toMatchObject({ unlocked: true, bestStars: 2 });
+    expect(map.find((stage) => stage.level === 3 && stage.stageIndex === 2)?.unlocked).toBe(false);
   });
 
   test("progress is read from the provided child only", () => {

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getDifficultyLevel } from "../constants/difficultyLevels";
 import { difficultyLabels, gradeLabels, sizeLabels } from "../constants/gradeLabels";
 import { ROUTES, childAdventurePath, childPath, matchChildRoute, type ChildRouteSection, type PracticeTab } from "./routes";
 import { AdminDashboard, AdminLogin } from "../features/admin";
@@ -17,6 +16,7 @@ import {
   getAppStorage,
   getCurrentParent,
   getCurrentSession,
+  getPracticeRecordsByChild,
   getPuzzlesByChild,
   initDefaultAdminIfNeeded,
   logoutParent,
@@ -24,6 +24,7 @@ import {
   updateCurrentParentPassword,
   updateChild
 } from "../lib/storage";
+import { getAbilityDisplayModel } from "../lib/ability";
 import { generatePracticePuzzle, generateReplacementPuzzle } from "../lib/practiceRules";
 import { generatePuzzleForChild } from "../lib/sudoku";
 import { isCloudAccountEnabled } from "../lib/cloudClient";
@@ -56,6 +57,10 @@ export default function App() {
   const session = useMemo(() => getCurrentSession(), [version]);
   const parent = useMemo(() => getCurrentParent(), [version]);
   const child = useMemo(() => getActiveChild(), [version]);
+  const ability = useMemo(
+    () => child ? getAbilityDisplayModel(child, getPracticeRecordsByChild(child.parentId, child.id)) : null,
+    [child, version]
+  );
   const adventureLevel = useMemo(() => {
     const matched = matchChildRoute(path);
     return matched?.section === "adventure" ? matched.adventureLevel : undefined;
@@ -185,11 +190,15 @@ export default function App() {
   const startPracticeBySource = (source: Exclude<PracticeSource, "custom" | "bank" | "stage">) => {
     const current = getActiveChild();
     if (!current) return;
+    const currentAbility = getAbilityDisplayModel(current, getPracticeRecordsByChild(current.parentId, current.id));
+    const practiceLevel = source === "smart" && currentAbility.status === "unassessed"
+      ? currentAbility.recommendedConfig.level
+      : current.currentLevel;
     startPuzzle(generatePracticePuzzle({
       parentId: current.parentId,
       childId: current.id,
       gradeLevel: current.gradeLevel,
-      currentLevel: current.currentLevel,
+      currentLevel: practiceLevel,
       source
     }), "practice", undefined, source);
   };
@@ -265,7 +274,7 @@ export default function App() {
             <h1>数独探险家</h1>
             <p>
               <span>{child.name} · {gradeLabels[child.gradeLevel]}</span>
-              <span className="child-level-summary"> · 能力等级：{getDifficultyLevel(child.currentLevel).label}</span>
+              <span className="child-level-summary"> · 能力等级：{ability?.title}</span>
             </p>
           </div>
         </div>
@@ -470,7 +479,7 @@ export default function App() {
       )}
 
       <footer className="app-footer no-print">
-        {isCloudAccountEnabled() ? "账号与学习数据已启用跨设备同步，当前浏览器保留本地缓存。" : "当前为本地测试模式，数据保存在当前浏览器。"}{child.name} · {getDifficultyLevel(child.currentLevel).label} · {sizeLabels[getDifficultyLevel(child.currentLevel).size]} · {difficultyLabels[getDifficultyLevel(child.currentLevel).difficulty]}
+        {isCloudAccountEnabled() ? "账号与学习数据已启用跨设备同步，当前浏览器保留本地缓存。" : "当前为本地测试模式，数据保存在当前浏览器。"}{child.name} · {ability?.title} · {ability ? `${sizeLabels[ability.recommendedConfig.size]} ${difficultyLabels[ability.recommendedConfig.difficulty]}` : ""}
       </footer>
 
       <nav className="mobile-bottom-nav no-print" aria-label="手机端主导航">

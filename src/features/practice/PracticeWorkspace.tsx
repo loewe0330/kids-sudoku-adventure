@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { getDifficultyLevel } from "../../constants/difficultyLevels";
 import { difficultyLabels, gradeLabels, sizeLabels } from "../../constants/gradeLabels";
+import { getAbilityDisplayModel } from "../../lib/ability";
 import { getCustomPracticeValidity, getPracticeLevelForSource, getAllowedCustomDifficulties } from "../../lib/practiceRules";
+import { getPracticeRecordsByChild } from "../../lib/storage";
 import type { ChildProfile, PracticeSource, SudokuDifficulty, SudokuPuzzleItem, SudokuSize } from "../../types";
 import { PuzzleBank } from "../../components/PuzzleBank";
 import type { PracticeTab } from "../../app/routes";
@@ -39,6 +41,7 @@ export function PracticeWorkspace({
   const [useSuggestedTime, setUseSuggestedTime] = useState(true);
   const allowedDifficulties = getAllowedCustomDifficulties(manual.size);
   const customValidity = getCustomPracticeValidity(manual.size, manual.difficulty);
+  const ability = getAbilityDisplayModel(child, getPracticeRecordsByChild(child.parentId, child.id));
   const quickOptions: Array<{
     source: Exclude<PracticeSource, "custom" | "bank" | "stage">;
     title: string;
@@ -52,7 +55,9 @@ export function PracticeWorkspace({
   ];
   const selectedOption = quickOptions.find((option) => option.source === recommendedMode) ?? quickOptions[0];
   const selectedLevel = getPracticeLevelForSource(child.currentLevel, selectedOption.source);
-  const selectedConfig = getDifficultyLevel(selectedLevel);
+  const selectedConfig = selectedOption.source === "smart" && ability.status === "unassessed"
+    ? ability.recommendedConfig
+    : getDifficultyLevel(selectedLevel);
   const customDifficultyOptions = useMemo(
     () => allowedDifficulties.map((difficulty) => ({ value: difficulty, label: difficultyLabels[difficulty] })),
     [allowedDifficulties]
@@ -88,7 +93,7 @@ export function PracticeWorkspace({
             <div>
               <p className="eyebrow">今日推荐</p>
               <h3>今日推荐练习</h3>
-              <p>系统根据你的当前水平，为你准备了一道适合今天的题。</p>
+              <p>{ability.status === "unassessed" ? "先从适合年级的第一题开始，系统会慢慢了解你。" : "系统根据你的当前水平，为你准备了一道适合今天的题。"}</p>
             </div>
             <div className="practice-mode-switcher" role="group" aria-label="推荐练习模式">
               {quickOptions.map((option) => (
@@ -109,7 +114,7 @@ export function PracticeWorkspace({
               <h4>{selectedOption.title}</h4>
               <p>{selectedOption.description}</p>
               <div className="quest-meta-row">
-                <span>L{selectedLevel}</span>
+                <span>{ability.status === "unassessed" && selectedOption.source === "smart" ? "年级起步" : `L${selectedLevel}`}</span>
                 <span>{sizeLabels[selectedConfig.size]}</span>
                 <span>{difficultyLabels[selectedConfig.difficulty]}</span>
               </div>

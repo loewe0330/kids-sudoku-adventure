@@ -87,7 +87,7 @@ describe("ChildDashboard", () => {
     const task = within(screen.getByRole("article", { name: "今日任务" }));
     expect(task.getByRole("heading", { name: "欢迎回来，安安！" })).toBeTruthy();
     expect(task.getByRole("heading", { name: "继续挑战 L1-1 数字小苗村" })).toBeTruthy();
-    expect(task.getByText("能力等级").parentElement?.textContent).toContain("L5 数独小侦探");
+    expect(task.getByText("能力等级").parentElement?.textContent).toContain("待探索");
     expect(task.getByText("闯关进度").parentElement?.textContent).toContain("L1-1 数字小苗村");
     expect(task.getByText("今日完成").parentElement?.textContent).toContain("0");
     expect(task.getByText("当前进度").parentElement?.textContent).toContain("0/5");
@@ -95,7 +95,7 @@ describe("ChildDashboard", () => {
     expect(task.getAllByLabelText(/L1-\d/)).toHaveLength(5);
 
     const practice = within(screen.getByRole("article", { name: "自由练习入口" }));
-    expect(practice.getByText("推荐题型：").parentElement?.textContent).toContain("6×6");
+    expect(practice.getByText("推荐题型：").parentElement?.textContent).toContain("4×4");
 
     const growth = within(screen.getByRole("article", { name: "成长报告入口" }));
     expect(growth.getByText("累计星星").parentElement?.textContent).toContain("0");

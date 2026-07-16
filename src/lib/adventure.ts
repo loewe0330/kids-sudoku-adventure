@@ -1,4 +1,6 @@
 import { getDifficultyLevel } from "../constants/difficultyLevels";
+import { getAbilityDisplayModel } from "./ability";
+import { getPracticeRecordsByChild } from "./storage";
 import { getLevelTitle } from "../constants/levelTitles";
 import type { AdventureStage, AdventureStageProgress, ChildProfile } from "../types";
 
@@ -32,12 +34,10 @@ const completedCountForLevel = (progress: AdventureStageProgress[], level: numbe
 const isStageUnlocked = (
   level: number,
   stageIndex: number,
-  child: ChildProfile,
   progress: AdventureStageProgress[],
   byKey: Map<string, AdventureStageProgress>
 ): boolean => {
   if (level === 1 && stageIndex === 1) return true;
-  if (child.currentLevel >= level && stageIndex === 1) return true;
   if (stageIndex > 1) return Boolean(byKey.get(progressKey(level, stageIndex - 1))?.completed);
   return completedCountForLevel(progress, level - 1) >= 3;
 };
@@ -59,7 +59,7 @@ export const getAdventureMap = (child: ChildProfile): AdventureStage[] => {
         requiredStarsToUnlock: level === 1 && stageIndex === 1 ? 0 : 1,
         bestStars: item?.bestStars ?? 0,
         completed: item?.completed ?? false,
-        unlocked: item?.unlocked || isStageUnlocked(level, stageIndex, child, progress, byKey),
+        unlocked: item?.unlocked || isStageUnlocked(level, stageIndex, progress, byKey),
         recommended: false
       });
     }
@@ -76,18 +76,18 @@ export const getRecommendedAdventureStage = (child: ChildProfile): AdventureStag
   getAdventureMap(child).find((stage) => stage.recommended);
 
 export const getAdventureDisplayContext = (child: ChildProfile) => {
-  const ability = getDifficultyLevel(child.currentLevel);
+  const ability = getAbilityDisplayModel(child, getPracticeRecordsByChild(child.parentId, child.id));
   const recommendedStage = getRecommendedAdventureStage(child);
   const progressLabel = recommendedStage
     ? `L${recommendedStage.level}-${recommendedStage.stageIndex} ${recommendedStage.levelName}`
     : "暂无推荐关卡";
-  const gapMessage = recommendedStage && child.currentLevel > recommendedStage.level
+  const gapMessage = ability.status === "established" && recommendedStage && child.currentLevel > recommendedStage.level
     ? `能力已到 L${child.currentLevel}，闯关地图可从 L${recommendedStage.level}-${recommendedStage.stageIndex} 开始补星。`
     : "能力等级和闯关进度会分别记录，完成小关即可继续点亮地图。";
 
   return {
     ability,
-    abilityLabel: ability.label,
+    abilityLabel: ability.title,
     recommendedStage,
     progressLabel,
     gapMessage
@@ -159,6 +159,6 @@ export const getAdventureStats = (child: ChildProfile) => {
     completedStageCount: completedStages.length,
     threeStarStageCount: threeStarStages.length,
     recommendedStage,
-    currentTitle: getDifficultyLevel(child.currentLevel).label
+    currentTitle: getAbilityDisplayModel(child, getPracticeRecordsByChild(child.parentId, child.id)).title
   };
 };

@@ -37,20 +37,37 @@ export const difficultyLevels: DifficultyLevelConfig[] = [
   level(11, 9, 3, 3, "challenge", 1920, 6, 3)
 ];
 
-export const gradeDefaultLevels: Record<GradeLevel, number> = {
+const gradeColdStartLevels: Record<GradeLevel, number> = {
   grade1: 1,
-  grade2: 3,
-  grade3: 5,
-  grade4: 7,
-  grade5: 8,
-  grade6: 9,
-  middle: 10
+  grade2: 2,
+  grade3: 3,
+  grade4: 4,
+  grade5: 5,
+  grade6: 6,
+  middle: 7
 };
 
 export const getDifficultyLevel = (levelNumber: number): DifficultyLevelConfig =>
   difficultyLevels.find((item) => item.level === levelNumber) ?? difficultyLevels[0];
 
 export const clampLevel = (levelNumber: number): number => Math.min(11, Math.max(1, levelNumber));
+
+export interface ColdStartPracticeConfig {
+  level: number;
+  size: SudokuSize;
+  difficulty: SudokuDifficulty;
+  reason: "grade-cold-start";
+}
+
+export const getColdStartPracticeConfig = (gradeLevel: GradeLevel): ColdStartPracticeConfig => {
+  const config = getDifficultyLevel(gradeColdStartLevels[gradeLevel]);
+  return {
+    level: config.level,
+    size: config.size,
+    difficulty: config.difficulty,
+    reason: "grade-cold-start"
+  };
+};
 
 export const clueRanges: Record<SudokuSize, Record<SudokuDifficulty, [number, number]>> = {
   4: {

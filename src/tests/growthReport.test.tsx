@@ -120,7 +120,7 @@ describe("LearningCurve record disclosure", () => {
     fireEvent.click(screen.getByRole("button", { name: /方法掌握/ }));
     expect(screen.getByRole("heading", { name: "方法掌握" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "返回成长洞察" }));
-    expect(screen.getByText("能力等级：L1")).toBeTruthy();
+    expect(screen.getByText("能力等级：L1 数字小苗")).toBeTruthy();
     expect(screen.getByText(/闯关进度：L1-1 数字小苗村/)).toBeTruthy();
     expect(screen.queryByRole("row")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "展开练习日志" }));

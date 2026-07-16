@@ -104,19 +104,28 @@ describe("cross-page UI actions", () => {
     render(<ChildSelector parent={parent} onChanged={onChanged} onEnter={onEnter} onLogout={onLogout} />);
 
     fireEvent.change(screen.getByLabelText("孩子昵称"), { target: { value: "安安" } });
-    fireEvent.click(screen.getByRole("button", { name: "star" }));
-    fireEvent.click(screen.getByRole("button", { name: "创建孩子" }));
+    expect(screen.queryByText("能力起步")).toBeNull();
+    expect(screen.queryByLabelText("起步等级")).toBeNull();
+    expect(screen.queryByText("开启智能难度")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "创建孩子档案" }));
     await waitFor(() => expect(getChildrenByParent(parent.id)).toHaveLength(1));
+    expect(getChildrenByParent(parent.id)[0]).toMatchObject({
+      currentLevel: 1,
+      abilityAssessmentStatus: "unassessed"
+    });
+    expect(onEnter).toHaveBeenCalledWith(getChildrenByParent(parent.id)[0].id);
 
     const card = screen.getByText("安安").closest("article");
     expect(card).toBeTruthy();
+    expect(within(card!).getByText("能力等级：待探索")).toBeTruthy();
     fireEvent.click(within(card!).getByRole("button", { name: "进入练习" }));
-    expect(onEnter).toHaveBeenCalledWith(getChildrenByParent(parent.id)[0].id);
+    expect(onEnter).toHaveBeenCalledTimes(2);
 
     fireEvent.click(within(card!).getByRole("button", { name: "编辑" }));
     fireEvent.change(screen.getByLabelText("孩子昵称"), { target: { value: "安安改" } });
     fireEvent.click(screen.getByRole("button", { name: "保存" }));
     await waitFor(() => expect(getChildrenByParent(parent.id)[0].name).toBe("安安改"));
+    expect(getChildrenByParent(parent.id)[0]).toMatchObject({ currentLevel: 1, abilityAssessmentStatus: "unassessed" });
 
     const editedCard = screen.getByText("安安改").closest("article");
     expect(editedCard).toBeTruthy();

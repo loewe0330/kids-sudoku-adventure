@@ -61,9 +61,12 @@ export interface ChildProfile {
   updatedAt: string;
   smartDifficultyEnabled: boolean;
   currentLevel: number;
+  abilityAssessmentStatus?: AbilityAssessmentStatus;
   settings: ChildSettings;
   adventureProgress: AdventureStageProgress[];
 }
+
+export type AbilityAssessmentStatus = "unassessed" | "provisional" | "established";
 
 export interface ChildSettings {
   soundEnabled: boolean;
@@ -137,7 +140,7 @@ export interface ChildProfileInput {
   name: string;
   gradeLevel: GradeLevel;
   avatar?: string;
-  smartDifficultyEnabled: boolean;
+  smartDifficultyEnabled?: boolean;
 }
 
 export interface ParentAccountInput {

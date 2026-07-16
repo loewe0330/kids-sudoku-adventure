@@ -1,5 +1,5 @@
-import { getDifficultyLevel } from "../constants/difficultyLevels";
 import { sizeLabels } from "../constants/gradeLabels";
+import { getAbilityDisplayModel, type AbilityDisplayModel } from "../lib/ability";
 import { getAdventureDisplayContext, getAdventureMap, getAdventureStats } from "../lib/adventure";
 import { getTotalEarnedStars } from "../lib/gamification";
 import { getPracticeRecordsByChild } from "../lib/storage";
@@ -28,6 +28,7 @@ const getStageState = (stage: AdventureStage): { className: string; label: strin
 
 function TodayTaskCard({
   child,
+  ability,
   stages,
   progressLabel,
   gapMessage,
@@ -37,6 +38,7 @@ function TodayTaskCard({
   onOpenAdventure
 }: {
   child: ChildProfile;
+  ability: AbilityDisplayModel;
   stages: AdventureStage[];
   progressLabel: string;
   gapMessage: string;
@@ -57,7 +59,7 @@ function TodayTaskCard({
         <h3>继续挑战 {taskLabel}</h3>
         <p>沿着地图前进，一关一关点亮星星。</p>
         <dl className="today-task-context">
-          <div><dt>能力等级</dt><dd>{getDifficultyLevel(child.currentLevel).label}</dd></div>
+          <div><dt>能力等级</dt><dd>{ability.title}</dd></div>
           <div><dt>闯关进度</dt><dd>{progressLabel}</dd></div>
         </dl>
         <p className="today-task-note">{gapMessage}</p>
@@ -95,8 +97,8 @@ function TodayTaskCard({
   );
 }
 
-function PracticeEntryCard({ child, onOpenPractice }: { child: ChildProfile; onOpenPractice: () => void }) {
-  const config = getDifficultyLevel(child.currentLevel);
+function PracticeEntryCard({ ability, onOpenPractice }: { ability: AbilityDisplayModel; onOpenPractice: () => void }) {
+  const config = ability.recommendedConfig;
   return (
     <article className="home-support-card practice-support-card" aria-label="自由练习入口">
       <div className="support-card-icon practice" aria-hidden="true"><span>4</span></div>
@@ -104,7 +106,7 @@ function PracticeEntryCard({ child, onOpenPractice }: { child: ChildProfile; onO
         <p className="eyebrow">辅助入口</p>
         <h2>自由练习</h2>
         <p>不受闯关限制，自由选择题型和难度。</p>
-        <p className="support-card-meta"><strong>推荐题型：</strong>{sizeLabels[config.size]} · 练习选择 / 我的题库 / 批量出题 / 打印练习</p>
+        <p className="support-card-meta"><strong>推荐题型：</strong>{sizeLabels[config.size]} · {ability.title}</p>
         <button onClick={onOpenPractice}>进入自由练习</button>
       </div>
     </article>
@@ -163,6 +165,7 @@ function BottomTrailAnimation() {
 
 export function ExplorerHomePage({ child, onOpenPractice, onOpenCurve, onOpenAdventure }: ChildDashboardProps) {
   const records = getPracticeRecordsByChild(child.parentId, child.id);
+  const ability = getAbilityDisplayModel(child, records);
   const summary = getChildSummary(child.parentId, child.id);
   const adventureStats = getAdventureStats(child);
   const adventureContext = getAdventureDisplayContext(child);
@@ -179,6 +182,7 @@ export function ExplorerHomePage({ child, onOpenPractice, onOpenCurve, onOpenAdv
       <section className="home-dashboard-grid">
         <TodayTaskCard
           child={child}
+          ability={ability}
           stages={currentStages}
           progressLabel={adventureContext.progressLabel}
           gapMessage={adventureContext.gapMessage}
@@ -189,7 +193,7 @@ export function ExplorerHomePage({ child, onOpenPractice, onOpenCurve, onOpenAdv
         />
         <aside className="home-side-panel" aria-label="辅助入口与探索风景">
           <section className="home-support-grid" aria-label="辅助入口">
-            <PracticeEntryCard child={child} onOpenPractice={onOpenPractice} />
+            <PracticeEntryCard ability={ability} onOpenPractice={onOpenPractice} />
             <GrowthEntryCard
               totalStars={getTotalEarnedStars(records)}
               completedStages={adventureStats.completedStageCount}
