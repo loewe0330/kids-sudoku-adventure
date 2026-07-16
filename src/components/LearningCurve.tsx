@@ -102,6 +102,7 @@ function CompactRecordTable({ records, expanded }: { records: PracticeRecord[]; 
 export function LearningCurve({ child }: LearningCurveProps) {
   const [recordsOpen, setRecordsOpen] = useState(false);
   const [showAllRecords, setShowAllRecords] = useState(false);
+  const [activeInsight, setActiveInsight] = useState<"recent" | "adventure" | "methods" | null>(null);
   const recent = getRecentRecords(child.parentId, child.id, 20);
   const recent10 = recent.slice(0, 10);
   const visibleRecords = showAllRecords ? recent : recent.slice(0, 3);
@@ -137,6 +138,56 @@ export function LearningCurve({ child }: LearningCurveProps) {
   const nextSuggestion = recommended
     ? `继续完成 L${recommended.level}-${recommended.stageIndex}，熟悉${touchedMethods.map((method) => method.shortTitle).join("和")}。`
     : "完成一题后，这里会给出下一步练习建议。";
+
+  const recentPerformanceCard = (
+    <section className="growth-section recent-performance-card explorer-card" aria-labelledby="recent-performance-title">
+      <div className="growth-section-heading">
+        <div><h3 id="recent-performance-title"><span aria-hidden="true">↗</span>最近表现</h3></div>
+      </div>
+      <div className="recent-performance-metrics">
+        <span><strong>{recent.length === 0 ? "暂无" : `${recentCompletionRate}%`}</strong><small>最近完成率</small></span>
+        <span><strong>{recent.length === 0 ? "暂无" : formatDuration(recentAverageDuration)}</strong><small>平均用时</small></span>
+        <span><strong>{recent.length === 0 ? "暂无" : recentAverageHints.toFixed(1)}</strong><small>平均提示</small></span>
+      </div>
+      <p className="growth-learning-comment">{growthConclusion}</p>
+    </section>
+  );
+
+  const adventureProgressCard = (
+    <section className="growth-section adventure-progress-card explorer-card" aria-labelledby="adventure-progress-title">
+      <div className="growth-section-heading">
+        <div><h3 id="adventure-progress-title"><span aria-hidden="true">⚑</span>闯关进度</h3></div>
+        <span className="recommended-stage-chip">推荐 {recommendedLabel}</span>
+      </div>
+      <div className="adventure-progress-summary">
+        <span><strong>L{currentAdventureLevel}</strong><small>当前大关</small></span>
+        <span><strong>{recommendedLabel}</strong><small>推荐关卡</small></span>
+        <span><strong>{completedCurrentStages}</strong><small>已完成小关</small></span>
+        <span><strong>{adventureStats.threeStarStageCount}</strong><small>3 星小关</small></span>
+      </div>
+      <div className="growth-stage-route" aria-label={`L${currentAdventureLevel} 小关路径`}>
+        {currentStages.map((stage) => (
+          <span key={`${stage.level}-${stage.stageIndex}`} className={stage.completed ? "completed" : stage.recommended ? "current" : stage.unlocked ? "available" : "locked"}>
+            <strong>L{stage.level}-{stage.stageIndex}</strong>
+            <small>{stage.completed ? `${"★".repeat(stage.bestStars)}${"☆".repeat(3 - stage.bestStars)}` : stage.recommended ? "待挑战" : stage.unlocked ? "可挑战" : "未解锁"}</small>
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+
+  const methodMasteryCard = (
+    <section className="growth-section method-mastery-card explorer-card" aria-labelledby="method-mastery-title">
+      <div className="growth-section-heading">
+        <div><h3 id="method-mastery-title"><span aria-hidden="true">●</span>方法掌握</h3></div>
+      </div>
+      <div className="method-mastery-groups">
+        <div><small>已接触方法</small><p>{touchedMethods.map((method) => <span key={method.id}>{method.shortTitle}</span>)}</p></div>
+        <div><small>建议继续练</small><p><span className="suggested">{suggestedMethod?.shortTitle ?? "观察法"}</span></p></div>
+        <div><small>下一步方法</small><p><span className="next">{nextMethod?.shortTitle ?? "排除法"}</span></p></div>
+      </div>
+    </section>
+  );
 
   return (
     <main className="learning-page growth-report-page map-shell explorer-journal">
@@ -177,53 +228,32 @@ export function LearningCurve({ child }: LearningCurveProps) {
 
       <section className="growth-section growth-insights-panel explorer-card" aria-labelledby="growth-insights-title">
         <div className="growth-section-heading growth-insights-heading">
-          <div><h3 id="growth-insights-title">成长洞察</h3></div>
+          <div><h3 id="growth-insights-title">{activeInsight ? "洞察详情" : "成长洞察"}</h3></div>
+          {activeInsight && (
+            <button type="button" className="secondary growth-insight-back" onClick={() => setActiveInsight(null)}>
+              返回成长洞察
+            </button>
+          )}
         </div>
-        <div className="growth-insight-grid">
-        <section className="growth-section recent-performance-card explorer-card" aria-labelledby="recent-performance-title">
-          <div className="growth-section-heading">
-            <div><h3 id="recent-performance-title"><span aria-hidden="true">↗</span>最近表现</h3></div>
+        {activeInsight ? (
+          <div className="growth-insight-detail" data-testid="growth-insight-detail">
+            {activeInsight === "recent" && recentPerformanceCard}
+            {activeInsight === "adventure" && adventureProgressCard}
+            {activeInsight === "methods" && methodMasteryCard}
           </div>
-          <div className="recent-performance-metrics">
-            <span><strong>{recent.length === 0 ? "暂无" : `${recentCompletionRate}%`}</strong><small>最近完成率</small></span>
-            <span><strong>{recent.length === 0 ? "暂无" : formatDuration(recentAverageDuration)}</strong><small>平均用时</small></span>
-            <span><strong>{recent.length === 0 ? "暂无" : recentAverageHints.toFixed(1)}</strong><small>平均提示</small></span>
+        ) : (
+          <div className="growth-insight-entry-grid">
+            <button type="button" className="growth-insight-entry recent" onClick={() => setActiveInsight("recent")}>
+              <span aria-hidden="true">↗</span><strong>最近表现</strong><small>{recent.length === 0 ? "完成练习后查看分析" : `完成率 ${recentCompletionRate}%`}</small><em>查看详情</em>
+            </button>
+            <button type="button" className="growth-insight-entry adventure" onClick={() => setActiveInsight("adventure")}>
+              <span aria-hidden="true">⚑</span><strong>闯关进度</strong><small>推荐 {recommendedLabel}</small><em>查看详情</em>
+            </button>
+            <button type="button" className="growth-insight-entry methods" onClick={() => setActiveInsight("methods")}>
+              <span aria-hidden="true">●</span><strong>方法掌握</strong><small>继续练 {suggestedMethod?.shortTitle ?? "观察法"}</small><em>查看详情</em>
+            </button>
           </div>
-          <p className="growth-learning-comment">{growthConclusion}</p>
-        </section>
-
-        <section className="growth-section adventure-progress-card explorer-card" aria-labelledby="adventure-progress-title">
-          <div className="growth-section-heading">
-            <div><h3 id="adventure-progress-title"><span aria-hidden="true">⚑</span>闯关进度</h3></div>
-            <span className="recommended-stage-chip">推荐 {recommendedLabel}</span>
-          </div>
-          <div className="adventure-progress-summary">
-            <span><strong>L{currentAdventureLevel}</strong><small>当前大关</small></span>
-            <span><strong>{recommendedLabel}</strong><small>推荐关卡</small></span>
-            <span><strong>{completedCurrentStages}</strong><small>已完成小关</small></span>
-            <span><strong>{adventureStats.threeStarStageCount}</strong><small>3 星小关</small></span>
-          </div>
-          <div className="growth-stage-route" aria-label={`L${currentAdventureLevel} 小关路径`}>
-            {currentStages.map((stage) => (
-              <span key={`${stage.level}-${stage.stageIndex}`} className={stage.completed ? "completed" : stage.recommended ? "current" : stage.unlocked ? "available" : "locked"}>
-                <strong>L{stage.level}-{stage.stageIndex}</strong>
-                <small>{stage.completed ? `${"★".repeat(stage.bestStars)}${"☆".repeat(3 - stage.bestStars)}` : stage.recommended ? "待挑战" : stage.unlocked ? "可挑战" : "未解锁"}</small>
-              </span>
-            ))}
-          </div>
-        </section>
-
-        <section className="growth-section method-mastery-card explorer-card" aria-labelledby="method-mastery-title">
-          <div className="growth-section-heading">
-            <div><h3 id="method-mastery-title"><span aria-hidden="true">●</span>方法掌握</h3></div>
-          </div>
-          <div className="method-mastery-groups">
-            <div><small>已接触方法</small><p>{touchedMethods.map((method) => <span key={method.id}>{method.shortTitle}</span>)}</p></div>
-            <div><small>建议继续练</small><p><span className="suggested">{suggestedMethod?.shortTitle ?? "观察法"}</span></p></div>
-            <div><small>下一步方法</small><p><span className="next">{nextMethod?.shortTitle ?? "排除法"}</span></p></div>
-          </div>
-        </section>
-        </div>
+        )}
       </section>
 
       <section className="growth-section growth-record-log explorer-card" aria-labelledby="growth-record-title">

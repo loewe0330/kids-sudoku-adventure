@@ -76,7 +76,7 @@ describe("LearningCurve record disclosure", () => {
     render(<LearningCurve child={child} />);
 
     expect(screen.getByRole("heading", { name: "安安的成长报告" })).toBeTruthy();
-    expect(screen.getAllByText("刚开始探索，先从第一关稳稳练起。")).toHaveLength(2);
+    expect(screen.getAllByText("刚开始探索，先从第一关稳稳练起。")).toHaveLength(1);
     expect(screen.getByText("继续完成 L1-1，熟悉规则和观察法。")).toBeTruthy();
     expect(screen.queryByText("暂无练习记录，完成一题后这里会留下新的探险足迹。")).toBeNull();
     expect(screen.getByRole("button", { name: "展开练习日志" })).toBeTruthy();
@@ -84,7 +84,10 @@ describe("LearningCurve record disclosure", () => {
     expect(screen.getByText("暂无练习记录，完成一题后这里会留下新的探险足迹。")).toBeTruthy();
     expect(screen.getByRole("button", { name: "收起练习日志" })).toBeTruthy();
     expect(document.querySelectorAll(".growth-core-metrics article")).toHaveLength(4);
-    expect(document.querySelectorAll(".growth-insight-grid > section")).toHaveLength(3);
+    expect(screen.getByRole("button", { name: /最近表现/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /闯关进度/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /方法掌握/ })).toBeTruthy();
+    expect(document.querySelector(".growth-insight-detail")).toBeNull();
     expect(screen.getByText("累计星星").parentElement?.textContent).toContain("0");
     expect(screen.getAllByText("已完成小关")[0].parentElement?.textContent).toContain("0");
     expect(screen.getAllByText("最近完成率")[0].parentElement?.textContent).toContain("暂无");
@@ -105,9 +108,18 @@ describe("LearningCurve record disclosure", () => {
 
     expect(screen.getByRole("heading", { name: "核心数据" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "成长洞察" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "最近表现" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /最近表现/ }));
     expect(screen.getByRole("heading", { name: "最近表现" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "闯关进度" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "返回成长洞察" }));
+    fireEvent.click(screen.getByRole("button", { name: /闯关进度/ }));
     expect(screen.getByRole("heading", { name: "闯关进度" })).toBeTruthy();
+    expect(screen.getByLabelText("L1 小关路径")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "返回成长洞察" }));
+    fireEvent.click(screen.getByRole("button", { name: /方法掌握/ }));
     expect(screen.getByRole("heading", { name: "方法掌握" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "返回成长洞察" }));
     expect(screen.getByText("能力等级：L1")).toBeTruthy();
     expect(screen.getByText(/闯关进度：L1-1 数字小苗村/)).toBeTruthy();
     expect(screen.queryByRole("row")).toBeNull();

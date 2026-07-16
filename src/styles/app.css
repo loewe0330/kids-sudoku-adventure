@@ -6790,6 +6790,105 @@ th {
   min-width: 0;
 }
 
+.growth-insight-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.growth-insight-entry {
+  min-width: 0;
+  min-height: 112px;
+  padding: 16px 18px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 5px 12px;
+  text-align: left;
+  border: 1px solid rgba(75, 145, 91, 0.24);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 253, 243, 0.96), rgba(237, 248, 236, 0.84));
+  color: #18304a;
+  box-shadow: 0 4px 0 rgba(92, 145, 95, 0.13);
+}
+
+.growth-insight-entry > span {
+  grid-row: 1 / 3;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e2f3df;
+  color: #2f8f5b;
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+.growth-insight-entry > strong {
+  align-self: end;
+  font-size: 1rem;
+}
+
+.growth-insight-entry > small {
+  align-self: start;
+  overflow: hidden;
+  color: #627568;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.growth-insight-entry > em {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fffdf3;
+  color: #2f7951;
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.growth-insight-entry.adventure {
+  background: linear-gradient(135deg, rgba(255, 253, 243, 0.96), rgba(223, 243, 246, 0.82));
+}
+
+.growth-insight-entry.methods {
+  background: linear-gradient(135deg, rgba(255, 253, 243, 0.96), rgba(255, 244, 207, 0.74));
+}
+
+.growth-insight-entry:hover {
+  transform: translateY(-2px);
+}
+
+.growth-insight-back {
+  min-height: 42px;
+  padding: 7px 14px;
+}
+
+.growth-insight-detail {
+  width: 100%;
+}
+
+.growth-insight-detail > .growth-section {
+  width: 100%;
+  min-height: 180px;
+  padding: 18px;
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+.growth-insight-detail .recent-performance-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.growth-insight-detail .method-mastery-groups {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .growth-insights-panel .growth-insight-grid > .explorer-card {
   border-radius: 16px;
   box-shadow: none;
