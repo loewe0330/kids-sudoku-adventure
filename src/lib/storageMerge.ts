@@ -14,7 +14,7 @@ import type {
   SyncTombstone
 } from "../types";
 
-export const SYNC_SCHEMA_VERSION = 4;
+export const SYNC_SCHEMA_VERSION = 5;
 
 type TimestampedEntity = {
   id: string;
@@ -159,22 +159,30 @@ const mergeTombstones = (left: SyncTombstone[], right: SyncTombstone[]): SyncTom
 };
 
 const applyTombstones = ({
+  parentAccounts,
   children,
   practiceRecords,
   puzzleBank,
   tombstones
 }: {
+  parentAccounts: ParentAccount[];
   children: ChildProfile[];
   practiceRecords: PracticeRecord[];
   puzzleBank: SudokuPuzzleItem[];
   tombstones: SyncTombstone[];
 }) => {
+  const parentDeletes = new Set(tombstones.filter((item) => item.entityType === "parent").map((item) => item.id));
   const childDeletes = new Set(tombstones.filter((item) => item.entityType === "child").map((item) => `${item.parentId}:${item.id}`));
   const recordDeletes = new Set(tombstones.filter((item) => item.entityType === "practiceRecord").map((item) => `${item.parentId}:${item.id}`));
   const puzzleDeletes = new Set(tombstones.filter((item) => item.entityType === "puzzle").map((item) => `${item.parentId}:${item.id}`));
-  const activeChildren = children.filter((child) => !childDeletes.has(`${child.parentId}:${child.id}`));
+  const activeParents = parentAccounts.filter((parent) => !parentDeletes.has(parent.id));
+  const activeParentIds = new Set(activeParents.map((parent) => parent.id));
+  const activeChildren = children.filter((child) =>
+    activeParentIds.has(child.parentId) && !childDeletes.has(`${child.parentId}:${child.id}`)
+  );
   const childIds = new Set(activeChildren.map((child) => `${child.parentId}:${child.id}`));
   return {
+    parentAccounts: activeParents,
     children: activeChildren,
     practiceRecords: practiceRecords.filter((record) =>
       childIds.has(`${record.parentId}:${record.childId}`) && !recordDeletes.has(`${record.parentId}:${record.id}`)
@@ -203,6 +211,7 @@ const deriveAbility = (child: ChildProfile, records: PracticeRecord[]): ChildPro
 export const mergeAppStorage = (left: AppStorage, right: AppStorage): AppStorage => {
   const tombstones = mergeTombstones(left.syncTombstones ?? [], right.syncTombstones ?? []);
   const mergedEntities = applyTombstones({
+    parentAccounts: mergeParents(left.parentAccounts, right.parentAccounts),
     children: mergeChildren(left.children, right.children),
     practiceRecords: mergeEntities(left.practiceRecords, right.practiceRecords),
     puzzleBank: mergeEntities(left.puzzleBank, right.puzzleBank),
@@ -211,10 +220,15 @@ export const mergeAppStorage = (left: AppStorage, right: AppStorage): AppStorage
   const children = mergedEntities.children.map((child) => deriveAbility(child, mergedEntities.practiceRecords));
   const activeChildId = [left.activeChildId, right.activeChildId]
     .find((id) => Boolean(id && children.some((child) => child.id === id))) ?? null;
+  const candidateSession = left.activeSession ?? right.activeSession;
+  const activeSession = candidateSession?.role === "parent"
+    && !mergedEntities.parentAccounts.some((parent) => parent.id === candidateSession.parentId)
+      ? null
+      : candidateSession;
   return {
     adminAccount: left.adminAccount.updatedAt >= right.adminAccount.updatedAt ? left.adminAccount : right.adminAccount,
-    parentAccounts: mergeParents(left.parentAccounts, right.parentAccounts),
-    activeSession: left.activeSession ?? right.activeSession,
+    parentAccounts: mergedEntities.parentAccounts,
+    activeSession,
     activeChildId,
     children,
     practiceRecords: mergedEntities.practiceRecords,

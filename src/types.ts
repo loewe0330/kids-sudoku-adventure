@@ -146,7 +146,7 @@ export interface SudokuPuzzleItem {
   deletedAt?: string;
 }
 
-export type SyncEntityType = "child" | "practiceRecord" | "puzzle";
+export type SyncEntityType = "parent" | "child" | "practiceRecord" | "puzzle";
 
 export interface SyncTombstone {
   entityType: SyncEntityType;

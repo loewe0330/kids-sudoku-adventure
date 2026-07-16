@@ -449,6 +449,7 @@ export const resetParentPassword = async (parentId: string, newPassword: string)
 };
 
 export const clearParentData = (parentId: string): void => {
+  const deletedAt = nowIso();
   mutateStorage((storage) => ({
     ...storage,
     activeSession: storage.activeSession?.role === "parent" && storage.activeSession.parentId === parentId ? null : storage.activeSession,
@@ -457,7 +458,11 @@ export const clearParentData = (parentId: string): void => {
     parentAccounts: storage.parentAccounts.filter((parent) => parent.id !== parentId),
     children: storage.children.filter((child) => child.parentId !== parentId),
     practiceRecords: storage.practiceRecords.filter((record) => record.parentId !== parentId),
-    puzzleBank: storage.puzzleBank.filter((puzzle) => puzzle.parentId !== parentId)
+    puzzleBank: storage.puzzleBank.filter((puzzle) => puzzle.parentId !== parentId),
+    syncTombstones: [
+      ...(storage.syncTombstones ?? []),
+      { entityType: "parent", id: parentId, parentId, deletedAt } satisfies SyncTombstone
+    ]
   }));
 };
 

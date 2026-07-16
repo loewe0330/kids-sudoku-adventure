@@ -117,6 +117,34 @@ describe("cloud storage merge", () => {
     expect(merged.practiceRecords[0].parentId).toBe(cloudParent.id);
   });
 
+  test("maps a legacy parent deletion to the cloud parent id", () => {
+    const cloudParent = parent("cloud-parent-id", "legacy-parent", "2026-07-10T00:00:00.000Z");
+    const localParent = parent("local-parent-id", "legacy-parent", "2026-07-16T00:00:00.000Z");
+    const merged = mergeCloudStorage(
+      storage({
+        parentAccounts: [cloudParent],
+        children: [child("cloud-child", cloudParent.id, "2026-07-10T00:00:00.000Z", 2)]
+      }),
+      storage({
+        parentAccounts: [localParent],
+        syncTombstones: [{
+          entityType: "parent",
+          id: localParent.id,
+          parentId: localParent.id,
+          deletedAt: "2026-07-17T00:00:00.000Z"
+        }]
+      })
+    );
+
+    expect(merged.parentAccounts).toHaveLength(0);
+    expect(merged.children).toHaveLength(0);
+    expect(merged.syncTombstones).toContainEqual(expect.objectContaining({
+      entityType: "parent",
+      id: cloudParent.id,
+      parentId: cloudParent.id
+    }));
+  });
+
   test("returns only the authenticated parent's children and records", () => {
     const parentA = parent("parent-a", "a", "2026-07-10T00:00:00.000Z");
     const parentB = parent("parent-b", "b", "2026-07-10T00:00:00.000Z");

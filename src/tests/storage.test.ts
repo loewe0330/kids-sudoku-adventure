@@ -229,6 +229,11 @@ describe("test-version account repository", () => {
     expect(storage.practiceRecords.some((item) => item.parentId === parent.id)).toBe(false);
     expect(storage.activeSession).toBeNull();
     expect(storage.activeChildId).toBeNull();
+    expect(storage.syncTombstones).toContainEqual(expect.objectContaining({
+      entityType: "parent",
+      id: parent.id,
+      parentId: parent.id
+    }));
     expect(getCurrentParent()).toBeNull();
   });
 });

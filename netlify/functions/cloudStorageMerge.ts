@@ -91,8 +91,13 @@ export const mergeCloudStorage = (cloud: AppStorage, seed: AppStorage): AppStora
     })),
     practiceRecords: seed.practiceRecords.map(remapParent),
     puzzleBank: seed.puzzleBank.map(remapParent),
-    syncTombstones: (seed.syncTombstones ?? []).map(remapParent),
+    syncTombstones: (seed.syncTombstones ?? []).map((tombstone) => {
+      const remapped = remapParent(tombstone);
+      return remapped.entityType === "parent"
+        ? { ...remapped, id: remapped.parentId }
+        : remapped;
+    }),
     schemaVersion: Math.max(seed.schemaVersion ?? 0, SYNC_SCHEMA_VERSION)
   };
-  return { ...mergeAppStorage(cloud, remappedSeed), parentAccounts, activeSession: null, activeChildId: null };
+  return { ...mergeAppStorage(cloud, remappedSeed), activeSession: null, activeChildId: null };
 };

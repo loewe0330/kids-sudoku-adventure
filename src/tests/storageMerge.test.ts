@@ -246,10 +246,41 @@ describe("cross-device storage merge", () => {
     expect(scoped.adminAccount.passwordHash).toBe(cloud.adminAccount.passwordHash);
   });
 
+  test("does not resurrect a deleted legacy parent from a stale device", () => {
+    const deletedAt = timestamp(9);
+    const deleted = storage({
+      parentAccounts: [],
+      children: [],
+      practiceRecords: [],
+      syncTombstones: [{
+        entityType: "parent",
+        id: "parent-a",
+        parentId: "parent-a",
+        deletedAt
+      }]
+    });
+    const stale = storage({
+      parentAccounts: [parent("parent-a")],
+      children: [child()],
+      practiceRecords: [record("legacy-record", 2)]
+    });
+
+    const merged = mergeAppStorage(deleted, stale);
+
+    expect(merged.parentAccounts).toHaveLength(0);
+    expect(merged.children).toHaveLength(0);
+    expect(merged.practiceRecords).toHaveLength(0);
+    expect(merged.syncTombstones).toContainEqual(expect.objectContaining({
+      entityType: "parent",
+      id: "parent-a",
+      deletedAt
+    }));
+  });
+
   test("accepts legacy storage without sync metadata", () => {
     const legacy = storage({ schemaVersion: undefined, revision: undefined, syncTombstones: undefined });
     const merged = mergeAppStorage(legacy, storage());
-    expect(merged.schemaVersion).toBe(4);
+    expect(merged.schemaVersion).toBe(5);
     expect(merged.revision).toBe(0);
     expect(merged.children[0].id).toBe("child-a");
   });
