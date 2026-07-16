@@ -30,11 +30,17 @@ describe("reward rules", () => {
   });
 
   test("calculates 2 stars for a completed puzzle with a small mistake or hint", () => {
-    expect(calculateStars(record({ mistakeCount: 1, hintCount: 1, durationSeconds: 999 }), getDifficultyLevel(5))).toBe(2);
+    expect(calculateStars(record({ mode: "practice", mistakeCount: 1, hintCount: 1, durationSeconds: 999 }), getDifficultyLevel(5))).toBe(2);
   });
 
   test("calculates 1 star for a completed puzzle with weaker performance", () => {
-    expect(calculateStars(record({ mistakeCount: 3, hintCount: 2, durationSeconds: 999 }), getDifficultyLevel(5))).toBe(1);
+    expect(calculateStars(record({ mode: "practice", mistakeCount: 3, hintCount: 2, durationSeconds: 999 }), getDifficultyLevel(5))).toBe(1);
+  });
+
+  test("uses adventure submission count and caps guided completion at one star", () => {
+    expect(calculateStars(record({ submissionCount: 1, guidanceUsed: false }), getDifficultyLevel(5))).toBe(3);
+    expect(calculateStars(record({ submissionCount: 2, guidanceUsed: false }), getDifficultyLevel(5))).toBe(2);
+    expect(calculateStars(record({ submissionCount: 2, guidanceUsed: true, guidanceSource: "star" }), getDifficultyLevel(5))).toBe(1);
   });
 
   test("calculates 0 stars when the child gives up", () => {

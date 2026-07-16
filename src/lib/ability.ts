@@ -19,7 +19,7 @@ export interface AbilityDisplayModel {
 }
 
 export const isValidAbilityAssessmentRecord = (record: PracticeRecord): boolean =>
-  record.completed && !record.gaveUp && Boolean(record.finishedAt);
+  record.completed && !record.gaveUp && !record.viewedAnswer && Boolean(record.finishedAt);
 
 export const getValidAbilityAssessmentRecords = (records: PracticeRecord[]): PracticeRecord[] =>
   records.filter(isValidAbilityAssessmentRecord);

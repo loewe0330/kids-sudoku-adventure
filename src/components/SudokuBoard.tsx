@@ -4,15 +4,25 @@ import { difficultyLabels, gradeLabels, sizeLabels } from "../constants/gradeLab
 import { evaluateNextLevel } from "../lib/adaptiveDifficulty";
 import { updateAdventureProgress } from "../lib/adventure";
 import { createUuid } from "../lib/browserCrypto";
+import {
+  getAdventureFailureActionModel,
+  getCompletionActionModel,
+  type AdventureFailureAction,
+  type AdventureFailureActionModel,
+  type CompletionAction,
+  type CompletionActionModel
+} from "../lib/completionActions";
 import { calculateCandidates, getGuidedHint, type GuidedHint } from "../lib/hintEngine";
+import { getGuidanceStatus } from "../lib/guidance";
 import { getLevelMethods, getPracticeMethod } from "../lib/methodGuide";
 import { calculateStars } from "../lib/reward";
-import { addPracticeRecord, getPracticeRecordsByChild, updateChild } from "../lib/storage";
+import { addPracticeRecord, consumeGuidance, getPracticeRecordsByChild, updateChild } from "../lib/storage";
 import { formatDuration } from "../lib/time";
 import { webSoundAdapter } from "../platform/web/webSoundAdapter";
-import type { ChildProfile, PracticeMode, PracticeRecord, SudokuPuzzleItem } from "../types";
+import type { ChildProfile, GuidanceSource, PracticeMode, PracticeRecord, SudokuPuzzleItem } from "../types";
 
-type CheckFeedback = "incomplete" | "try-again" | "success" | "encouragement" | null;
+type CheckFeedback = "incomplete" | "try-again" | "guide-choice" | "success" | "encouragement" | null;
+type SubmissionState = "editing" | "incorrect-editable" | "solved" | "failed-final" | "abandoned";
 
 interface SudokuBoardProps {
   child: ChildProfile;
@@ -22,11 +32,45 @@ interface SudokuBoardProps {
   onSave: () => void;
   onPrint: (includeAnswer: boolean) => void;
   onBackToMap: () => void;
+  onBackToChapter?: () => void;
+  onStartAdventureStage?: (level: number, stageIndex: number) => void;
+  onOpenAdventureLevel?: (level: number) => void;
+  onOpenGrowth?: () => void;
+  onRetryAdventureStage?: () => void;
   onBackToPractice: () => void;
   onChildChanged: () => void;
+  onManagedResult?: (record: PracticeRecord) => void;
+  backLabel?: string;
+  nextLabel?: string;
+  nextDisabled?: boolean;
+  managedResultFeedback?: {
+    title: string;
+    progress: string;
+    message: string;
+  };
 }
 
-export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, onBackToMap, onBackToPractice, onChildChanged }: SudokuBoardProps) {
+export function SudokuBoard({
+  child,
+  puzzle,
+  onBack,
+  onNext,
+  onSave,
+  onPrint,
+  onBackToMap,
+  onBackToChapter,
+  onStartAdventureStage,
+  onOpenAdventureLevel,
+  onOpenGrowth,
+  onRetryAdventureStage,
+  onBackToPractice,
+  onChildChanged,
+  onManagedResult,
+  backLabel = "返回首页",
+  nextLabel = "生成下一题",
+  nextDisabled = false,
+  managedResultFeedback
+}: SudokuBoardProps) {
   const [board, setBoard] = useState(() => puzzle.puzzle.map((row) => [...row]));
   const [selected, setSelected] = useState<[number, number] | null>(null);
   const [mistakes, setMistakes] = useState(0);
@@ -43,16 +87,34 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
   const [hintLevel, setHintLevel] = useState<1 | 2 | 3>(1);
   const [showCandidates, setShowCandidates] = useState(false);
   const [methodOpen, setMethodOpen] = useState(false);
+  const [methodDialogOpen, setMethodDialogOpen] = useState(false);
+  const [completionModel, setCompletionModel] = useState<CompletionActionModel | null>(null);
+  const [failureModel, setFailureModel] = useState<AdventureFailureActionModel | null>(null);
+  const [submissionState, setSubmissionState] = useState<SubmissionState>("editing");
   const [showBoardCelebration, setShowBoardCelebration] = useState(false);
   const [moreActionsOpen, setMoreActionsOpen] = useState(false);
+  const [guidanceSource, setGuidanceSource] = useState<GuidanceSource | null>(null);
+  const [guidanceSubmitting, setGuidanceSubmitting] = useState(false);
+  const [guidanceError, setGuidanceError] = useState("");
   const errorTimerRef = useRef<number | null>(null);
+  const resultRecordedRef = useRef(false);
+  const guidanceSubmittingRef = useRef(false);
+  const pendingGuidanceOperationRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (errorTimerRef.current !== null) window.clearTimeout(errorTimerRef.current);
     setBoard(puzzle.puzzle.map((row) => [...row]));
     setSelected(null);
     setMistakes(0);
-    setHints(0);
+    const restoredGuidance = (puzzle.mode ?? child.settings.practiceMode) === "adventure"
+      ? child.guidanceOperations?.find((operation) => operation.puzzleId === puzzle.id)
+      : undefined;
+    setHints(restoredGuidance ? 1 : 0);
+    setGuidanceSource(restoredGuidance?.source ?? null);
+    setGuidanceSubmitting(false);
+    setGuidanceError("");
+    guidanceSubmittingRef.current = false;
+    pendingGuidanceOperationRef.current = null;
     setElapsed(0);
     setStartedAt(new Date().toISOString());
     setErrors(new Set());
@@ -65,6 +127,11 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     setHintLevel(1);
     setShowCandidates(false);
     setMethodOpen(false);
+    setMethodDialogOpen(false);
+    setCompletionModel(null);
+    setFailureModel(null);
+    setSubmissionState("editing");
+    resultRecordedRef.current = false;
     setShowBoardCelebration(false);
     setMoreActionsOpen(false);
   }, [puzzle.id, puzzle.puzzle]);
@@ -72,6 +139,15 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
   useEffect(() => () => {
     if (errorTimerRef.current !== null) window.clearTimeout(errorTimerRef.current);
   }, []);
+
+  useEffect(() => {
+    if ((!checkFeedback && !guidedHint && !methodDialogOpen) || typeof document === "undefined") return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [checkFeedback, guidedHint, methodDialogOpen]);
 
   useEffect(() => {
     if (!showBoardCelebration) return;
@@ -91,9 +167,18 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
   const levelMethods = getLevelMethods(puzzle.level);
   const levelConfig = getDifficultyLevel(puzzle.level);
   const mode = puzzle.mode ?? child.settings.practiceMode;
+  const guidanceStatus = getGuidanceStatus(child);
 
-  const commitRecord = (completed: boolean, gaveUp: boolean, duration = elapsed, mistakeCount = mistakes, hintCount = hints) => {
-    if (finished) return;
+  const commitRecord = (
+    completed: boolean,
+    gaveUp: boolean,
+    duration = elapsed,
+    mistakeCount = mistakes,
+    hintCount = hints,
+    options: { skipAdaptive?: boolean } = {}
+  ) => {
+    if (finished || resultRecordedRef.current) return;
+    resultRecordedRef.current = true;
     const record: PracticeRecord = {
       id: createUuid(),
       parentId: child.parentId,
@@ -108,18 +193,42 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
       durationSeconds: duration,
       mistakeCount,
       hintCount,
+      guidanceUsed: hintCount > 0,
+      guidanceSource: hintCount > 0 ? guidanceSource : null,
+      guidanceOperationId: hintCount > 0
+        ? child.guidanceOperations?.find((operation) => operation.puzzleId === puzzle.id)?.id
+          ?? pendingGuidanceOperationRef.current
+          ?? undefined
+        : undefined,
+      submissionCount: mode === "adventure" && completed ? Math.min(2, wrongCheckCount + 1) : undefined,
       completed,
       gaveUp,
+      viewedAnswer: gaveUp,
       stars: 0,
       mode,
       source: puzzle.source ?? (mode === "practice" ? "smart" : "challenge"),
       stageIndex: puzzle.stageIndex
     };
     record.stars = calculateStars(record, levelConfig);
+    if (onManagedResult) {
+      setCompletionModel(getCompletionActionModel({
+        child,
+        mode,
+        level: puzzle.level,
+        stageIndex: puzzle.stageIndex,
+        stars: record.stars,
+        updatedProgress: child.adventureProgress,
+        fastPass: managedResultFeedback ? { ...managedResultFeedback, nextLabel } : undefined
+      }));
+      setFinished(true);
+      setResult(`${completed ? "本题完成" : "本题已结束"} · 挑战结果已记录`);
+      onManagedResult(record);
+      return;
+    }
     addPracticeRecord(record);
     const records = getPracticeRecordsByChild(child.parentId, child.id);
-    const evaluation = evaluateNextLevel(records, child.currentLevel, child.smartDifficultyEnabled);
-    const updatedProgress = mode === "adventure" && puzzle.stageIndex
+    const evaluation = options.skipAdaptive ? null : evaluateNextLevel(records, child.currentLevel, child.smartDifficultyEnabled);
+    const updatedProgress = completed && mode === "adventure" && puzzle.stageIndex
       ? updateAdventureProgress(child.adventureProgress, {
         parentId: child.parentId,
         childId: child.id,
@@ -129,17 +238,29 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
         completedAt: record.finishedAt ?? new Date().toISOString()
       })
       : child.adventureProgress;
-    if (evaluation.nextLevel !== child.currentLevel || updatedProgress !== child.adventureProgress) {
+    if (evaluation && (evaluation.nextLevel !== child.currentLevel || updatedProgress !== child.adventureProgress)) {
       updateChild(child.parentId, child.id, { currentLevel: evaluation.nextLevel, adventureProgress: updatedProgress });
     }
+    if (completed) {
+      setCompletionModel(getCompletionActionModel({
+        child,
+        mode,
+        level: puzzle.level,
+        stageIndex: puzzle.stageIndex,
+        stars: record.stars,
+        updatedProgress
+      }));
+    }
     setFinished(true);
-    const soundKind = evaluation.action === "up" ? "levelUp" : record.stars >= 3 ? "threeStar" : "success";
-    webSoundAdapter.setEnabled(child.settings.soundEnabled);
-    if (soundKind === "levelUp") webSoundAdapter.playLevelUp();
-    else if (soundKind === "threeStar") webSoundAdapter.playThreeStars();
-    else webSoundAdapter.playCelebration();
+    const soundKind = evaluation?.action === "up" ? "levelUp" : record.stars >= 3 ? "threeStar" : "success";
+    if (completed) {
+      webSoundAdapter.setEnabled(child.settings.soundEnabled);
+      if (soundKind === "levelUp") webSoundAdapter.playLevelUp();
+      else if (soundKind === "threeStar") webSoundAdapter.playThreeStars();
+      else webSoundAdapter.playCelebration();
+    }
     setShowBoardCelebration(completed && child.settings.successAnimationEnabled && !child.settings.reducedMotion);
-    setResult(`${completed ? "本题完成" : "本题已结束"} · ${evaluation.reason}`);
+    setResult(`${completed ? "本题完成" : "本题已结束"} · ${evaluation?.reason ?? "挑战记录已保存"}`);
     onChildChanged();
   };
 
@@ -153,7 +274,7 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
   };
 
   const setCell = (value: number) => {
-    if (!selected || finished) return;
+    if (!selected || finished || submissionState === "failed-final" || submissionState === "abandoned") return;
     const [row, col] = selected;
     if (givens.has(`${row}-${col}`) || value > puzzle.size) return;
     setBoard((current) => current.map((line, r) => line.map((cell, c) => (r === row && c === col ? value : cell))));
@@ -192,25 +313,45 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     }
     if (nextErrors.size > 0) {
       setMistakes((value) => value + nextErrors.size);
-      highlightErrorsTemporarily(nextErrors);
+      if (mode !== "adventure") highlightErrorsTemporarily(nextErrors);
       const nextCount = wrongCheckCount + 1;
       setWrongCheckCount(nextCount);
-      setResult(nextCount === 1 ? "再想一想，修改后可以再检查。" : "下次努力，也可以换一题重新开始。");
+      setSubmissionState(nextCount === 1 ? "incorrect-editable" : "failed-final");
+      setResult(nextCount === 1
+        ? "再想一想，修改后可以再检查。"
+        : mode === "adventure" ? "本关暂未通过。" : "下次努力，也可以换一题重新开始。");
       setCheckFeedback(nextCount === 1 ? "try-again" : "encouragement");
-      if (nextCount >= 2) setFinished(true);
+      if (nextCount >= 2) {
+        if (onManagedResult) commitRecord(false, false, elapsed, mistakes + nextErrors.size, hints);
+        else if (mode === "adventure" && puzzle.stageIndex) {
+          setFailureModel(getAdventureFailureActionModel({
+            level: puzzle.level,
+            stageIndex: puzzle.stageIndex,
+            previousStars: child.adventureProgress.find((stage) => stage.level === puzzle.level && stage.stageIndex === puzzle.stageIndex)?.bestStars ?? 0,
+            guidanceUsed: hints > 0,
+            submitAttemptCount: nextCount
+          }));
+          commitRecord(false, false, elapsed, mistakes + nextErrors.size, hints, { skipAdaptive: true });
+        } else setFinished(true);
+      }
       return;
     }
+    setSubmissionState("solved");
     commitRecord(true, false);
     setCheckFeedback("success");
   };
 
-  const hint = (excludeCurrent = false) => {
+  const hint = (excludeCurrent = false, countUsage = true) => {
+    if (mode === "adventure" && (wrongCheckCount === 0 || hints >= 1)) return;
+    const hintBoard = mode === "adventure" ? puzzle.puzzle : board;
     const selectedKey = selected ? `${selected[0]}-${selected[1]}` : null;
     const excludedCells = excludeCurrent && hintTarget ? [hintTarget] : [];
-    const selectedIsHintable = selected ? !excludedCells.includes(selectedKey!) && !givens.has(selectedKey!) && board[selected[0]][selected[1]] === 0 : false;
+    const selectedIsHintable = mode !== "adventure" && selected
+      ? !excludedCells.includes(selectedKey!) && !givens.has(selectedKey!) && hintBoard[selected[0]][selected[1]] === 0
+      : false;
     const nextLevel: 1 | 2 | 3 = selectedIsHintable && selectedKey === hintTarget ? (Math.min(3, hintLevel + 1) as 1 | 2 | 3) : 1;
     const nextHint = getGuidedHint({
-      board,
+      board: hintBoard,
       puzzle: puzzle.puzzle,
       solution: puzzle.solution,
       size: puzzle.size,
@@ -225,12 +366,59 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     setGuidedHint(nextHint);
     setHintTarget(nextKey);
     setHintLevel(nextKey === hintTarget ? nextLevel : 1);
-    setHints((value) => value + 1);
+    if (countUsage) setHints((value) => value + 1);
+  };
+
+  const closeGuidanceChoice = () => {
+    setGuidanceError("");
+    pendingGuidanceOperationRef.current = null;
+    closeFeedback();
+  };
+
+  const confirmGuidance = async () => {
+    if (guidanceSubmittingRef.current || hints >= 1 || finished) return;
+    const operationId = pendingGuidanceOperationRef.current ?? createUuid();
+    pendingGuidanceOperationRef.current = operationId;
+    guidanceSubmittingRef.current = true;
+    setGuidanceSubmitting(true);
+    setGuidanceError("");
+    try {
+      const consumed = await consumeGuidance({
+        parentId: child.parentId,
+        childId: child.id,
+        puzzleId: puzzle.id,
+        operationId
+      });
+      if (consumed.status === "already-used") throw new Error("本题已经使用过解题引导。");
+      if (consumed.status === "no-stars") throw new Error("当前没有足够的可用星星。");
+      if (consumed.status === "daily-limit") throw new Error("今天的兑换次数已经用完。");
+      setGuidanceSource(consumed.guidanceSource ?? null);
+      setHints(1);
+      hint(false, false);
+      setCheckFeedback(null);
+      onChildChanged();
+    } catch (error) {
+      setGuidanceError(error instanceof Error ? error.message : "引导数据保存失败，请重试。");
+    } finally {
+      guidanceSubmittingRef.current = false;
+      setGuidanceSubmitting(false);
+    }
   };
 
   const reveal = () => {
     setBoard(puzzle.solution.map((row) => [...row]));
-    commitRecord(false, true);
+    setSubmissionState("abandoned");
+    if (mode === "adventure" && puzzle.stageIndex && !onManagedResult) {
+      setFailureModel(getAdventureFailureActionModel({
+        level: puzzle.level,
+        stageIndex: puzzle.stageIndex,
+        previousStars: child.adventureProgress.find((stage) => stage.level === puzzle.level && stage.stageIndex === puzzle.stageIndex)?.bestStars ?? 0,
+        guidanceUsed: hints > 0,
+        submitAttemptCount: wrongCheckCount
+      }));
+      commitRecord(false, true, elapsed, mistakes, hints, { skipAdaptive: true });
+      setCheckFeedback("encouragement");
+    } else commitRecord(false, true);
   };
 
   const reset = () => {
@@ -241,15 +429,57 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     setWrongCheckCount(0);
     setCheckFeedback(null);
     setMistakes(0);
-    setHints(0);
+    const restoredGuidance = mode === "adventure"
+      ? child.guidanceOperations?.find((operation) => operation.puzzleId === puzzle.id)
+      : undefined;
+    setHints(restoredGuidance ? 1 : 0);
+    setGuidanceSource(restoredGuidance?.source ?? null);
+    setGuidanceSubmitting(false);
+    setGuidanceError("");
+    guidanceSubmittingRef.current = false;
+    pendingGuidanceOperationRef.current = null;
     setElapsed(0);
+    setStartedAt(new Date().toISOString());
     setGuidedHint(null);
     setHintTarget(null);
     setHintLevel(1);
     setShowBoardCelebration(false);
+    setCheckFeedback(null);
+    setMethodDialogOpen(false);
+    setCompletionModel(null);
+    setFailureModel(null);
+    setSubmissionState("editing");
+    resultRecordedRef.current = false;
   };
 
   const closeFeedback = () => setCheckFeedback(null);
+
+  const runCompletionAction = (action: CompletionAction) => {
+    if (action.type === "new-practice") onNext();
+    else if (action.type === "back-to-practice") onBackToPractice();
+    else if (action.type === "fast-pass-next") onNext();
+    else if (action.type === "next-adventure-stage") onStartAdventureStage?.(action.level, action.stageIndex);
+    else if (action.type === "open-adventure-level") {
+      if (onOpenAdventureLevel) onOpenAdventureLevel(action.level);
+      else onBackToChapter?.();
+    } else if (action.type === "open-adventure-map") onBackToMap();
+    else if (action.type === "open-growth") onOpenGrowth?.();
+    else if (action.type === "close-result") closeFeedback();
+  };
+
+  const runAdventureFailureAction = (action: AdventureFailureAction) => {
+    if (action.type === "retry-stage") {
+      if (onRetryAdventureStage) onRetryAdventureStage();
+      else reset();
+    } else if (action.type === "return-level") {
+      if (onOpenAdventureLevel) onOpenAdventureLevel(action.level);
+      else if (onBackToChapter) onBackToChapter();
+      else onBackToMap();
+    } else {
+      setCheckFeedback(null);
+      setMethodDialogOpen(true);
+    }
+  };
 
   const sameBox = (row: number, col: number) => {
     if (!selected) return false;
@@ -261,7 +491,10 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
     : "先点选棋盘上的空格，再选择数字。";
 
   return (
-    <main className={`practice-layout quest-practice play-size-${puzzle.size}`}>
+    <main
+      className={`practice-layout quest-practice play-size-${puzzle.size} mode-${mode}`}
+      data-submission-state={submissionState}
+    >
       {guidedHint && (
         <button
           className="guided-hint-backdrop"
@@ -272,7 +505,7 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
         />
       )}
       <aside className="practice-info no-print">
-        <button className="back-button" onClick={onBack}>返回首页</button>
+        <button className="back-button" onClick={onBack}>{backLabel}</button>
         <div className="practice-title-block">
           <p className="eyebrow">当前题目</p>
           <h2>{getDifficultyLevel(puzzle.level).label}</h2>
@@ -284,7 +517,7 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
           {child.settings.showTimer && <span className="timer-stat">用时 {formatDuration(elapsed)}</span>}
           {mode === "adventure" && <span className="recommended-time-stat">建议 {formatDuration(levelConfig.recommendedTimeSeconds)}</span>}
           {mode === "challenge" && <span className="recommended-time-stat">挑战 {formatDuration(levelConfig.recommendedTimeSeconds)}</span>}
-          <span className="mistake-stat">错误 {mistakes}</span>
+          <span className="mistake-stat">{mode === "adventure" ? `提交 ${wrongCheckCount}/2` : `错误 ${mistakes}`}</span>
           <span className="hint-stat">提示 {hints}</span>
         </div>
         <div className="method-card">
@@ -392,10 +625,21 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
           <div className="action-button-grid">
             <button className="quiet-action mobile-delete-action" type="button" onClick={deleteCell}>删除</button>
             <button className="primary check-action" aria-label="提交" onClick={checkAnswer} disabled={finished}>
-              <span className="desktop-submit-label" aria-hidden="true">检查答案</span>
+              <span className="desktop-submit-label" aria-hidden="true">提交</span>
               <span className="mobile-submit-label" aria-hidden="true">提交</span>
             </button>
-            <button className="hint-action" onClick={() => hint()} disabled={finished}>引导提示</button>
+            <button
+              className="hint-action"
+              onClick={() => mode === "adventure" ? setCheckFeedback("guide-choice") : hint()}
+              disabled={finished || (mode === "adventure" && (wrongCheckCount === 0 || hints >= 1))}
+            >{mode === "adventure" && wrongCheckCount > 0 && guidanceStatus.availability === "star" ? "1 星兑换引导" : "引导提示"}</button>
+            {mode === "adventure" && wrongCheckCount > 0 && hints < 1 && (
+              <small className="guidance-balance-hint">
+                {guidanceStatus.availability === "free"
+                  ? `今日免费剩余 ${guidanceStatus.remainingFree}/3 次`
+                  : `可用星星：${guidanceStatus.availableStars}`}
+              </small>
+            )}
             <button
               className="mobile-more-toggle"
               type="button"
@@ -421,7 +665,7 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
             )}
             <div className="card-actions">
               <button onClick={() => setGuidedHint(null)}>我再想想</button>
-              <button onClick={() => hint(true)}>换一个提示格</button>
+              {mode !== "adventure" && <button onClick={() => hint(true)}>换一个提示格</button>}
               <button className="quiet-action" onClick={reveal}>显示答案并结束本题</button>
             </div>
           </section>
@@ -438,14 +682,16 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
             <button className="quiet-action" aria-label="手机端显示答案" onClick={reveal}>显示答案</button>
           </section>
 
-          <section className="action-section continue-action-section">
-            <h3>继续练习</h3>
-            <div className="action-button-grid">
-              <button className="retry-action" onClick={reset}>重做本题</button>
-              <button className="primary next-action" onClick={onNext}>生成下一题</button>
-              <button className="quiet-action" onClick={onSave}>保存到题库</button>
-            </div>
-          </section>
+          {!onManagedResult && (
+            <section className="action-section continue-action-section">
+              <h3>继续练习</h3>
+              <div className="action-button-grid">
+                <button className="retry-action" onClick={reset}>重做本题</button>
+                <button className="primary next-action" onClick={onNext}>{nextLabel}</button>
+                <button className="quiet-action" onClick={onSave}>保存到题库</button>
+              </div>
+            </section>
+          )}
 
           <section className="action-section print-action-section">
             <h3>打印</h3>
@@ -458,11 +704,38 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
       </aside>
       {checkFeedback && (
         <div className="play-feedback-backdrop" role="presentation">
-          <section className={`play-feedback-dialog feedback-${checkFeedback}`} role="dialog" aria-modal="true" aria-labelledby="play-feedback-title">
+          <section className={`play-feedback-dialog feedback-${checkFeedback}${failureModel ? " adventure-failure-dialog" : ""}`} role="dialog" aria-modal="true" aria-labelledby="play-feedback-title">
             {checkFeedback === "incomplete" && <><span className="feedback-symbol">?</span><h3 id="play-feedback-title">还有空格没有填完哦</h3><p>先把数独完成，再来检查答案吧。</p><button className="primary" onClick={closeFeedback}>继续做题</button></>}
-            {checkFeedback === "try-again" && <><span className="feedback-symbol">!</span><h3 id="play-feedback-title">再想一想</h3><p>你已经完成大部分内容了，修改后可以再检查。</p><button className="primary" onClick={closeFeedback}>继续修改</button></>}
-            {checkFeedback === "success" && <><span className="feedback-symbol">★</span><h3 id="play-feedback-title">太棒了！</h3><p>全部答对啦，继续保持！</p><div className="feedback-actions"><button className="primary" onClick={onNext}>再来一题</button><button onClick={onBackToPractice}>回到练习</button></div></>}
-            {checkFeedback === "encouragement" && <><span className="feedback-symbol">✦</span><h3 id="play-feedback-title">下次努力</h3><p>这题有点难，已经很接近了。休息一下，再换一题试试吧。</p><div className="feedback-actions"><button className="primary" onClick={onNext}>再来一题</button><button onClick={closeFeedback}>继续看看</button></div></>}
+            {checkFeedback === "try-again" && <><span className="feedback-symbol">!</span><h3 id="play-feedback-title">再想一想</h3><p>你已经完成大部分内容了，修改后可以再检查。</p><button className="primary" onClick={() => setCheckFeedback("guide-choice")}>继续修改</button></>}
+            {checkFeedback === "guide-choice" && mode !== "adventure" && <><span className="feedback-symbol">?</span><h3 id="play-feedback-title">需要解题引导吗？</h3><p>可以先看一个分层提示，答案仍由你完成。</p><div className="feedback-actions"><button className="primary" onClick={() => { hint(); closeFeedback(); }}>使用解题引导</button><button onClick={closeFeedback}>暂不使用</button></div></>}
+            {checkFeedback === "guide-choice" && mode === "adventure" && guidanceStatus.availability === "free" && <><span className="feedback-symbol">?</span><h3 id="play-feedback-title">使用免费引导？</h3><p>本次将使用今日 1 次免费引导。</p><p>使用引导后，本关最高获得 1 颗星。</p><p className="guidance-dialog-balance">今日免费剩余 {guidanceStatus.remainingFree}/3 次</p>{guidanceError && <p className="guidance-save-error" role="alert">{guidanceError}</p>}<div className="feedback-actions"><button className="primary" onClick={() => void confirmGuidance()} disabled={guidanceSubmitting}>{guidanceSubmitting ? "正在保存…" : "使用引导"}</button><button onClick={closeGuidanceChoice} disabled={guidanceSubmitting}>暂不使用</button></div></>}
+            {checkFeedback === "guide-choice" && mode === "adventure" && guidanceStatus.availability === "star" && <><span className="feedback-symbol">★</span><h3 id="play-feedback-title">兑换解题引导？</h3><p>今日免费引导已用完。使用 1 颗可用星星，可以获得一次解题引导。</p><p>历史累计星星不会减少。使用引导后，本关最高获得 1 颗星。</p><p className="guidance-dialog-balance">可用星星：{guidanceStatus.availableStars}</p>{guidanceError && <p className="guidance-save-error" role="alert">{guidanceError}</p>}<div className="feedback-actions"><button className="primary" onClick={() => void confirmGuidance()} disabled={guidanceSubmitting}>{guidanceSubmitting ? "正在保存…" : "使用 1 星"}</button><button onClick={closeGuidanceChoice} disabled={guidanceSubmitting}>暂不兑换</button></div></>}
+            {checkFeedback === "guide-choice" && mode === "adventure" && (guidanceStatus.availability === "no-stars" || guidanceStatus.availability === "daily-limit") && <><span className="feedback-symbol">!</span><h3 id="play-feedback-title">今日免费引导已用完</h3><p>{guidanceStatus.availability === "daily-limit" ? "今天的 3 次星星兑换也已经用完。" : "当前没有足够的可用星星。"}</p><p>可以继续独立完成挑战。</p><button className="primary" onClick={closeGuidanceChoice}>继续答题</button></>}
+            {checkFeedback === "success" && completionModel && <><span className="feedback-symbol">{completionModel.context === "fast-pass-question" ? "✓" : "★"}</span><h3 id="play-feedback-title">{completionModel.title}</h3><div className="completion-summary">{completionModel.summary.map((line) => <p key={line}>{line}</p>)}</div>{completionModel.hint && <p className="completion-hint">{completionModel.hint}</p>}<div className="feedback-actions"><button className="primary" onClick={() => runCompletionAction(completionModel.primaryAction.action)} disabled={completionModel.primaryAction.action.type === "fast-pass-next" && nextDisabled}>{completionModel.primaryAction.label}</button><button onClick={() => runCompletionAction(completionModel.secondaryAction.action)}>{completionModel.secondaryAction.label}</button></div></>}
+            {checkFeedback === "encouragement" && (onManagedResult && completionModel
+              ? <><span className="feedback-symbol">✓</span><h3 id="play-feedback-title">{completionModel.title}</h3><div className="completion-summary">{completionModel.summary.map((line) => <p key={line}>{line}</p>)}</div><div className="feedback-actions"><button className="primary" onClick={() => runCompletionAction(completionModel.primaryAction.action)} disabled={completionModel.primaryAction.action.type === "fast-pass-next" && nextDisabled}>{completionModel.primaryAction.label}</button><button onClick={() => runCompletionAction(completionModel.secondaryAction.action)}>{completionModel.secondaryAction.label}</button></div></>
+              : failureModel
+                ? <><span className="feedback-symbol">!</span><h3 id="play-feedback-title">{failureModel.title}</h3><div className="adventure-failure-message">{failureModel.message.map((line) => <p key={line}>{line}</p>)}</div><div className="feedback-actions adventure-failure-actions"><button className="primary" onClick={() => runAdventureFailureAction(failureModel.primaryAction.action)}>{failureModel.primaryAction.label}</button><button onClick={() => runAdventureFailureAction(failureModel.secondaryAction.action)}>{failureModel.secondaryAction.label}</button><button className="failure-method-action" onClick={() => runAdventureFailureAction(failureModel.tertiaryAction.action)}>{failureModel.tertiaryAction.label}</button></div></>
+                : <><span className="feedback-symbol">✦</span><h3 id="play-feedback-title">下次努力</h3><p>这题有点难，已经很接近了。可以重新挑战，或者先看看解题方法。</p><div className="feedback-actions feedback-failure-actions"><button className="primary" onClick={reset}>重新挑战</button><button onClick={onBackToChapter ?? onBackToMap}>返回当前大关</button><button onClick={() => { setCheckFeedback(null); setMethodDialogOpen(true); }}>查看解题方法</button></div></>)}
+          </section>
+        </div>
+      )}
+      {methodDialogOpen && (
+        <div className="play-feedback-backdrop" role="presentation">
+          <section className="play-feedback-dialog solution-method-dialog" role="dialog" aria-modal="true" aria-labelledby="solution-method-title">
+            <span className="feedback-symbol" aria-hidden="true">法</span>
+            <h3 id="solution-method-title">{failureModel ? "解题方法" : practiceMethod.title}</h3>
+            <ul>{(failureModel ? [
+              "先找只缺一个数字的行或列。",
+              "再检查列中的排除关系。",
+              "观察宫格里的候选数字。",
+              "结合行、列、宫格做三重排除。",
+              "最后尝试唯一候选法。"
+            ] : practiceMethod.content).map((line) => <li key={line}>{line}</li>)}</ul>
+            {!failureModel && <p>还可以试试：{levelMethods.map((method) => method.shortTitle).join("、")}</p>}
+            {failureModel
+              ? <div className="feedback-actions method-failure-actions"><button className="primary" onClick={() => { setMethodDialogOpen(false); setCheckFeedback("encouragement"); }}>我知道了</button><button onClick={() => runAdventureFailureAction(failureModel.primaryAction.action)}>{failureModel.primaryAction.label}</button></div>
+              : <div className="feedback-actions"><button className="primary" onClick={reset}>重新挑战</button><button onClick={() => setMethodDialogOpen(false)}>返回本题</button></div>}
           </section>
         </div>
       )}

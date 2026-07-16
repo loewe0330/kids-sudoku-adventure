@@ -2,7 +2,7 @@ import type { AppStorage, AuthSession } from "../types";
 import { getRawStorageItem, setRawStorageItem } from "../platform/web/webStorageAdapter";
 
 const CLOUD_SESSION_KEY = "kids-sudoku-cloud-session:v1";
-const GITHUB_PAGES_API = "https://kids-sudoku-adventure-cloud.netlify.app/api/cloud";
+const GITHUB_PAGES_API = "https://sudoku-explorer.netlify.app/api/cloud";
 
 interface CloudSession {
   token: string;
@@ -13,6 +13,14 @@ interface CloudSession {
 interface CloudLoginResponse {
   token: string;
   storage: AppStorage;
+}
+
+interface CloudStorageResponse {
+  storage: AppStorage;
+}
+
+interface CloudGuidanceResponse extends CloudStorageResponse {
+  status: "consumed" | "duplicate";
 }
 
 export const resolveCloudApiUrl = (hostname: string, configured = ""): string => {
@@ -78,10 +86,38 @@ export const loginCloudParent = async (username: string, password: string): Prom
   return result;
 };
 
-export const syncCloudStorage = async (storage: AppStorage): Promise<void> => {
+export const pullCloudStorage = async (): Promise<AppStorage> => {
   const session = parseCloudSession();
-  if (!session || !isCloudAccountEnabled()) return;
-  await requestCloud<{ ok: true }>({ action: "sync", token: session.token, storage });
+  if (!session || !isCloudAccountEnabled()) throw new Error("尚未登录云端账号");
+  const result = await requestCloud<CloudStorageResponse>({ action: "pull", token: session.token });
+  return result.storage;
+};
+
+export const syncCloudStorage = async (storage: AppStorage): Promise<AppStorage> => {
+  const session = parseCloudSession();
+  if (!session || !isCloudAccountEnabled()) return storage;
+  const result = await requestCloud<{ ok: true; storage: AppStorage }>({ action: "sync", token: session.token, storage });
+  return result.storage;
+};
+
+export const consumeCloudGuidance = async ({
+  childId,
+  puzzleId,
+  operationId
+}: {
+  childId: string;
+  puzzleId: string;
+  operationId: string;
+}): Promise<CloudGuidanceResponse> => {
+  const session = parseCloudSession();
+  if (!session || session.role !== "parent" || !isCloudAccountEnabled()) throw new Error("尚未登录云端家长账号");
+  return requestCloud<CloudGuidanceResponse>({
+    action: "consumeGuidance",
+    token: session.token,
+    childId,
+    puzzleId,
+    operationId
+  });
 };
 
 export const logoutCloudSession = (): void => {

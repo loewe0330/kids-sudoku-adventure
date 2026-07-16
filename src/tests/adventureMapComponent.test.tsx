@@ -71,14 +71,86 @@ describe("AdventureMap", () => {
     expect(onOpenChapter).toHaveBeenCalledWith(2);
   });
 
+  test("uses the same illustrated map structure on wide web viewports", () => {
+    const originalMatchMedia = window.matchMedia;
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: vi.fn().mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn()
+      })
+    });
+
+    try {
+      render(<AdventureMap child={progressedChild} onStartStage={vi.fn()} />);
+      expect(screen.getByLabelText("统一冒险地图")).toBeTruthy();
+      expect(screen.getByLabelText("11 大关纵向冒险地图")).toBeTruthy();
+      expect(screen.queryByLabelText("桌面端冒险地图")).toBeNull();
+    } finally {
+      Object.defineProperty(window, "matchMedia", { configurable: true, value: originalMatchMedia });
+    }
+  });
+
   test("keeps an unstarted adventure route independent from an internal ability value", () => {
     const highAbilityChild = { ...child([]), currentLevel: 7 };
     render(<AdventureMap child={highAbilityChild} onStartStage={vi.fn()} />);
 
     expect(screen.getByText("能力等级").parentElement?.textContent).toContain("待探索");
     expect(screen.getByText("闯关进度").parentElement?.textContent).toContain("L1-1 数字小苗村");
-    expect(screen.getByText("能力等级和闯关进度会分别记录，完成小关即可继续点亮地图。")).toBeTruthy();
+    expect(screen.queryByText("能力等级和闯关进度会分别记录，完成小关即可继续点亮地图。")).toBeNull();
     expect(screen.getByRole("button", { name: /L1 数字小苗村，当前挑战/ })).toBeTruthy();
+  });
+
+  test("opens fast-pass rules before target selection and keeps validated chapters available for star replay", () => {
+    const onOpenFastPass = vi.fn();
+    const onOpenChapter = vi.fn();
+    const fastPassChild: ChildProfile = {
+      ...child([]),
+      fastPass: {
+        attempts: [],
+        highestPassedLevel: 6,
+        validatedSkipLevels: [1, 2, 3, 4, 5],
+        updatedAt: "2026-01-02T00:00:00.000Z"
+      }
+    };
+    render(<AdventureMap child={fastPassChild} onOpenFastPass={onOpenFastPass} onOpenChapter={onOpenChapter} onStartStage={vi.fn()} />);
+
+    expect(screen.queryByText("已经会一些数独？完成挑战后，可以快速前往更合适的关卡。")).toBeNull();
+    expect(screen.getByRole("button", { name: "开启秘籍" }).textContent).toContain("闯关秘籍");
+    fireEvent.click(screen.getByRole("button", { name: "开启秘籍" }));
+    expect(screen.getByRole("dialog", { name: "开启闯关秘籍" })).toBeTruthy();
+    expect(screen.getByText(/L4-1/)).toBeTruthy();
+    expect(onOpenFastPass).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "开始 3 题挑战" }));
+    expect(onOpenFastPass).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: /L3 数字乐园，已通过秘籍/ }));
+    expect(onOpenChapter).toHaveBeenCalledWith(3);
+    expect(screen.getByRole("button", { name: /L6 山谷探索，当前挑战/ })).toBeTruthy();
+  });
+
+  test("closes fast-pass rules with the secondary action and Escape", () => {
+    render(<AdventureMap child={child([])} onOpenFastPass={vi.fn()} onStartStage={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "开启秘籍" }));
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.click(screen.getByRole("button", { name: "稍后再试" }));
+    expect(screen.queryByRole("dialog", { name: "开启闯关秘籍" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "开启秘籍" }));
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog", { name: "开启闯关秘籍" })).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  test("closes fast-pass rules when the backdrop is pressed", () => {
+    render(<AdventureMap child={child([])} onOpenFastPass={vi.fn()} onStartStage={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "开启秘籍" }));
+    const backdrop = screen.getByRole("dialog", { name: "开启闯关秘籍" }).parentElement;
+    expect(backdrop).toBeTruthy();
+    fireEvent.mouseDown(backdrop!);
+    expect(screen.queryByRole("dialog", { name: "开启闯关秘籍" })).toBeNull();
   });
 
   test("selects unlocked chapters and shows a gentle notice for locked chapters", () => {

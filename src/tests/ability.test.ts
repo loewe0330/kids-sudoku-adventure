@@ -61,11 +61,12 @@ describe("ability assessment display", () => {
     expect(model).toMatchObject({ status: "established", title: "L7 九宫格勇士", level: 7 });
   });
 
-  test("incomplete, gave-up, and answerless records do not establish an ability", () => {
+  test("incomplete, gave-up, viewed-answer, and unfinished records do not establish an ability", () => {
     const records = [
       record(1, { completed: false }),
       record(2, { gaveUp: true }),
-      record(3, { finishedAt: undefined })
+      record(3, { viewedAnswer: true }),
+      record(4, { finishedAt: undefined })
     ];
     expect(getAbilityAssessmentStatus(child(), records)).toBe("unassessed");
   });

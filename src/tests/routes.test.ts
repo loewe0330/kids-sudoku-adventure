@@ -10,6 +10,7 @@ describe("product route map", () => {
     expect(ROUTES.CHILD_HOME).toBe("/child/:childId/home");
     expect(ROUTES.CHILD_ADVENTURE).toBe("/child/:childId/adventure");
     expect(ROUTES.CHILD_ADVENTURE_LEVEL).toBe("/child/:childId/adventure/:level");
+    expect(ROUTES.CHILD_FAST_PASS).toBe("/child/:childId/fast-pass");
     expect(ROUTES.CHILD_PRACTICE).toBe("/child/:childId/free-practice");
     expect(ROUTES.CHILD_PRACTICE_LEGACY).toBe("/child/:childId/practice");
     expect(ROUTES.CHILD_BANK_LEGACY).toBe("/child/:childId/bank");
@@ -22,6 +23,8 @@ describe("product route map", () => {
   test("builds and matches child learning-space routes", () => {
     expect(childPath("child-1", "home")).toBe("/child/child-1/home");
     expect(childPath("child-1", "practice")).toBe("/child/child-1/free-practice");
+    expect(childPath("child-1", "fast-pass")).toBe("/child/child-1/fast-pass");
+    expect(matchChildRoute("/child/child-1/fast-pass")).toEqual({ childId: "child-1", section: "fast-pass" });
     expect(matchChildRoute("/child/child-1/adventure")).toEqual({
       childId: "child-1",
       section: "adventure",

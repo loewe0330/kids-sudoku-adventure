@@ -7449,6 +7449,29 @@ button,
     font-size: 0.96rem;
   }
 
+  .child-shell .child-settings-page > .settings-sync-row {
+    grid-column: 1 / -1;
+    min-height: 64px;
+    height: 64px;
+    padding: 6px 8px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .child-shell .child-settings-page > .settings-sync-row > div { gap: 1px; }
+  .child-shell .child-settings-page > .settings-sync-row .settings-sync-label { font-size: 0.6rem; }
+  .child-shell .child-settings-page > .settings-sync-row strong { font-size: 0.76rem; }
+  .child-shell .child-settings-page > .settings-sync-row span:not(.settings-sync-label) { font-size: 0.62rem; line-height: 1.25; }
+  .child-shell .child-settings-page > .settings-sync-row button {
+    flex: 0 0 auto;
+    width: 92px;
+    min-height: 44px;
+    padding: 5px 8px;
+    font-size: 0.68rem;
+  }
+
   .child-shell .child-settings-page > label {
     min-width: 0;
     min-height: 44px;
@@ -7702,8 +7725,8 @@ button,
   .practice-shell .play-size-9 .number-pad button {
     width: 100%;
     min-width: 0;
-    min-height: 42px;
-    height: 42px;
+    min-height: 44px;
+    height: 44px;
     border-radius: 14px;
     font-size: 1rem;
   }
@@ -8484,42 +8507,42 @@ button,
   }
 }
 
-/* Touch-first illustrated adventure map. Desktop keeps the existing map view. */
-@media screen and (max-width: 1035px) {
+/* Unified illustrated adventure map for desktop, iPad and phone. */
+@media screen {
   .adventure-shell .adventure-desktop-view { display: none; }
   .adventure-shell .adventure-touch-view { display: block; width: min(100%, 920px); margin: 0 auto; }
   .adventure-shell .adventure-map-page { width: min(100%, 920px); margin: 0 auto; padding: 14px 14px calc(96px + env(safe-area-inset-bottom)); }
   .adventure-shell .touch-map-intro {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 10px 14px;
+    gap: 10px;
     align-items: center;
     min-height: 0;
-    padding: 12px 16px;
+    padding: 10px 12px;
     border: 1px solid rgba(80, 142, 89, .22);
     border-radius: 24px;
     background: linear-gradient(135deg, rgba(255,253,243,.98), rgba(237,248,236,.9));
     box-shadow: 0 10px 24px rgba(42, 88, 58, .09);
   }
-  .adventure-shell .touch-map-intro .eyebrow { margin: 0 0 2px; }
-  .adventure-shell .touch-map-intro h2 { margin: 0; color: #18304a; font-size: clamp(1.2rem, 3.1vw, 1.56rem); line-height: 1.2; }
-  .adventure-shell .touch-map-intro > div > p:not(.eyebrow) { margin: 4px 0 0; color: #5b7161; font-size: .82rem; line-height: 1.35; }
-  .adventure-shell .touch-map-context { color: #4f8061 !important; font-size: .76rem !important; font-weight: 800; }
+  .adventure-shell .touch-map-heading { min-width: 0; }
+  .adventure-shell .touch-map-intro h2 { margin: 0; color: #18304a; font-size: clamp(1.05rem, 3.1vw, 1.35rem); line-height: 1.18; }
+  .adventure-shell .touch-map-actions { display: flex; gap: 8px; align-items: center; }
   .adventure-shell .touch-chest-counter {
     display: grid;
-    grid-template-columns: 32px minmax(0, 1fr);
-    gap: 2px 7px;
+    grid-template-columns: 24px auto;
+    gap: 0 5px;
     align-items: center;
-    min-width: 112px;
-    padding: 8px;
+    min-width: 72px;
+    min-height: 44px;
+    padding: 5px 8px;
     border: 1px solid rgba(232, 184, 75, .45);
     border-radius: 18px;
     background: #fff8df;
     color: #675027;
   }
-  .adventure-shell .touch-chest-counter > span { grid-row: 1 / 3; font-size: 1.35rem; }
-  .adventure-shell .touch-chest-counter strong { font-size: .72rem; }
-  .adventure-shell .touch-chest-counter small { font-size: .78rem; font-weight: 900; }
+  .adventure-shell .touch-chest-counter > span { grid-row: 1 / 3; color: #e9ad22; font-size: 1rem; }
+  .adventure-shell .touch-chest-counter strong { font-size: .72rem; line-height: 1; }
+  .adventure-shell .touch-chest-counter small { color: #806a3e; font-size: .62rem; font-weight: 850; }
   .adventure-shell .touch-adventure-map {
     position: relative;
     isolation: isolate;
@@ -8615,7 +8638,7 @@ button,
   .adventure-shell.adventure-detail-route .adventure-map-page { padding-top: 10px; }
   .adventure-shell .touch-chapter-detail { display: grid; gap: 16px; }
   .adventure-shell .touch-detail-topbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 54px; padding: 6px 4px; }
-  .adventure-shell .touch-detail-topbar button { justify-self: start; min-height: 42px; padding: 7px 12px; border: 1px solid rgba(88,145,91,.26); border-radius: 999px; background: #fffdf3; color: #255e43; font-weight: 900; white-space: nowrap; }
+  .adventure-shell .touch-detail-topbar button { justify-self: start; min-height: 44px; padding: 7px 12px; border: 1px solid rgba(88,145,91,.26); border-radius: 999px; background: #fffdf3; color: #255e43; font-weight: 900; white-space: nowrap; }
   .adventure-shell .touch-detail-topbar h2 { margin: 0; color: #18304a; font-size: clamp(1.12rem, 3.4vw, 1.5rem); white-space: nowrap; }
   .adventure-shell .touch-chapter-hero { position: relative; min-height: 270px; overflow: hidden; border-radius: 24px; background: linear-gradient(135deg, #dff3f6, #b8df74); box-shadow: 0 10px 24px rgba(42,88,58,.12); }
   .adventure-shell .touch-chapter-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -8649,6 +8672,22 @@ button,
   .adventure-shell .touch-reward-preview strong { overflow: hidden; color: #244b3d; text-overflow: ellipsis; white-space: nowrap; }
   .adventure-shell .touch-continue-button { width: 100%; min-height: 58px; border: 0; border-radius: 999px; background: #2f8f5b; box-shadow: 0 5px 0 #22653e, 0 10px 18px rgba(41,107,66,.18); color: white; font-size: clamp(.94rem, 2.5vw, 1.08rem); font-weight: 950; }
   .adventure-shell .touch-adventure-tip { margin: 0; padding: 12px; border-radius: 14px; background: #f2f7e8; color: #627565; font-size: .82rem; text-align: center; }
+}
+
+@media screen and (min-width: 1036px) {
+  .adventure-shell .adventure-touch-view { width: min(calc(100% - 64px), 1080px); }
+  .adventure-shell .adventure-map-page { width: min(calc(100% - 64px), 1080px); padding-top: 22px; }
+  .adventure-shell .touch-map-intro { padding: 16px 22px; }
+  .adventure-shell .touch-adventure-map { min-height: 2160px; }
+  .adventure-shell .touch-map-station { width: min(50%, 460px); }
+  .adventure-shell .touch-station-number { flex-basis: 72px; width: 72px; height: 72px; font-size: 1.35rem; }
+  .adventure-shell .touch-station-card { padding: 13px 18px 13px 22px; border-radius: 18px; }
+  .adventure-shell .touch-map-station:nth-of-type(even) .touch-station-card { padding: 13px 22px 13px 18px; }
+  .adventure-shell .touch-station-card strong { font-size: 1rem; }
+  .adventure-shell .touch-station-card small { font-size: .78rem; }
+  .adventure-shell .touch-chapter-hero { min-height: 410px; }
+  .adventure-shell .touch-chapter-copy { top: 32px; right: 32px; padding: 22px; }
+  .adventure-shell .touch-stage-row { min-height: 88px; padding: 14px 18px; }
 }
 
 @media screen and (min-width: 768px) and (max-width: 1035px) {
@@ -8686,7 +8725,7 @@ button,
   .adventure-shell .touch-chapter-detail { gap: 12px; }
   .adventure-shell .touch-detail-topbar { grid-template-columns: auto minmax(0, 1fr) 0; }
   .adventure-shell .touch-detail-topbar h2 { overflow: hidden; font-size: 1rem; text-align: right; text-overflow: ellipsis; }
-  .adventure-shell .touch-detail-topbar button { min-height: 38px; padding: 6px 9px; font-size: .78rem; }
+  .adventure-shell .touch-detail-topbar button { min-height: 44px; padding: 6px 9px; font-size: .78rem; }
   .adventure-shell .touch-chapter-hero { min-height: 244px; }
   .adventure-shell .touch-chapter-copy { top: 12px; right: 12px; width: min(65%, 270px); padding: 12px; border-radius: 16px; }
   .adventure-shell .touch-chapter-copy h3 { font-size: 1rem; }
@@ -9045,6 +9084,12 @@ button,
     white-space: nowrap;
   }
 
+  .practice-shell .guidance-balance-hint {
+    grid-column: 1 / -1;
+    font-size: .66rem;
+    line-height: 1.15;
+  }
+
   .practice-shell .mobile-delete-action {
     color: #5a4938;
     background: #fffdf3;
@@ -9300,5 +9345,221 @@ button,
   .free-practice-shell .garden-chest {
     transform: scale(0.72);
     transform-origin: bottom center;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .child-shell:has(.fast-pass-challenge-page) > .app-header,
+  body:has(.fast-pass-challenge-page) .mobile-bottom-nav { display: none; }
+  .app-shell.child-shell.practice-shell.fast-pass-shell:has(.fast-pass-challenge-page) > .app-header.compact-hero.explorer-top-nav { display: none !important; }
+  .fast-pass-challenge-page { padding-top: 4px; }
+  .fast-pass-challenge-page .fast-pass-progress {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 10px;
+    padding: 8px 10px;
+  }
+  .fast-pass-challenge-page .fast-pass-progress > span { display: none; }
+  .fast-pass-challenge-page .fast-pass-progress h2 { font-size: 1.18rem; }
+  .fast-pass-challenge-page .fast-pass-progress-message { font-size: .72rem; line-height: 1.25; }
+  .fast-pass-challenge-page .mode-challenge .practice-info .back-button,
+  .fast-pass-challenge-page .mode-challenge .practice-title-block,
+  .fast-pass-challenge-page .mode-challenge .mobile-puzzle-home-link { display: none; }
+  .fast-pass-challenge-page .mode-challenge .practice-info {
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    padding: 6px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+  .settings-sync-row { align-items: stretch; flex-direction: column; }
+  .settings-sync-row button { width: 100%; }
+  .fast-pass-page { width: min(100% - 20px, 680px); padding-top: 12px; }
+  .fast-pass-intro-page { display: grid; height: calc(100dvh - 174px); min-height: 360px; padding: 8px 0 0; }
+  .fast-pass-intro-panel { align-self: start; max-height: 100%; }
+  .fast-pass-result-panel { padding: 18px; }
+  .fast-pass-intro-header { padding: 9px 12px; }
+  .practice-shell .fast-pass-back-button {
+    height: auto;
+    min-height: 44px;
+    padding: 5px 8px;
+    font-size: .72rem;
+    white-space: nowrap;
+  }
+  .fast-pass-intro-header h2,
+  .fast-pass-result-panel h2 { font-size: 1.08rem; line-height: 1.2; }
+  .fast-pass-recommendation { gap: 10px; padding: 10px 12px; border-left-width: 4px; }
+  .fast-pass-level-mark { width: 56px; height: 56px; }
+  .fast-pass-level-mark span { font-size: .56rem; }
+  .fast-pass-level-mark strong { font-size: 1.18rem; }
+  .fast-pass-recommendation-copy { gap: 2px; }
+  .fast-pass-recommendation-copy > span { font-size: .72rem; }
+  .fast-pass-recommendation-copy p { font-size: .76rem; line-height: 1.3; }
+  .fast-pass-custom-target { grid-template-columns: auto minmax(0, 1fr); gap: 8px; padding: 9px 12px; }
+  .fast-pass-target-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fast-pass-target-picker button { min-height: 44px; padding: 5px 8px; font-size: .72rem; }
+  .fast-pass-route-preview { padding: 9px 12px; }
+  .fast-pass-target-facts { grid-template-columns: 1fr 1fr; }
+  .fast-pass-target-facts div { padding: 6px 8px; }
+  .fast-pass-target-facts span { font-size: .62rem; }
+  .fast-pass-target-facts strong { font-size: .78rem; }
+  .fast-pass-intro-actions { grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); gap: 8px; padding: 9px 12px; }
+  .fast-pass-start-button,
+  .fast-pass-details-button { min-height: 44px; padding: 7px 8px; font-size: .78rem; }
+  .play-feedback-backdrop { padding: 12px; }
+  .play-feedback-dialog { width: calc(100vw - 24px); max-height: calc(100dvh - 24px - env(safe-area-inset-bottom)); padding: 20px 16px calc(16px + env(safe-area-inset-bottom)); gap: 10px; border-radius: 18px; }
+  .play-feedback-dialog h3 { font-size: 1.3rem; }
+  .play-feedback-dialog p { font-size: .84rem; line-height: 1.45; }
+  .play-feedback-dialog > button { width: 100%; min-width: 0; min-height: 44px; }
+  .feedback-actions,
+  .feedback-failure-actions { grid-template-columns: 1fr; gap: 8px; }
+  .adventure-failure-actions { grid-template-columns: 1fr; gap: 8px; }
+  .adventure-failure-actions .failure-method-action { grid-column: auto; }
+  .feedback-actions button { width: 100%; min-height: 44px; }
+  .feedback-symbol { width: 46px; height: 46px; font-size: 1.45rem; }
+  .fast-pass-result-summary { grid-template-columns: 1fr; }
+  .fast-pass-result-summary span { min-height: 62px; }
+  .fast-pass-progress {
+    width: calc(100% - 20px);
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 10px;
+    padding: 10px;
+  }
+  .fast-pass-progress > span { grid-column: 1 / -1; font-size: 0.76rem; }
+}
+
+@media screen and (max-width: 520px) {
+  .adventure-shell .touch-map-intro { padding: 8px 9px; border-radius: 16px; }
+  .adventure-shell .touch-map-intro h2 { font-size: 1rem; }
+  .adventure-shell .touch-map-actions { gap: 5px; }
+  .adventure-shell .fast-pass-map-entry { grid-template-columns: 26px auto; min-height: 44px; padding: 4px 7px; }
+  .adventure-shell .fast-pass-map-entry .touch-map-action-icon { width: 26px; height: 26px; }
+  .adventure-shell .fast-pass-map-entry strong { font-size: .68rem; }
+  .adventure-shell .touch-chest-counter { min-width: 62px; min-height: 40px; padding: 4px 6px; }
+  .fast-pass-rules-backdrop { align-items: center; padding: 14px; }
+  .fast-pass-rules-dialog { max-height: calc(100dvh - 28px); padding: 22px 18px 18px; overflow-y: auto; }
+  .fast-pass-rules-dialog h2 { margin-bottom: 10px; font-size: 1.35rem; }
+  .fast-pass-rules-lead { font-size: 0.96rem; }
+  .fast-pass-rules-lead strong { font-size: 1.65rem; }
+  .fast-pass-rules-summary { gap: 5px; margin: 12px 0 10px; padding: 10px 12px; font-size: 0.84rem; }
+  .fast-pass-rules-note { margin-bottom: 12px; font-size: 0.8rem; }
+  .fast-pass-rules-actions { grid-template-columns: 1fr; gap: 8px; }
+  .fast-pass-rules-actions .primary { grid-row: 1; }
+  .fast-pass-custom-target h3 { font-size: .76rem; }
+  .fast-pass-question-list { grid-template-columns: 1fr; gap: 14px; }
+  .fast-pass-question-list li:not(:last-child)::after { top: 36px; left: 17px; width: 3px; height: calc(100% + 14px); }
+  .fast-pass-question-list li > div { min-height: 42px; }
+  .fast-pass-details-dialog { gap: 12px; padding: 20px 16px 16px; }
+}
+
+@media screen and (min-width: 761px) and (max-width: 1035px) {
+  .touch-fast-pass-entry { width: auto; }
+  .app-shell.child-shell.practice-shell.fast-pass-shell:has(.fast-pass-challenge-page) > .app-header.compact-hero.explorer-top-nav { display: none !important; }
+  .fast-pass-challenge-page { padding-top: 8px; }
+  .fast-pass-challenge-page .mode-challenge .practice-info .back-button,
+  .fast-pass-challenge-page .mode-challenge .practice-title-block,
+  .fast-pass-challenge-page .mode-challenge .mobile-puzzle-home-link { display: none; }
+  .fast-pass-challenge-page .mode-challenge .practice-info {
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    padding: 8px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+  .fast-pass-challenge-page .mode-challenge .play-stat-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media screen and (max-width: 767px) {
+  .growth-shell .growth-report-hero {
+    height: auto;
+    min-height: 136px;
+    max-height: none;
+    padding: 9px 10px 8px;
+    gap: 6px;
+  }
+
+  .growth-shell .growth-report-hero h2 {
+    margin: 0 0 5px;
+    color: #173d56;
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", "PingFang SC", sans-serif;
+    font-size: 1.08rem;
+    font-weight: 900;
+  }
+
+  .growth-shell .growth-report-hero h2::after { margin-left: 5px; }
+
+  .growth-shell .growth-conclusion-lines { gap: 3px; }
+
+  .growth-shell .growth-conclusion-lines p {
+    min-height: 25px;
+    padding: 2px 7px 2px 3px;
+    gap: 5px;
+    border-radius: 7px;
+    font-size: 0.69rem;
+    line-height: 1.25;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .growth-shell .growth-conclusion-lines p > span {
+    flex-basis: 21px;
+    display: grid;
+    width: 21px;
+    height: 21px;
+    font-size: 0.62rem;
+  }
+
+  .growth-shell .growth-context-chips { gap: 5px; }
+
+  .free-practice-shell .recommended-card-heading h3 {
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", "PingFang SC", sans-serif;
+    font-size: 0.94rem;
+  }
+
+  .free-practice-shell .recommendation-content {
+    min-height: 115px;
+    height: 115px;
+    padding: 9px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 108px;
+    grid-template-rows: auto auto minmax(44px, auto);
+    gap: 2px 8px;
+    align-items: center;
+  }
+
+  .free-practice-shell .recommendation-content > div { display: contents; }
+
+  .free-practice-shell .recommendation-content h4 {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", "PingFang SC", sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.15;
+  }
+
+  .free-practice-shell .recommendation-content p {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #365f53;
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", "PingFang SC", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .free-practice-shell .recommendation-content .quest-meta-row {
+    grid-column: 1;
+    margin: 0;
+    align-self: center;
+  }
+
+  .free-practice-shell .recommendation-content > button {
+    grid-column: 2;
+    grid-row: 3;
+    width: 100%;
+    min-height: 44px;
+    align-self: center;
   }
 }

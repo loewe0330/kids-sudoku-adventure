@@ -64,7 +64,17 @@ export interface ChildProfile {
   abilityAssessmentStatus?: AbilityAssessmentStatus;
   settings: ChildSettings;
   adventureProgress: AdventureStageProgress[];
+  fastPass?: FastPassState;
+  guidanceUsage?: GuidanceUsage;
+  guidanceOperations?: GuidanceConsumptionOperation[];
+  spentStars?: number;
+  schemaVersion?: number;
+  revision?: number;
+  deletedAt?: string;
+  syncFieldUpdatedAt?: Partial<Record<ChildSyncField, string>>;
 }
+
+export type ChildSyncField = "name" | "gradeLevel" | "avatar" | "smartDifficultyEnabled" | "settings";
 
 export type AbilityAssessmentStatus = "unassessed" | "provisional" | "established";
 
@@ -98,12 +108,20 @@ export interface PracticeRecord {
   durationSeconds: number;
   mistakeCount: number;
   hintCount: number;
+  guidanceUsed?: boolean;
+  guidanceSource?: GuidanceSource | null;
+  guidanceOperationId?: string;
+  submissionCount?: number;
   completed: boolean;
   gaveUp: boolean;
+  viewedAnswer?: boolean;
   stars: number;
   mode: PracticeMode;
   source?: PracticeSource;
   stageIndex?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
 }
 
 export interface SudokuPuzzleItem {
@@ -124,6 +142,18 @@ export interface SudokuPuzzleItem {
   mode?: PracticeMode;
   source?: PracticeSource;
   stageIndex?: number;
+  updatedAt?: string;
+  deletedAt?: string;
+}
+
+export type SyncEntityType = "child" | "practiceRecord" | "puzzle";
+
+export interface SyncTombstone {
+  entityType: SyncEntityType;
+  id: string;
+  parentId: string;
+  childId?: string;
+  deletedAt: string;
 }
 
 export interface AppStorage {
@@ -134,6 +164,9 @@ export interface AppStorage {
   children: ChildProfile[];
   practiceRecords: PracticeRecord[];
   puzzleBank: SudokuPuzzleItem[];
+  schemaVersion?: number;
+  revision?: number;
+  syncTombstones?: SyncTombstone[];
 }
 
 export interface ChildProfileInput {
@@ -187,6 +220,22 @@ export interface AdventureStageProgress {
   updatedAt: string;
 }
 
+export type GuidanceSource = "free" | "star";
+
+export interface GuidanceUsage {
+  date: string;
+  freeUsed: number;
+  paidUsed: number;
+}
+
+export interface GuidanceConsumptionOperation {
+  id: string;
+  puzzleId: string;
+  source: GuidanceSource;
+  businessDate: string;
+  createdAt: string;
+}
+
 export interface AdventureStage {
   level: number;
   stageIndex: number;
@@ -198,6 +247,43 @@ export interface AdventureStage {
   completed: boolean;
   unlocked: boolean;
   recommended: boolean;
+  fastPassValidated?: boolean;
 }
 
-export type ViewMode = "selector" | "home" | "adventure" | "practice" | "growth" | "play" | "print" | "settings";
+export interface FastPassQuestionResult {
+  questionIndex: number;
+  level: number;
+  size: SudokuSize;
+  difficulty: SudokuDifficulty;
+  startedAt: string;
+  finishedAt: string;
+  errors: number;
+  hintsUsed: number;
+  elapsedSeconds: number;
+  completed: boolean;
+  gaveUp: boolean;
+  viewedAnswer: boolean;
+  passed: boolean;
+}
+
+export interface FastPassAttempt {
+  id: string;
+  targetLevel: number;
+  status: "passed" | "failed";
+  startedAt: string;
+  finishedAt: string;
+  results: FastPassQuestionResult[];
+  passed: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
+}
+
+export interface FastPassState {
+  attempts: FastPassAttempt[];
+  highestPassedLevel?: number;
+  validatedSkipLevels?: number[];
+  updatedAt?: string;
+}
+
+export type ViewMode = "selector" | "home" | "adventure" | "fast-pass" | "practice" | "growth" | "play" | "print" | "settings";

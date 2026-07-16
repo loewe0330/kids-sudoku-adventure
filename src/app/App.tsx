@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { difficultyLabels, gradeLabels, sizeLabels } from "../constants/gradeLabels";
 import { ROUTES, childAdventurePath, childPath, matchChildRoute, type ChildRouteSection, type PracticeTab } from "./routes";
 import { AdminDashboard, AdminLogin } from "../features/admin";
-import { AdventureMap } from "../features/adventure";
+import { AdventureMap, FastPassFlow } from "../features/adventure";
 import { ParentLogin, PasswordField } from "../features/auth";
 import { ChildSelector } from "../features/children";
 import { LearningCurve } from "../features/growth";
@@ -19,16 +19,21 @@ import {
   getPracticeRecordsByChild,
   getPuzzlesByChild,
   initDefaultAdminIfNeeded,
+  getStorageSyncState,
   logoutParent,
   setActiveChild,
+  subscribeStorageSyncState,
+  synchronizeAppStorage,
   updateCurrentParentPassword,
   updateChild
 } from "../lib/storage";
 import { getAbilityDisplayModel } from "../lib/ability";
+import { getAdventureMap } from "../lib/adventure";
 import { getDailyPracticeRecommendation, type DailyPracticeRecommendation } from "../lib/dailyPracticeRecommendation";
 import { generatePracticePuzzle, generateReplacementPuzzle } from "../lib/practiceRules";
 import { generatePuzzleForChild } from "../lib/sudoku";
 import { isCloudAccountEnabled } from "../lib/cloudClient";
+import { formatDateTime } from "../lib/time";
 import { getWebAppPathname, webNavigationAdapter } from "../platform/web/webNavigationAdapter";
 import type { AdventureStage, PracticeMode, PracticeSource, SudokuDifficulty, SudokuPuzzleItem, SudokuSize, ViewMode } from "../types";
 
@@ -53,6 +58,7 @@ export default function App() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [syncState, setSyncState] = useState(getStorageSyncState);
   const pendingPracticeTab = useRef<PracticeTab | null>(null);
 
   const session = useMemo(() => getCurrentSession(), [version]);
@@ -73,6 +79,37 @@ export default function App() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+
+  useEffect(() => subscribeStorageSyncState((nextState) => {
+    setSyncState(nextState);
+    if (nextState.status === "synced") setVersion((item) => item + 1);
+  }), []);
+
+  useEffect(() => {
+    if (!parent || !isCloudAccountEnabled()) return;
+    let active = true;
+    void synchronizeAppStorage()
+      .then(() => {
+        if (active) setVersion((item) => item + 1);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [parent?.id]);
+
+  useEffect(() => {
+    if (!parent || !isCloudAccountEnabled()) return;
+    const syncAndRefresh = () => {
+      void synchronizeAppStorage().then(() => setVersion((item) => item + 1)).catch(() => undefined);
+    };
+    window.addEventListener("focus", syncAndRefresh);
+    window.addEventListener("online", syncAndRefresh);
+    return () => {
+      window.removeEventListener("focus", syncAndRefresh);
+      window.removeEventListener("online", syncAndRefresh);
+    };
+  }, [parent?.id]);
 
   useEffect(() => {
     if (!child) setView("selector");
@@ -260,6 +297,13 @@ export default function App() {
     navigate(childPath(current.id, "play"));
   };
 
+  const startAdventureStageById = (level: number, stageIndex: number) => {
+    const current = getActiveChild();
+    if (!current) return;
+    const stage = getAdventureMap(current).find((item) => item.level === level && item.stageIndex === stageIndex);
+    if (stage) startAdventureStage(stage);
+  };
+
   if (!child || view === "selector") {
     return (
       <ChildSelector
@@ -272,7 +316,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app-shell child-shell ${view === "home" ? "home-shell" : ""} ${view === "play" ? "practice-shell" : ""} ${view === "practice" ? "free-practice-shell" : ""} ${view === "adventure" ? "adventure-shell" : ""} ${adventureLevel ? "adventure-detail-route" : ""} ${view === "growth" ? "growth-shell" : ""}`}>
+    <div className={`app-shell child-shell ${view === "home" ? "home-shell" : ""} ${view === "play" || view === "fast-pass" ? "practice-shell" : ""} ${view === "practice" ? "free-practice-shell" : ""} ${view === "adventure" ? "adventure-shell" : ""} ${view === "fast-pass" ? "fast-pass-shell" : ""} ${adventureLevel ? "adventure-detail-route" : ""} ${view === "growth" ? "growth-shell" : ""}`}>
       <header className="app-header compact-hero explorer-top-nav explorer-topbar no-print">
         <div className="brand-lockup">
           <span className="brand-mark" aria-hidden="true">数</span>
@@ -287,7 +331,7 @@ export default function App() {
         </div>
         <nav className="top-actions">
           <button className={view === "home" ? "active" : ""} onClick={() => goChild("home")}>首页</button>
-          <button className={view === "adventure" ? "active" : ""} onClick={() => goChild("adventure")}>闯关</button>
+          <button className={view === "adventure" || view === "fast-pass" ? "active" : ""} onClick={() => goChild("adventure")}>闯关</button>
           <button className={view === "practice" ? "active" : ""} onClick={() => goChild("practice")}>自由练习</button>
           <button className={view === "growth" ? "active" : ""} onClick={() => goChild("growth")}>成长</button>
         </nav>
@@ -320,9 +364,24 @@ export default function App() {
             goChild("home");
           }}
           onNext={replaceActivePuzzle}
+          onRetryAdventureStage={replaceActivePuzzle}
           onSave={saveActivePuzzle}
           onPrint={(includeAnswer) => openPrint([activePuzzle], includeAnswer)}
           onBackToMap={() => goChild("adventure")}
+          onBackToChapter={() => {
+            if ((activePuzzle.mode ?? child.settings.practiceMode) === "adventure") {
+              setView("adventure");
+              navigate(childAdventurePath(child.id, activePuzzle.level));
+            } else {
+              goChild("practice");
+            }
+          }}
+          onStartAdventureStage={startAdventureStageById}
+          onOpenAdventureLevel={(level) => {
+            setView("adventure");
+            navigate(childAdventurePath(child.id, level));
+          }}
+          onOpenGrowth={() => goChild("growth")}
           onBackToPractice={() => goChild("practice")}
           onChildChanged={refresh}
         />
@@ -352,6 +411,19 @@ export default function App() {
           onOpenChapter={(level) => navigate(childAdventurePath(child.id, level))}
           onBackToMap={() => navigate(childAdventurePath(child.id))}
           onStartStage={startAdventureStage}
+          onOpenFastPass={() => goChild("fast-pass")}
+        />
+      )}
+
+      {view === "fast-pass" && (
+        <FastPassFlow
+          child={child}
+          onBackToMap={() => goChild("adventure")}
+          onOpenLevel={(level) => {
+            setView("adventure");
+            navigate(childAdventurePath(child.id, level));
+          }}
+          onChildChanged={refresh}
         />
       )}
 
@@ -385,6 +457,22 @@ export default function App() {
       {view === "settings" && (
         <section className="panel child-settings-page">
           <h2>设置</h2>
+          <div className={`settings-sync-row sync-${syncState.status}`} role="status">
+            <div>
+              <span className="settings-sync-label">数据同步</span>
+              <strong>{syncState.status === "error" ? "同步暂不可用" : syncState.message ?? (isCloudAccountEnabled() ? "已同步" : "本地模式")}</strong>
+              <span>{syncState.status === "error" ? "学习记录仍保存在当前设备，可稍后重试。" : `最后同步：${formatDateTime(syncState.lastSyncedAt)}`}</span>
+            </div>
+            <button
+              type="button"
+              disabled={!isCloudAccountEnabled() || syncState.status === "syncing"}
+              onClick={() => {
+                void synchronizeAppStorage().then(refresh).catch(() => undefined);
+              }}
+            >
+              {syncState.status === "error" ? "重新同步" : "同步数据"}
+            </button>
+          </div>
           <label className="toggle-row">
             <input
               type="checkbox"
@@ -486,12 +574,14 @@ export default function App() {
       )}
 
       <footer className="app-footer no-print">
-        {isCloudAccountEnabled() ? "账号与学习数据已启用跨设备同步，当前浏览器保留本地缓存。" : "当前为本地测试模式，数据保存在当前浏览器。"}{child.name} · {ability?.title} · {ability ? `${sizeLabels[ability.recommendedConfig.size]} ${difficultyLabels[ability.recommendedConfig.difficulty]}` : ""}
+        {isCloudAccountEnabled()
+          ? "账号与学习数据已启用跨设备同步。"
+          : "当前为本地测试模式，数据保存在当前浏览器。"}{child.name} · {ability?.title} · {ability ? `${sizeLabels[ability.recommendedConfig.size]} ${difficultyLabels[ability.recommendedConfig.difficulty]}` : ""}
       </footer>
 
       <nav className="mobile-bottom-nav no-print" aria-label="手机端主导航">
         <button className={view === "home" ? "active" : ""} onClick={() => goChild("home")}><span aria-hidden="true">⌂</span>首页</button>
-        <button className={view === "adventure" ? "active" : ""} onClick={() => goChild("adventure")}><span aria-hidden="true">◇</span>闯关</button>
+        <button className={view === "adventure" || view === "fast-pass" ? "active" : ""} onClick={() => goChild("adventure")}><span aria-hidden="true">◇</span>闯关</button>
         <button className={view === "practice" || view === "play" ? "active" : ""} onClick={() => goChild("practice")}><span aria-hidden="true">▦</span>练习</button>
         <button className={view === "growth" ? "active" : ""} onClick={() => goChild("growth")}><span aria-hidden="true">↗</span>成长</button>
       </nav>

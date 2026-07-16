@@ -1,13 +1,17 @@
 import { getStore } from "@netlify/blobs";
 import type { Config } from "@netlify/functions";
-import type { AppStorage, AuthSession, ParentAccount } from "../../src/types";
+import type { AppStorage, AuthSession } from "../../src/types";
+import { mergeCloudStorage, scopeIncomingStorageForParent, scopeStorageForParent } from "./cloudStorageMerge";
+import { mergeAppStorage, SYNC_SCHEMA_VERSION } from "../../src/lib/storageMerge";
+import { applyGuidanceConsumption, getBusinessDate } from "../../src/lib/guidance";
 
 const STORAGE_KEY = "storage/global";
 const SESSION_PREFIX = "sessions/";
 const DEFAULT_ADMIN_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
 const allowedOrigins = new Set([
   "https://loewe0330.github.io",
-  "https://kids-sudoku-adventure-cloud.netlify.app"
+  "https://kids-sudoku-adventure-cloud.netlify.app",
+  "https://sudoku-explorer.netlify.app"
 ]);
 
 interface CloudSessionRecord {
@@ -28,7 +32,10 @@ const defaultStorage = (): AppStorage => {
     activeChildId: null,
     children: [],
     practiceRecords: [],
-    puzzleBank: []
+    puzzleBank: [],
+    schemaVersion: SYNC_SCHEMA_VERSION,
+    revision: 0,
+    syncTombstones: []
   };
 };
 
@@ -47,19 +54,12 @@ const sanitizeStorage = (value: unknown, fallback = defaultStorage()): AppStorag
     activeChildId: null,
     children: Array.isArray(candidate.children) ? candidate.children : fallback.children,
     practiceRecords: Array.isArray(candidate.practiceRecords) ? candidate.practiceRecords : fallback.practiceRecords,
-    puzzleBank: Array.isArray(candidate.puzzleBank) ? candidate.puzzleBank : fallback.puzzleBank
+    puzzleBank: Array.isArray(candidate.puzzleBank) ? candidate.puzzleBank : fallback.puzzleBank,
+    schemaVersion: Math.max(candidate.schemaVersion ?? 0, fallback.schemaVersion ?? 0, SYNC_SCHEMA_VERSION),
+    revision: candidate.revision ?? fallback.revision ?? 0,
+    syncTombstones: Array.isArray(candidate.syncTombstones) ? candidate.syncTombstones : fallback.syncTombstones ?? []
   };
 };
-
-const scopedStorage = (storage: AppStorage, parent: ParentAccount, session: AuthSession): AppStorage => ({
-  ...storage,
-  parentAccounts: [parent],
-  activeSession: session,
-  activeChildId: null,
-  children: storage.children.filter((child) => child.parentId === parent.id),
-  practiceRecords: storage.practiceRecords.filter((record) => record.parentId === parent.id),
-  puzzleBank: storage.puzzleBank.filter((puzzle) => puzzle.parentId === parent.id)
-});
 
 const corsHeaders = (request: Request): HeadersInit => {
   const origin = request.headers.get("origin") ?? "";
@@ -118,12 +118,11 @@ export default async (request: Request) => {
     if (username !== storage.adminAccount.username) return json(request, { message: "管理员账号不存在" }, 401);
     if ((await hashPassword(password)) !== storage.adminAccount.passwordHash) return json(request, { message: "管理员密码错误" }, 401);
 
-    if (storage.parentAccounts.length === 0 && body.seedStorage) {
+    if (body.seedStorage) {
       const seed = sanitizeStorage(body.seedStorage, storage);
-      if (seed.adminAccount.passwordHash === storage.adminAccount.passwordHash) {
-        storage = { ...seed, activeSession: null, activeChildId: null };
-        await store.setJSON(STORAGE_KEY, storage);
-      }
+      storage = mergeCloudStorage(storage, seed);
+      storage = { ...storage, revision: (storage.revision ?? 0) + 1, schemaVersion: SYNC_SCHEMA_VERSION };
+      await store.setJSON(STORAGE_KEY, storage);
     }
     const token = await createSession("admin", username);
     return json(request, { token, storage: { ...storage, activeSession: { role: "admin", username, loggedInAt: nowIso() } } });
@@ -143,12 +142,75 @@ export default async (request: Request) => {
     await store.setJSON(STORAGE_KEY, storage);
     const token = await createSession("parent", parent.username, parent.id);
     const session: AuthSession = { role: "parent", parentId: parent.id, username: parent.username, loggedInAt };
-    return json(request, { token, storage: scopedStorage(storage, updatedParent, session) });
+    return json(request, { token, storage: scopeStorageForParent(storage, updatedParent, session) });
   }
 
   if (body.action === "logout") {
     if (typeof body.token === "string") await store.delete(`${SESSION_PREFIX}${body.token}`);
     return json(request, { ok: true });
+  }
+
+  if (body.action === "pull") {
+    const session = await getSession(body.token);
+    if (!session) return json(request, { message: "登录已过期，请重新登录。" }, 401);
+    if (session.role === "admin") return json(request, { storage });
+    const parent = storage.parentAccounts.find((item) => item.id === session.parentId && item.status === "enabled");
+    if (!parent) return json(request, { message: "账号不存在或已停用。" }, 403);
+    const authSession: AuthSession = {
+      role: "parent",
+      parentId: parent.id,
+      username: parent.username,
+      loggedInAt: nowIso()
+    };
+    return json(request, { storage: scopeStorageForParent(storage, parent, authSession) });
+  }
+
+  if (body.action === "consumeGuidance") {
+    const session = await getSession(body.token);
+    if (!session || session.role !== "parent" || !session.parentId) {
+      return json(request, { message: "需要家长账号登录" }, 401);
+    }
+    const childId = typeof body.childId === "string" ? body.childId : "";
+    const puzzleId = typeof body.puzzleId === "string" ? body.puzzleId : "";
+    const operationId = typeof body.operationId === "string" ? body.operationId : "";
+    if (!childId || !puzzleId || !operationId) return json(request, { message: "引导消费参数不完整" }, 400);
+
+    const latestStorage = sanitizeStorage(await store.get(STORAGE_KEY, { type: "json" }));
+    const child = latestStorage.children.find((item) => item.parentId === session.parentId && item.id === childId);
+    if (!child) return json(request, { message: "孩子档案不存在" }, 404);
+
+    const result = applyGuidanceConsumption({
+      child,
+      puzzleId,
+      operationId,
+      businessDate: getBusinessDate(),
+      createdAt: nowIso()
+    });
+    if (result.status === "already-used") return json(request, { message: "本题已经使用过解题引导" }, 409);
+    if (result.status === "no-stars") return json(request, { message: "当前没有足够的可用星星" }, 409);
+    if (result.status === "daily-limit") return json(request, { message: "今天的兑换次数已经用完" }, 409);
+
+    storage = {
+      ...latestStorage,
+      children: latestStorage.children.map((item) =>
+        item.parentId === session.parentId && item.id === childId ? result.child : item
+      ),
+      schemaVersion: SYNC_SCHEMA_VERSION,
+      revision: (latestStorage.revision ?? 0) + 1
+    };
+    await store.setJSON(STORAGE_KEY, storage);
+    const parent = storage.parentAccounts.find((item) => item.id === session.parentId && item.status === "enabled");
+    if (!parent) return json(request, { message: "账号不存在或已停用。" }, 403);
+    const authSession: AuthSession = {
+      role: "parent",
+      parentId: parent.id,
+      username: parent.username,
+      loggedInAt: nowIso()
+    };
+    return json(request, {
+      status: result.status,
+      storage: scopeStorageForParent(storage, parent, authSession)
+    });
   }
 
   if (body.action === "crossDeviceSelfTest") {
@@ -178,21 +240,36 @@ export default async (request: Request) => {
     const session = await getSession(body.token);
     if (!session) return json(request, { message: "登录已过期，请重新登录。" }, 401);
     const incoming = sanitizeStorage(body.storage, storage);
+    const latestStorage = sanitizeStorage(await store.get(STORAGE_KEY, { type: "json" }));
     if (session.role === "admin") {
-      storage = { ...incoming, activeSession: null, activeChildId: null };
+      storage = {
+        ...mergeAppStorage(latestStorage, incoming),
+        activeSession: null,
+        activeChildId: null,
+        schemaVersion: SYNC_SCHEMA_VERSION,
+        revision: (latestStorage.revision ?? 0) + 1
+      };
     } else if (session.parentId) {
       const parentId = session.parentId;
-      const incomingParent = incoming.parentAccounts.find((item) => item.id === parentId);
+      const parent = latestStorage.parentAccounts.find((item) => item.id === parentId && item.status === "enabled");
+      if (!parent) return json(request, { message: "账号不存在或已停用。" }, 403);
+      const scopedIncoming = scopeIncomingStorageForParent(latestStorage, incoming, parentId);
+      storage = mergeAppStorage(latestStorage, scopedIncoming);
       storage = {
         ...storage,
-        parentAccounts: storage.parentAccounts.map((item) => item.id === parentId && incomingParent ? incomingParent : item),
-        children: [...storage.children.filter((item) => item.parentId !== parentId), ...incoming.children.filter((item) => item.parentId === parentId)],
-        practiceRecords: [...storage.practiceRecords.filter((item) => item.parentId !== parentId), ...incoming.practiceRecords.filter((item) => item.parentId === parentId)],
-        puzzleBank: [...storage.puzzleBank.filter((item) => item.parentId !== parentId), ...incoming.puzzleBank.filter((item) => item.parentId === parentId)]
+        activeSession: null,
+        activeChildId: null,
+        schemaVersion: SYNC_SCHEMA_VERSION,
+        revision: (latestStorage.revision ?? 0) + 1
       };
     }
     await store.setJSON(STORAGE_KEY, storage);
-    return json(request, { ok: true });
+    if (session.role === "parent" && session.parentId) {
+      const parent = storage.parentAccounts.find((item) => item.id === session.parentId)!;
+      const authSession: AuthSession = { role: "parent", parentId: parent.id, username: parent.username, loggedInAt: nowIso() };
+      return json(request, { ok: true, storage: scopeStorageForParent(storage, parent, authSession) });
+    }
+    return json(request, { ok: true, storage });
   }
 
   return json(request, { message: "未知操作" }, 400);

@@ -18,7 +18,9 @@ npm run build
 
 ## 在线版本
 
-GitHub Pages: https://loewe0330.github.io/kids-sudoku-adventure/
+- Netlify 正式版：https://sudoku-explorer.netlify.app
+- 登录入口：https://sudoku-explorer.netlify.app/login
+- GitHub Pages 备用版：https://loewe0330.github.io/kids-sudoku-adventure/
 
 ## 跨设备数据
 

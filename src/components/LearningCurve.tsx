@@ -199,8 +199,8 @@ export function LearningCurve({ child }: LearningCurveProps) {
           <h2 id="growth-report-title">{child.name}的成长报告</h2>
           <p>看清现在的水平、最近表现和下一步练习方向。</p>
           <div className="growth-conclusion-lines">
-            <p><span aria-hidden="true">★</span><strong>成长评价：</strong>{growthConclusion}</p>
-            <p><span aria-hidden="true">芽</span><strong>下一步建议：</strong>{nextSuggestion}</p>
+            <p className="growth-evaluation-line"><span aria-hidden="true">★</span><strong>成长评价：</strong>{growthConclusion}</p>
+            <p className="growth-next-step-line"><span aria-hidden="true">芽</span><strong>下一步建议：</strong>{nextSuggestion}</p>
           </div>
         </div>
         <div className="growth-context-chips">

@@ -6,6 +6,7 @@ export const ROUTES = {
   CHILD_HOME: "/child/:childId/home",
   CHILD_ADVENTURE: "/child/:childId/adventure",
   CHILD_ADVENTURE_LEVEL: "/child/:childId/adventure/:level",
+  CHILD_FAST_PASS: "/child/:childId/fast-pass",
   CHILD_PRACTICE: "/child/:childId/free-practice",
   CHILD_PRACTICE_LEGACY: "/child/:childId/practice",
   CHILD_BANK_LEGACY: "/child/:childId/bank",
@@ -22,7 +23,7 @@ export const routes = {
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
-export type ChildRouteSection = "home" | "adventure" | "practice" | "growth" | "settings" | "play" | "print";
+export type ChildRouteSection = "home" | "adventure" | "fast-pass" | "practice" | "growth" | "settings" | "play" | "print";
 export type PracticeTab = "select" | "bank" | "batch" | "print";
 
 export interface MatchedChildRoute {
@@ -33,7 +34,7 @@ export interface MatchedChildRoute {
   canonicalPath?: string;
 }
 
-const childSections = new Set<ChildRouteSection>(["home", "adventure", "practice", "growth", "settings", "play", "print"]);
+const childSections = new Set<ChildRouteSection>(["home", "adventure", "fast-pass", "practice", "growth", "settings", "play", "print"]);
 
 export const childPath = (childId: string, section: ChildRouteSection): string => {
   const encodedChildId = encodeURIComponent(childId);

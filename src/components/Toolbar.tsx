@@ -14,7 +14,7 @@ export function Toolbar({ onCheck, onHint, onReveal, onReset, onNext, onSave, on
   return (
     <div className="toolbar no-print">
       <div className="toolbar-group">
-        <button className="primary" onClick={onCheck} disabled={disabled}>检查答案</button>
+        <button className="primary" onClick={onCheck} disabled={disabled}>提交</button>
         <button onClick={onHint} disabled={disabled}>提示</button>
         <button onClick={onReveal}>显示答案</button>
       </div>

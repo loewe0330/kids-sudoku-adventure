@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { APP_STORAGE_KEY } from "../data/storageSchema";
 import {
   addPracticeRecord,
@@ -134,6 +134,25 @@ describe("test-version account repository", () => {
     expect(saved).toMatchObject({ name: "安安改", gradeLevel: "grade4", currentLevel: 1 });
   });
 
+  test("tracks child profile field timestamps independently", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-07-16T08:00:00.000Z"));
+      const parent = await createParentAccount(parentInput("parent-field-clock"));
+      const child = createChild(parent.id, { name: "原昵称", gradeLevel: "grade3" });
+      const originalGradeTimestamp = child.syncFieldUpdatedAt?.gradeLevel;
+
+      vi.setSystemTime(new Date("2026-07-16T09:00:00.000Z"));
+      updateChild(parent.id, child.id, { name: "新昵称" });
+      const saved = getChildrenByParent(parent.id)[0];
+
+      expect(saved.syncFieldUpdatedAt?.name).toBe("2026-07-16T09:00:00.000Z");
+      expect(saved.syncFieldUpdatedAt?.gradeLevel).toBe(originalGradeTimestamp);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("legacy children keep their ability level and adventure progress during normalization", () => {
     localStorage.setItem(APP_STORAGE_KEY, JSON.stringify({
       children: [{
@@ -164,6 +183,10 @@ describe("test-version account repository", () => {
     const legacy = getAppStorage().children[0];
     expect(legacy.currentLevel).toBe(7);
     expect(legacy.adventureProgress[0]).toMatchObject({ level: 2, stageIndex: 3, bestStars: 2 });
+    expect(legacy.fastPass).toBeUndefined();
+    expect(legacy.guidanceUsage).toMatchObject({ freeUsed: 0, paidUsed: 0 });
+    expect(legacy.guidanceOperations).toEqual([]);
+    expect(legacy.spentStars).toBe(0);
   });
 
   test("parent and child data are isolated by parentId and childId", async () => {

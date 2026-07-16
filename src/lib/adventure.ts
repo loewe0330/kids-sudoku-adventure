@@ -2,7 +2,7 @@ import { getDifficultyLevel } from "../constants/difficultyLevels";
 import { getAbilityDisplayModel } from "./ability";
 import { getPracticeRecordsByChild } from "./storage";
 import { getLevelTitle } from "../constants/levelTitles";
-import type { AdventureStage, AdventureStageProgress, ChildProfile } from "../types";
+import type { AdventureStage, AdventureStageProgress, ChildProfile, FastPassState } from "../types";
 
 const stagesPerLevel = 5;
 
@@ -35,9 +35,12 @@ const isStageUnlocked = (
   level: number,
   stageIndex: number,
   progress: AdventureStageProgress[],
-  byKey: Map<string, AdventureStageProgress>
+  byKey: Map<string, AdventureStageProgress>,
+  fastPass?: FastPassState
 ): boolean => {
   if (level === 1 && stageIndex === 1) return true;
+  const fastPassLevels = fastPass?.validatedSkipLevels ?? [];
+  if (stageIndex === 1 && (fastPassLevels.includes(level) || fastPass?.highestPassedLevel === level)) return true;
   if (stageIndex > 1) return Boolean(byKey.get(progressKey(level, stageIndex - 1))?.completed);
   return completedCountForLevel(progress, level - 1) >= 3;
 };
@@ -59,13 +62,20 @@ export const getAdventureMap = (child: ChildProfile): AdventureStage[] => {
         requiredStarsToUnlock: level === 1 && stageIndex === 1 ? 0 : 1,
         bestStars: item?.bestStars ?? 0,
         completed: item?.completed ?? false,
-        unlocked: item?.unlocked || isStageUnlocked(level, stageIndex, progress, byKey),
-        recommended: false
+        unlocked: item?.unlocked || isStageUnlocked(level, stageIndex, progress, byKey, child.fastPass),
+        recommended: false,
+        fastPassValidated: child.fastPass?.validatedSkipLevels?.includes(level) ?? false
       });
     }
   }
 
-  const recommended = stages.find((stage) => stage.unlocked && !stage.completed) ?? stages.find((stage) => stage.unlocked);
+  const defaultRecommended = stages.find((stage) => stage.unlocked && !stage.completed) ?? stages.find((stage) => stage.unlocked);
+  const progressFrontier = Math.max(1, ...progress.filter((stage) => stage.completed || stage.unlocked).map((stage) => stage.level));
+  const fastPassFrontier = child.fastPass?.highestPassedLevel ?? 0;
+  const frontier = Math.max(progressFrontier, fastPassFrontier);
+  const recommended = fastPassFrontier > 0
+    ? stages.find((stage) => stage.level === frontier && stage.unlocked && !stage.completed) ?? defaultRecommended
+    : defaultRecommended;
   return stages.map((stage) => ({
     ...stage,
     recommended: Boolean(recommended && stage.level === recommended.level && stage.stageIndex === recommended.stageIndex)

@@ -2,6 +2,10 @@ import type { Badge, DifficultyLevelConfig, PracticeRecord } from "../types";
 
 export const calculateStars = (record: PracticeRecord, levelConfig: DifficultyLevelConfig): 0 | 1 | 2 | 3 => {
   if (record.gaveUp || !record.completed) return 0;
+  if (record.mode === "adventure") {
+    if (record.guidanceUsed) return 1;
+    return (record.submissionCount ?? 1) <= 1 ? 3 : 2;
+  }
   if (
     record.mistakeCount === 0 &&
     record.hintCount === 0 &&
