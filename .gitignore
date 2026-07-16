@@ -7,5 +7,10 @@ vite.config.d.ts
 .playwright-cli/
 output/
 
+# Local design references and source-image derivatives. The production map uses
+# the PNG chapter scenes and adventure-map.webp under public/assets/adventure.
+docs/ui-reference/
+public/assets/adventure/chapter-*.webp
+
 # Local Netlify folder
 .netlify

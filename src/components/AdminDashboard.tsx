@@ -117,7 +117,7 @@ export function AdminDashboard({ onChanged }: AdminDashboardProps) {
   };
 
   return (
-    <main className="app-shell">
+    <main className="app-shell admin-dashboard-page">
       <header className="app-header no-print">
         <div>
           <p className="eyebrow">测试版后台</p>
