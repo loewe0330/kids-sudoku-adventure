@@ -21,11 +21,14 @@ export interface AbilityDisplayModel {
 export const isValidAbilityAssessmentRecord = (record: PracticeRecord): boolean =>
   record.completed && !record.gaveUp && Boolean(record.finishedAt);
 
+export const getValidAbilityAssessmentRecords = (records: PracticeRecord[]): PracticeRecord[] =>
+  records.filter(isValidAbilityAssessmentRecord);
+
 export const getAbilityAssessmentStatus = (
   child: ChildProfile,
   records: PracticeRecord[]
 ): AbilityAssessmentStatus => {
-  const validCount = records.filter(isValidAbilityAssessmentRecord).length;
+  const validCount = getValidAbilityAssessmentRecords(records).length;
   if (validCount >= 5) return "established";
   if (validCount >= 1) return "provisional";
   return child.abilityAssessmentStatus ?? "unassessed";

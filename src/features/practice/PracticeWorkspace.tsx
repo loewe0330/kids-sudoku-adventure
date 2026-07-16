@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getDifficultyLevel } from "../../constants/difficultyLevels";
 import { difficultyLabels, gradeLabels, sizeLabels } from "../../constants/gradeLabels";
-import { getAbilityDisplayModel } from "../../lib/ability";
+import { getDailyPracticeRecommendation, type DailyPracticeRecommendation } from "../../lib/dailyPracticeRecommendation";
 import { getCustomPracticeValidity, getPracticeLevelForSource, getAllowedCustomDifficulties } from "../../lib/practiceRules";
 import { getPracticeRecordsByChild } from "../../lib/storage";
 import type { ChildProfile, PracticeSource, SudokuDifficulty, SudokuPuzzleItem, SudokuSize } from "../../types";
@@ -14,7 +14,10 @@ interface PracticeWorkspaceProps {
   onTabChange: (tab: PracticeTab) => void;
   manual: { size: SudokuSize; difficulty: SudokuDifficulty };
   onManualChange: (value: { size: SudokuSize; difficulty: SudokuDifficulty }) => void;
-  onQuickPractice: (source: Exclude<PracticeSource, "custom" | "bank" | "stage">) => void;
+  onQuickPractice: (
+    source: Exclude<PracticeSource, "custom" | "bank" | "stage">,
+    recommendation?: DailyPracticeRecommendation
+  ) => void;
   onGenerateCustom: (saveToBank: boolean, count: number) => void;
   onChanged: () => void;
   onPractice: (puzzle: SudokuPuzzleItem) => void;
@@ -41,7 +44,8 @@ export function PracticeWorkspace({
   const [useSuggestedTime, setUseSuggestedTime] = useState(true);
   const allowedDifficulties = getAllowedCustomDifficulties(manual.size);
   const customValidity = getCustomPracticeValidity(manual.size, manual.difficulty);
-  const ability = getAbilityDisplayModel(child, getPracticeRecordsByChild(child.parentId, child.id));
+  const practiceRecords = getPracticeRecordsByChild(child.parentId, child.id);
+  const dailyRecommendation = getDailyPracticeRecommendation({ child, practiceRecords });
   const quickOptions: Array<{
     source: Exclude<PracticeSource, "custom" | "bank" | "stage">;
     title: string;
@@ -49,15 +53,16 @@ export function PracticeWorkspace({
     description: string;
     button: string;
   }> = [
-    { source: "smart", title: "今日推荐", subtitle: "推荐", description: "按当前能力等级推荐一题，适合今天的第一站。", button: "开始今日练习" },
+    { source: "smart", title: "今日推荐", subtitle: "推荐", description: "", button: "开始今日推荐" },
     { source: "review", title: "巩固练习", subtitle: "巩固", description: "练一道稍简单的题，把基础练得更稳。", button: "开始巩固" },
     { source: "challenge", title: "挑战练习", subtitle: "挑战", description: "试试下一等级的题，看看能不能点亮新区域。", button: "开始挑战" }
   ];
   const selectedOption = quickOptions.find((option) => option.source === recommendedMode) ?? quickOptions[0];
   const selectedLevel = getPracticeLevelForSource(child.currentLevel, selectedOption.source);
-  const selectedConfig = selectedOption.source === "smart" && ability.status === "unassessed"
-    ? ability.recommendedConfig
-    : getDifficultyLevel(selectedLevel);
+  const selectedConfig = selectedOption.source === "smart" ? dailyRecommendation : getDifficultyLevel(selectedLevel);
+  const selectedTitle = selectedOption.source === "smart" ? dailyRecommendation.title : selectedOption.title;
+  const selectedDescription = selectedOption.source === "smart" ? dailyRecommendation.reason : selectedOption.description;
+  const selectedBadge = selectedOption.source === "smart" ? dailyRecommendation.badge : `L${selectedLevel}`;
   const customDifficultyOptions = useMemo(
     () => allowedDifficulties.map((difficulty) => ({ value: difficulty, label: difficultyLabels[difficulty] })),
     [allowedDifficulties]
@@ -93,7 +98,7 @@ export function PracticeWorkspace({
             <div>
               <p className="eyebrow">今日推荐</p>
               <h3>今日推荐练习</h3>
-              <p>{ability.status === "unassessed" ? "先从适合年级的第一题开始，系统会慢慢了解你。" : "系统根据你的当前水平，为你准备了一道适合今天的题。"}</p>
+              <p>{dailyRecommendation.reason}</p>
             </div>
             <div className="practice-mode-switcher" role="group" aria-label="推荐练习模式">
               {quickOptions.map((option) => (
@@ -111,15 +116,23 @@ export function PracticeWorkspace({
           </div>
           <div className="recommendation-content">
             <div>
-              <h4>{selectedOption.title}</h4>
-              <p>{selectedOption.description}</p>
+              <h4>{selectedTitle}</h4>
+              <p>{selectedDescription}</p>
               <div className="quest-meta-row">
-                <span>{ability.status === "unassessed" && selectedOption.source === "smart" ? "年级起步" : `L${selectedLevel}`}</span>
+                <span>{selectedBadge}</span>
                 <span>{sizeLabels[selectedConfig.size]}</span>
                 <span>{difficultyLabels[selectedConfig.difficulty]}</span>
               </div>
             </div>
-            <button type="button" className="primary" onClick={() => onQuickPractice(selectedOption.source)}>{selectedOption.button}</button>
+            <button
+              type="button"
+              className="primary"
+              onClick={() => selectedOption.source === "smart"
+                ? onQuickPractice(selectedOption.source, dailyRecommendation)
+                : onQuickPractice(selectedOption.source)}
+            >
+              {selectedOption.button}
+            </button>
           </div>
         </article>
 

@@ -45,6 +45,11 @@ export interface GeneratePracticePuzzleInput {
     size: SudokuSize;
     difficulty: SudokuDifficulty;
   };
+  recommendedConfig?: {
+    level: number;
+    size: SudokuSize;
+    difficulty: SudokuDifficulty;
+  };
 }
 
 export const generatePracticePuzzle = ({
@@ -53,8 +58,25 @@ export const generatePracticePuzzle = ({
   gradeLevel,
   currentLevel,
   source,
-  custom
+  custom,
+  recommendedConfig
 }: GeneratePracticePuzzleInput): SudokuPuzzleItem => {
+  if (source === "smart" && recommendedConfig) {
+    const box = recommendedConfig.size === 9 ? { rows: 3, cols: 3 } : recommendedConfig.size === 6 ? { rows: 2, cols: 3 } : { rows: 2, cols: 2 };
+    const generated = generatePuzzleByConfig(recommendedConfig.size, box.rows, box.cols, recommendedConfig.difficulty);
+    return {
+      ...generated,
+      id: createUuid(),
+      parentId,
+      childId,
+      gradeLevel,
+      level: recommendedConfig.level,
+      mode: "practice",
+      source: "smart",
+      createdAt: new Date().toISOString()
+    };
+  }
+
   if (source !== "custom") {
     const level = getPracticeLevelForSource(currentLevel, source);
     return {

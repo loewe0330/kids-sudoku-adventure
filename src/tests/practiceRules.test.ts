@@ -35,6 +35,19 @@ describe("free practice rules", () => {
     expect(getPracticeLevelForSource(11, "challenge")).toBe(11);
   });
 
+  test("smart practice uses the supplied daily recommendation configuration", () => {
+    const puzzle = generatePracticePuzzle({
+      parentId: "parent-a",
+      childId: "child-a",
+      gradeLevel: "grade5",
+      currentLevel: 5,
+      source: "smart",
+      recommendedConfig: { level: 5, size: 6, difficulty: "normal" }
+    });
+
+    expect(puzzle).toMatchObject({ level: 5, size: 6, difficulty: "normal", source: "smart" });
+  });
+
   test("custom practice limits legal size and difficulty combinations", () => {
     expect(getAllowedCustomDifficulties(4)).toEqual(["starter", "easy", "normal"]);
     expect(getAllowedCustomDifficulties(6)).toEqual(["starter", "easy", "normal", "hard"]);

@@ -25,6 +25,7 @@ import {
   updateChild
 } from "../lib/storage";
 import { getAbilityDisplayModel } from "../lib/ability";
+import { getDailyPracticeRecommendation, type DailyPracticeRecommendation } from "../lib/dailyPracticeRecommendation";
 import { generatePracticePuzzle, generateReplacementPuzzle } from "../lib/practiceRules";
 import { generatePuzzleForChild } from "../lib/sudoku";
 import { isCloudAccountEnabled } from "../lib/cloudClient";
@@ -187,19 +188,25 @@ export default function App() {
     setActivePuzzle(generateReplacementPuzzle(activePuzzle));
   };
 
-  const startPracticeBySource = (source: Exclude<PracticeSource, "custom" | "bank" | "stage">) => {
+  const startPracticeBySource = (
+    source: Exclude<PracticeSource, "custom" | "bank" | "stage">,
+    recommendation?: DailyPracticeRecommendation
+  ) => {
     const current = getActiveChild();
     if (!current) return;
-    const currentAbility = getAbilityDisplayModel(current, getPracticeRecordsByChild(current.parentId, current.id));
-    const practiceLevel = source === "smart" && currentAbility.status === "unassessed"
-      ? currentAbility.recommendedConfig.level
-      : current.currentLevel;
+    const dailyRecommendation = source === "smart"
+      ? recommendation ?? getDailyPracticeRecommendation({
+        child: current,
+        practiceRecords: getPracticeRecordsByChild(current.parentId, current.id)
+      })
+      : undefined;
     startPuzzle(generatePracticePuzzle({
       parentId: current.parentId,
       childId: current.id,
       gradeLevel: current.gradeLevel,
-      currentLevel: practiceLevel,
-      source
+      currentLevel: dailyRecommendation?.level ?? current.currentLevel,
+      source,
+      recommendedConfig: dailyRecommendation
     }), "practice", undefined, source);
   };
 

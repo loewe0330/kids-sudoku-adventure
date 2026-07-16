@@ -66,11 +66,11 @@ describe("PracticeWorkspace copy", () => {
     expect(screen.getByText("根据当前能力等级推荐题目，也可以选择今天想练的题型和难度。")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "今日推荐练习" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "推荐" }).getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByRole("heading", { name: "今日推荐" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "今日起步推荐" })).toBeTruthy();
     expect(screen.getByText("年级起步")).toBeTruthy();
     expect(screen.getByText("4×4")).toBeTruthy();
     expect(screen.getByText("中等")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "开始今日练习" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "开始今日推荐" })).toBeTruthy();
     expect(document.querySelectorAll(".recommended-practice-card")).toHaveLength(1);
     expect(document.querySelectorAll(".practice-choice-card")).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: "巩固" }));
@@ -84,8 +84,8 @@ describe("PracticeWorkspace copy", () => {
     fireEvent.click(screen.getByRole("button", { name: "开始挑战" }));
     expect(onQuickPractice).toHaveBeenLastCalledWith("challenge");
     fireEvent.click(screen.getByRole("button", { name: "推荐" }));
-    fireEvent.click(screen.getByRole("button", { name: "开始今日练习" }));
-    expect(onQuickPractice).toHaveBeenLastCalledWith("smart");
+    fireEvent.click(screen.getByRole("button", { name: "开始今日推荐" }));
+    expect(onQuickPractice).toHaveBeenLastCalledWith("smart", expect.objectContaining({ size: 4, difficulty: "normal", source: "grade-cold-start" }));
     expect(screen.getByRole("heading", { name: "自己选一题" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "设置并开始" })).toBeTruthy();
     expect(screen.getByText("自己选择题型、难度和题目数量。")).toBeTruthy();
