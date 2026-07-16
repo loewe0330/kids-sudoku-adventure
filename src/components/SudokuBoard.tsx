@@ -262,6 +262,15 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
 
   return (
     <main className={`practice-layout quest-practice play-size-${puzzle.size}`}>
+      {guidedHint && (
+        <button
+          className="guided-hint-backdrop"
+          type="button"
+          aria-label="关闭提示"
+          data-testid="guided-hint-backdrop"
+          onClick={() => setGuidedHint(null)}
+        />
+      )}
       <aside className="practice-info no-print">
         <button className="back-button" onClick={onBack}>返回首页</button>
         <div className="practice-title-block">
@@ -269,13 +278,14 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
           <h2>{getDifficultyLevel(puzzle.level).label}</h2>
           <p>{gradeLabels[child.gradeLevel]} · {sizeLabels[puzzle.size]} · {difficultyLabels[puzzle.difficulty]}</p>
         </div>
+        <button className="mobile-puzzle-home-link" type="button" onClick={onBack}>数学探险家 ›</button>
         <div className="status-row play-stat-grid">
-          <span>{mode === "practice" ? "练习模式" : mode === "adventure" ? "闯关模式" : "挑战模式"}</span>
-          {child.settings.showTimer && <span>用时 {formatDuration(elapsed)}</span>}
-          {mode === "adventure" && <span>建议 {formatDuration(levelConfig.recommendedTimeSeconds)}</span>}
-          {mode === "challenge" && <span>挑战 {formatDuration(levelConfig.recommendedTimeSeconds)}</span>}
-          <span>错误 {mistakes}</span>
-          <span>提示 {hints}</span>
+          <span className="mode-stat">{mode === "practice" ? "练习模式" : mode === "adventure" ? "闯关模式" : "挑战模式"}</span>
+          {child.settings.showTimer && <span className="timer-stat">用时 {formatDuration(elapsed)}</span>}
+          {mode === "adventure" && <span className="recommended-time-stat">建议 {formatDuration(levelConfig.recommendedTimeSeconds)}</span>}
+          {mode === "challenge" && <span className="recommended-time-stat">挑战 {formatDuration(levelConfig.recommendedTimeSeconds)}</span>}
+          <span className="mistake-stat">错误 {mistakes}</span>
+          <span className="hint-stat">提示 {hints}</span>
         </div>
         <div className="method-card">
           <button type="button" className="method-toggle" onClick={() => setMethodOpen((value) => !value)}>
@@ -380,8 +390,20 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
         <section className="action-section primary-action-section">
           <h3>做题操作</h3>
           <div className="action-button-grid">
-            <button className="primary check-action" onClick={checkAnswer} disabled={finished}>检查答案</button>
+            <button className="quiet-action mobile-delete-action" type="button" onClick={deleteCell}>删除</button>
+            <button className="primary check-action" aria-label="提交" onClick={checkAnswer} disabled={finished}>
+              <span className="desktop-submit-label" aria-hidden="true">检查答案</span>
+              <span className="mobile-submit-label" aria-hidden="true">提交</span>
+            </button>
             <button className="hint-action" onClick={() => hint()} disabled={finished}>引导提示</button>
+            <button
+              className="mobile-more-toggle"
+              type="button"
+              aria-expanded={moreActionsOpen}
+              onClick={() => setMoreActionsOpen((value) => !value)}
+            >
+              {moreActionsOpen ? "收起操作" : "更多操作"}
+            </button>
             <button className="quiet-action desktop-reveal-action" onClick={reveal}>显示答案</button>
           </div>
         </section>
@@ -405,16 +427,13 @@ export function SudokuBoard({ child, puzzle, onBack, onNext, onSave, onPrint, on
           </section>
         )}
 
-        <button
-          className="mobile-more-toggle"
-          type="button"
-          aria-expanded={moreActionsOpen}
-          onClick={() => setMoreActionsOpen((value) => !value)}
-        >
-          {moreActionsOpen ? "收起更多操作" : "更多操作"}
-        </button>
-
         <div className={`play-more-actions ${moreActionsOpen ? "open" : ""}`}>
+          <section className="mobile-more-sheet-actions" aria-label="更多操作">
+            <button type="button" onClick={reset}>重新开始</button>
+            <button type="button" onClick={reveal}>查看答案</button>
+            <button type="button" onClick={onBackToPractice}>退出练习</button>
+          </section>
+
           <section className="action-section mobile-reveal-section">
             <button className="quiet-action" aria-label="手机端显示答案" onClick={reveal}>显示答案</button>
           </section>

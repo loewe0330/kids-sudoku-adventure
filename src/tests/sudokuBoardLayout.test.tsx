@@ -169,6 +169,10 @@ describe("SudokuBoard layout", () => {
     fireEvent.click(screen.getByRole("button", { name: "引导提示" }));
     expect(screen.getByRole("button", { name: "我再想想" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "换一个提示格" })).toBeTruthy();
+    fireEvent.click(screen.getByTestId("guided-hint-backdrop"));
+    expect(screen.queryByRole("button", { name: "我再想想" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "引导提示" }));
     fireEvent.click(screen.getByRole("button", { name: "我再想想" }));
 
     fireEvent.click(cells[1]);
@@ -208,7 +212,7 @@ describe("SudokuBoard layout", () => {
     );
     fillPuzzle(container, puzzle.solution);
 
-    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    fireEvent.click(screen.getByRole("button", { name: "提交" }));
 
     expect(screen.getByText(/本题完成/)).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain("太棒了！");
@@ -222,7 +226,7 @@ describe("SudokuBoard layout", () => {
       <SudokuBoard child={child} puzzle={puzzle} onBack={vi.fn()} onNext={vi.fn()} onSave={vi.fn()} onPrint={vi.fn()} onBackToMap={vi.fn()} onBackToPractice={vi.fn()} onChildChanged={onChildChanged} />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    fireEvent.click(screen.getByRole("button", { name: "提交" }));
 
     expect(screen.getByRole("dialog").textContent).toContain("还有空格没有填完哦");
     expect(screen.getByRole("dialog").textContent).toContain("先把数独完成，再来检查答案吧。");
@@ -239,7 +243,7 @@ describe("SudokuBoard layout", () => {
     wrong[0][1] = 3;
     fillPuzzle(container, wrong);
 
-    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    fireEvent.click(screen.getByRole("button", { name: "提交" }));
     expect(screen.getByRole("dialog").textContent).toContain("再想一想");
     expect(container.querySelector(".cell.error")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "继续修改" }));
@@ -248,7 +252,7 @@ describe("SudokuBoard layout", () => {
     const numberSection = screen.getByRole("heading", { name: "选择数字" }).closest("section");
     fireEvent.click(cells[1]);
     fireEvent.click(within(numberSection!).getByRole("button", { name: "2" }));
-    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    fireEvent.click(screen.getByRole("button", { name: "提交" }));
     expect(screen.getByRole("dialog").textContent).toContain("太棒了！");
     expect(onChildChanged).toHaveBeenCalledTimes(1);
   });
@@ -260,13 +264,13 @@ describe("SudokuBoard layout", () => {
     const wrong = puzzle.solution.map((row) => [...row]);
     wrong[0][1] = 3;
     fillPuzzle(container, wrong);
-    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    fireEvent.click(screen.getByRole("button", { name: "提交" }));
     fireEvent.click(screen.getByRole("button", { name: "继续修改" }));
-    fireEvent.click(screen.getByRole("button", { name: "检查答案" }));
+    fireEvent.click(screen.getByRole("button", { name: "提交" }));
 
     expect(screen.getByRole("dialog").textContent).toContain("下次努力");
     expect(container.querySelectorAll(".cell")[1].textContent).toBe("3");
-    expect((screen.getByRole("button", { name: "检查答案" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "提交" }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   test("generates the next same-config puzzle through the continue action", () => {
