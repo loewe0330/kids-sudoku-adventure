@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --config vite.config.ts",
     "build": "tsc -b && vite --config vite.config.ts build",
+    "build:github-pages": "tsc -b && VITE_BASE_PATH=/kids-sudoku-adventure/ vite --config vite.config.ts build",
     "preview": "vite --config vite.config.ts preview",
     "test": "vitest run --config vitest.config.ts"
   },
