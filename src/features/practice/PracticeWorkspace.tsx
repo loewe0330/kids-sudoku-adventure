@@ -50,12 +50,13 @@ export function PracticeWorkspace({
     source: Exclude<PracticeSource, "custom" | "bank" | "stage">;
     title: string;
     subtitle: string;
+    hint: string;
     description: string;
     button: string;
   }> = [
-    { source: "smart", title: "今日推荐", subtitle: "推荐", description: "", button: "开始今日推荐" },
-    { source: "review", title: "巩固练习", subtitle: "巩固", description: "练一道稍简单的题，把基础练得更稳。", button: "开始巩固" },
-    { source: "challenge", title: "挑战练习", subtitle: "挑战", description: "试试下一等级的题，看看能不能点亮新区域。", button: "开始挑战" }
+    { source: "smart", title: "今日推荐", subtitle: "推荐", hint: "适合现在", description: "", button: "开始今日推荐" },
+    { source: "review", title: "巩固练习", subtitle: "巩固", hint: "打稳基础", description: "练一道稍简单的题，把基础练得更稳。", button: "开始巩固" },
+    { source: "challenge", title: "挑战练习", subtitle: "挑战", hint: "试试进阶", description: "试试下一等级的题，看看能不能点亮新区域。", button: "开始挑战" }
   ];
   const selectedOption = quickOptions.find((option) => option.source === recommendedMode) ?? quickOptions[0];
   const selectedLevel = getPracticeLevelForSource(child.currentLevel, selectedOption.source);
@@ -85,88 +86,62 @@ export function PracticeWorkspace({
   };
 
   const renderPracticeSelection = () => (
-    <div className="practice-choice-content">
-      <div className="practice-intro practice-selection-copy camp-heading">
-        <p className="eyebrow">任务选择营地</p>
-        <h3>选择今天的探索任务</h3>
-        <p>根据当前能力等级推荐题目，也可以选择今天想练的题型和难度。</p>
-      </div>
-
-      <div className="practice-choice-stack">
-        <article className="quest-card recommended-practice-card">
-          <div className="recommended-card-heading">
-            <div>
-              <p className="eyebrow">今日推荐</p>
-              <h3>今日推荐练习</h3>
-              <p>{dailyRecommendation.reason}</p>
-            </div>
-            <div className="practice-mode-switcher" role="group" aria-label="推荐练习模式">
-              {quickOptions.map((option) => (
-                <button
-                  key={option.source}
-                  type="button"
-                  className={recommendedMode === option.source ? "active" : ""}
-                  aria-pressed={recommendedMode === option.source}
-                  onClick={() => setRecommendedMode(option.source)}
-                >
-                  {option.subtitle}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="recommendation-content">
-            <div>
-              <h4>{selectedTitle}</h4>
-              <p>{selectedDescription}</p>
-              <div className="quest-meta-row">
-                <span>{selectedBadge}</span>
-                <span>{sizeLabels[selectedConfig.size]}</span>
-                <span>{difficultyLabels[selectedConfig.difficulty]}</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              className="primary"
-              onClick={() => selectedOption.source === "smart"
-                ? onQuickPractice(selectedOption.source, dailyRecommendation)
-                : onQuickPractice(selectedOption.source)}
-            >
-              {selectedOption.button}
-            </button>
-          </div>
-        </article>
-
-        <article className="quest-card custom-practice-card compact-custom-practice-card">
-          <div>
-            <p className="eyebrow">自由选择</p>
-            <h3>自己选一题</h3>
-            <p>自己选择题型、难度和题目数量。</p>
-            <strong className="custom-config-summary">{customSummary}</strong>
-          </div>
-          <button type="button" onClick={() => setCustomOpen(true)}>设置并开始</button>
-        </article>
-      </div>
-
-      <section className="practice-garden-decor" aria-hidden="true">
-        <div className="garden-cloud garden-cloud-one" />
-        <div className="garden-cloud garden-cloud-two" />
-        <div className="garden-ground" />
-        <div className="garden-path" />
-        <div className="garden-sign"><span>练习营地</span></div>
-        <div className="garden-sudoku-board">
-          {Array.from({ length: 9 }, (_, index) => <span key={index}>{[4, "", 1, "", 3, "", 2, "", 4][index]}</span>)}
+    <div className="practice-choice-content practice-overview">
+      <header className="practice-overview-heading">
+        <div>
+          <p className="eyebrow">今日练习</p>
+          <h3>今天想怎么练？</h3>
         </div>
-        <div className="garden-pencil" />
-        <div className="garden-flower flower-one" />
-        <div className="garden-flower flower-two" />
-        <div className="garden-flower flower-three" />
-        <div className="garden-mushroom mushroom-one" />
-        <div className="garden-mushroom mushroom-two" />
-        <div className="garden-butterfly" />
-        <div className="garden-firefly firefly-one" />
-        <div className="garden-firefly firefly-two" />
-        <div className="garden-chest" />
-      </section>
+        <span>选一种，马上开始</span>
+      </header>
+
+      <div className="practice-mode-picker" role="group" aria-label="推荐练习模式">
+        {quickOptions.map((option) => (
+          <button
+            key={option.source}
+            type="button"
+            className={recommendedMode === option.source ? "active" : ""}
+            aria-pressed={recommendedMode === option.source}
+            onClick={() => setRecommendedMode(option.source)}
+          >
+            <strong>{option.title}</strong>
+            <span>{option.hint}</span>
+          </button>
+        ))}
+      </div>
+
+      <article className="practice-focus-card" aria-live="polite">
+        <div className="practice-focus-copy">
+          <div className="practice-focus-title">
+            <span>{selectedOption.subtitle}</span>
+            <h4>{selectedTitle}</h4>
+          </div>
+          <p>{selectedDescription}</p>
+          <div className="quest-meta-row">
+            <span>{selectedBadge}</span>
+            <span>{sizeLabels[selectedConfig.size]}</span>
+            <span>{difficultyLabels[selectedConfig.difficulty]}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="primary practice-start-button"
+          onClick={() => selectedOption.source === "smart"
+            ? onQuickPractice(selectedOption.source, dailyRecommendation)
+            : onQuickPractice(selectedOption.source)}
+        >
+          {selectedOption.button}
+        </button>
+      </article>
+
+      <article className="practice-custom-entry">
+        <div>
+          <p className="eyebrow">自由设置</p>
+          <h3>自己选练习</h3>
+          <strong className="custom-config-summary">{customSummary}</strong>
+        </div>
+        <button type="button" onClick={() => setCustomOpen(true)}>设置并开始</button>
+      </article>
     </div>
   );
 
@@ -175,10 +150,10 @@ export function PracticeWorkspace({
       <section className="free-practice-hero practice-title-strip explorer-card">
         <p className="eyebrow">{gradeLabels[child.gradeLevel]}</p>
         <h2>自由练习</h2>
-        <p>不受闯关限制，选择适合今天的练习方式。</p>
+        <p>选一种方式，马上开始。</p>
       </section>
 
-      <section className="practice-panel practice-hub-panel task-camp-card explorer-card">
+      <section className="practice-panel practice-hub-panel task-camp-card practice-core-panel">
         <nav className="practice-tabs" aria-label="自由练习分区">
           <button className={activeTab === "select" ? "active" : ""} type="button" onClick={() => onTabChange("select")}>练习选择</button>
           <button className={activeTab === "bank" ? "active" : ""} type="button" onClick={() => onTabChange("bank")}>我的题库</button>

@@ -192,27 +192,19 @@ export function LearningCurve({ child }: LearningCurveProps) {
   );
 
   return (
-    <main className="learning-page growth-report-page map-shell explorer-journal">
+    <main className="learning-page growth-report-page growth-clean-page map-shell explorer-journal">
       <section className="growth-report-hero explorer-card" aria-labelledby="growth-report-title">
         <div className="growth-conclusion-copy">
-          <p className="eyebrow">探险成长档案 · {gradeLabels[child.gradeLevel]}</p>
+          <p className="eyebrow">成长报告 · {gradeLabels[child.gradeLevel]}</p>
           <h2 id="growth-report-title">{child.name}的成长报告</h2>
-          <p>看清现在的水平、最近表现和下一步练习方向。</p>
           <div className="growth-conclusion-lines">
-            <p className="growth-evaluation-line"><span aria-hidden="true">★</span><strong>成长评价：</strong>{growthConclusion}</p>
-            <p className="growth-next-step-line"><span aria-hidden="true">芽</span><strong>下一步建议：</strong>{nextSuggestion}</p>
+            <p className="growth-evaluation-line"><span aria-hidden="true">★</span><strong>成长评价</strong>{growthConclusion}</p>
+            <p className="growth-next-step-line"><span aria-hidden="true">芽</span><strong>下一步</strong>{nextSuggestion}</p>
           </div>
         </div>
         <div className="growth-context-chips">
           <span className="growth-level-chip">能力等级：{ability.title}</span>
           <span className="growth-progress-chip">闯关进度：{adventureContext.progressLabel}</span>
-        </div>
-        <div className="growth-hero-scene" aria-hidden="true">
-          <span className="growth-scene-cloud" />
-          <span className="growth-scene-mountain" />
-          <span className="growth-scene-tree" />
-          <span className="growth-scene-route" />
-          <span className="growth-scene-chest" />
         </div>
       </section>
 

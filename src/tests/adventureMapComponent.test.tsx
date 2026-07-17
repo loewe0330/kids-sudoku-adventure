@@ -51,7 +51,22 @@ describe("AdventureMap", () => {
   test("maps every chapter detail page to its supplied scene image", () => {
     expect(adventureChapterPresentation).toHaveLength(11);
     adventureChapterPresentation.forEach((chapter) => {
-      expect(chapter.heroAsset).toContain(`chapter-${chapter.level}.png`);
+      expect(chapter.heroAsset).toContain(`optimized/desktop/chapter-${chapter.level}.webp`);
+    });
+  });
+
+  test("uses the shared compact detail structure for all eleven chapters", () => {
+    adventureChapterPresentation.forEach((chapter) => {
+      const view = render(<AdventureMap child={progressedChild} detailLevel={chapter.level} onStartStage={vi.fn()} />);
+      const detail = screen.getByLabelText("等级挑战二级页面");
+
+      expect(within(detail).getByRole("heading", { name: `L${chapter.level} ${chapter.name}` })).toBeTruthy();
+      expect(within(detail).getAllByTestId("adventure-stage-card")).toHaveLength(5);
+      expect(detail.querySelector(".touch-stage-grid")).toBeTruthy();
+      expect(detail.querySelector(".touch-chapter-hero img")?.getAttribute("src")).toContain(`optimized/desktop/chapter-${chapter.level}.webp`);
+      expect(within(detail).getByRole("button", { name: new RegExp(`继续挑战 L${chapter.level}-`) })).toBeTruthy();
+
+      view.unmount();
     });
   });
 
@@ -85,7 +100,10 @@ describe("AdventureMap", () => {
     try {
       render(<AdventureMap child={progressedChild} onStartStage={vi.fn()} />);
       expect(screen.getByLabelText("统一冒险地图")).toBeTruthy();
-      expect(screen.getByLabelText("11 大关纵向冒险地图")).toBeTruthy();
+      const map = screen.getByLabelText("11 大关纵向冒险地图");
+      expect(map.querySelector('source[media="(max-width: 767px)"]')?.getAttribute("srcset")).toContain("optimized/mobile/adventure-map.webp");
+      expect(map.querySelector('source[media="(max-width: 1035px)"]')?.getAttribute("srcset")).toContain("optimized/tablet/adventure-map.webp");
+      expect(map.querySelector("picture img")?.getAttribute("src")).toContain("optimized/desktop/adventure-map.webp");
       expect(screen.queryByLabelText("桌面端冒险地图")).toBeNull();
     } finally {
       Object.defineProperty(window, "matchMedia", { configurable: true, value: originalMatchMedia });
@@ -172,7 +190,10 @@ describe("AdventureMap", () => {
     render(<AdventureMap child={progressedChild} detailLevel={2} onBackToMap={onBackToMap} onStartStage={onStartStage} />);
 
     const detail = screen.getByLabelText("等级挑战二级页面");
-    expect(detail.querySelector(".touch-chapter-hero img")?.getAttribute("src")).toContain("chapter-2.png");
+    const hero = detail.querySelector(".touch-chapter-hero");
+    expect(hero?.querySelector('source[media="(max-width: 767px)"]')?.getAttribute("srcset")).toContain("optimized/mobile/chapter-2.webp");
+    expect(hero?.querySelector('source[media="(max-width: 1035px)"]')?.getAttribute("srcset")).toContain("optimized/tablet/chapter-2.webp");
+    expect(hero?.querySelector("img")?.getAttribute("src")).toContain("optimized/desktop/chapter-2.webp");
     expect(within(detail).getAllByTestId("adventure-stage-card")).toHaveLength(5);
     expect(within(detail).getByText("数字观察站")).toBeTruthy();
     expect(within(detail).getByText("学堂终点站")).toBeTruthy();

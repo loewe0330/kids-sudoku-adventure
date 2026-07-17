@@ -44,7 +44,7 @@ describe("ChildDashboard", () => {
     expect(screen.getByRole("article", { name: "自由练习入口" })).toBeTruthy();
     expect(screen.getByRole("article", { name: "成长报告入口" })).toBeTruthy();
     expect(document.querySelector(".home-dashboard-grid")).toBeTruthy();
-    expect(document.querySelector(".home-side-panel")).toBeTruthy();
+    expect(document.querySelector(".home-side-panel")).toBeNull();
     expect(screen.getByRole("heading", { name: "今日小游戏" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "星星连连消" })).toBeTruthy();
     expect(screen.getAllByRole("button")).toHaveLength(5);
@@ -64,14 +64,7 @@ describe("ChildDashboard", () => {
     expect(screen.queryByText("最近获得")).toBeNull();
     expect(document.querySelector(".explorer-sidebar")).toBeNull();
 
-    const trail = document.querySelector(".bottom-trail-animation");
-    expect(trail).toBeTruthy();
-    expect(trail?.closest(".home-side-panel")).toBeTruthy();
-    expect(trail?.getAttribute("aria-hidden")).toBe("true");
-    expect(trail?.querySelector(".trail-path")).toBeTruthy();
-    expect(trail?.querySelector(".trail-star")).toBeTruthy();
-    expect(trail?.querySelectorAll(".trail-cloud")).toHaveLength(2);
-    expect(trail?.querySelectorAll("button, a, h1, h2, h3, p")).toHaveLength(0);
+    expect(document.querySelector(".bottom-trail-animation")).toBeNull();
   });
 
   test("keeps ability, progress and empty data in their single intended locations", () => {
@@ -85,7 +78,7 @@ describe("ChildDashboard", () => {
     );
 
     const task = within(screen.getByRole("article", { name: "今日任务" }));
-    expect(task.getByRole("heading", { name: "欢迎回来，安安！" })).toBeTruthy();
+    expect(task.getByText("今日任务 · 欢迎回来，安安")).toBeTruthy();
     expect(task.getByRole("heading", { name: "继续挑战 L1-1 数字小苗村" })).toBeTruthy();
     expect(task.getByText("能力等级").parentElement?.textContent).toContain("待探索");
     expect(task.getByText("闯关进度").parentElement?.textContent).toContain("L1-1 数字小苗村");

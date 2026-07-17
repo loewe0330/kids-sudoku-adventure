@@ -4,7 +4,7 @@ import { difficultyLabels, sizeLabels } from "../constants/gradeLabels";
 import { getAdventureDisplayContext, getAdventureMap, getAdventureStats } from "../lib/adventure";
 import { getFastPassRecommendation } from "../lib/fastPass";
 import { getPracticeRecordsByChild } from "../lib/storage";
-import { adventureMapAsset, getAdventurePresentation, stageDisplayName, type AdventureChapterPresentation } from "./adventurePresentation";
+import { adventureMapAsset, adventureMapAssets, getAdventureChapterAssets, getAdventurePresentation, stageDisplayName, type AdventureChapterPresentation } from "./adventurePresentation";
 import type { AdventureStage, ChildProfile } from "../types";
 
 interface AdventureMapProps {
@@ -226,7 +226,17 @@ function TouchAdventureMap({ mapRef, chapters, displayContext, totalStars, compl
           </div>
         </div>
       </section>
-      <section ref={mapRef} className="touch-adventure-map" aria-label="11 大关纵向冒险地图" style={{ backgroundImage: `url(${adventureMapAsset})` }}>
+      <section ref={mapRef} className="touch-adventure-map" aria-label="11 大关纵向冒险地图">
+        <picture className="touch-map-art" aria-hidden="true">
+          <source media="(max-width: 767px)" srcSet={adventureMapAssets.mobile} />
+          <source media="(max-width: 1035px)" srcSet={adventureMapAssets.tablet} />
+          <img src={adventureMapAssets.desktop} alt="" onError={(event) => {
+            const image = event.currentTarget;
+            image.parentElement?.querySelectorAll("source").forEach((source) => source.remove());
+            if (!image.src.endsWith(adventureMapAsset)) image.src = adventureMapAsset;
+            else image.style.display = "none";
+          }} />
+        </picture>
         <div className="touch-map-skywash" aria-hidden="true" />
         <div className="touch-map-summary">
           <span><strong>{totalStars}</strong>累计星星</span>
@@ -269,25 +279,38 @@ interface DetailProps {
 }
 
 function TouchChapterDetail({ chapter, nextStage, selectedConfig, notice, onBack, onStartStage }: DetailProps) {
+  const chapterAssets = getAdventureChapterAssets(chapter.level);
   return (
     <section className="touch-chapter-detail" aria-label="等级挑战二级页面">
       <header className="touch-detail-topbar">
         <button type="button" onClick={onBack}>‹ 返回地图</button>
         <h2>L{chapter.level} {chapter.name}</h2>
-        <span aria-hidden="true" />
+        <span className="touch-detail-progress">{chapter.completedCount}/5</span>
       </header>
       <section className="touch-chapter-hero">
-        <img src={chapter.heroAsset} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+        <picture aria-hidden="true">
+          <source media="(max-width: 767px)" srcSet={chapterAssets.mobile} />
+          <source media="(max-width: 1035px)" srcSet={chapterAssets.tablet} />
+          <img src={chapterAssets.desktop} alt="" onError={(event) => {
+            const image = event.currentTarget;
+            image.parentElement?.querySelectorAll("source").forEach((source) => source.remove());
+            if (!image.src.endsWith(chapter.heroAsset)) image.src = chapter.heroAsset;
+            else image.style.display = "none";
+          }} />
+        </picture>
         <div className="touch-chapter-copy">
-          <div><h3>{chapter.name}</h3><span>{chapter.status.key === "locked" ? "未解锁" : chapter.status.key === "fast-pass-validated" ? "已通过秘籍 · 可补星" : "已解锁 🔓"}</span></div>
+          <div><h3>{chapter.name}</h3><span>{chapter.status.key === "locked" ? "未解锁" : chapter.status.key === "fast-pass-validated" ? "秘籍通过 · 可补星" : "已解锁"}</span></div>
           <p>{chapter.description}</p>
         </div>
       </section>
       <section className="touch-stage-list" aria-label={`${chapter.name}的小关挑战`}>
-        <h3>关卡挑战 <span>({chapter.completedCount}/5)</span></h3>
-        {chapter.stages.map((stage) => <StageRow key={`${stage.level}-${stage.stageIndex}`} stage={stage} chapter={chapter} onStartStage={onStartStage} />)}
+        <header><h3>关卡挑战</h3><span>完成 {chapter.completedCount}/5</span></header>
+        <div className="touch-stage-grid">
+          {chapter.stages.map((stage) => <StageRow key={`${stage.level}-${stage.stageIndex}`} stage={stage} chapter={chapter} onStartStage={onStartStage} />)}
+        </div>
       </section>
       {notice && <p className="touch-map-notice" role="status">{notice}</p>}
+      <button className="touch-continue-button" type="button" onClick={() => onStartStage(nextStage)}>继续挑战 L{nextStage.level}-{nextStage.stageIndex} {stageDisplayName(chapter, nextStage.stageIndex)}</button>
       <section className="touch-reward-preview" aria-label="通关奖励预告">
         <h3>通关奖励</h3>
         <div>
@@ -296,8 +319,6 @@ function TouchChapterDetail({ chapter, nextStage, selectedConfig, notice, onBack
           <span><b>🧰</b>宝箱 <strong>可领取</strong></span>
         </div>
       </section>
-      <button className="touch-continue-button" type="button" onClick={() => onStartStage(nextStage)}>继续挑战 L{nextStage.level}-{nextStage.stageIndex} {stageDisplayName(chapter, nextStage.stageIndex)}</button>
-      <p className="touch-adventure-tip">💡 小提示：仔细观察行列和宫格，善用排除法！</p>
     </section>
   );
 }

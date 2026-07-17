@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>数独探险家图片质量对比</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #eef4ef; color: #18304a; font-family: system-ui, sans-serif; }
+      main { width: min(100% - 24px, 1440px); margin: 0 auto; padding: 24px 0 48px; }
+      h1 { margin: 0 0 8px; font-size: 28px; }
+      p { margin: 0 0 20px; color: #51685a; }
+      section { margin-top: 24px; }
+      h2 { margin: 0 0 12px; font-size: 20px; }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      figure { margin: 0; overflow: hidden; border: 1px solid #b9d1be; border-radius: 8px; background: white; }
+      img { display: block; width: 100%; height: auto; }
+      figcaption { padding: 10px 12px; font-size: 14px; font-weight: 700; }
+      .mobile figure { max-width: 361px; }
+      .tablet figure { max-width: 880px; }
+      @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } main { padding-top: 16px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>章节插画质量对比</h1>
+      <p>代表图：chapter-10。请按正常页面显示距离检查屋檐、窗框、树枝、山脊、天空渐变和花草细节。</p>
+      <section class="desktop">
+        <h2>桌面 1440 × 900</h2>
+        <div class="grid">
+          <figure><img src="../../public/assets/adventure/chapter-10.png" alt="原始 PNG" /><figcaption>原始 PNG · 1828 × 860 · 2.53MB</figcaption></figure>
+          <figure><img src="chapter-10/desktop-q86.webp" alt="桌面 Q86" /><figcaption>低档 Q86 · 327KB</figcaption></figure>
+          <figure><img src="chapter-10/desktop-q90.webp" alt="桌面 Q90" /><figcaption>中档 Q90 · 408KB（最终选择）</figcaption></figure>
+          <figure><img src="chapter-10/desktop-q92.webp" alt="桌面 Q92" /><figcaption>高档 Q92 · 463KB</figcaption></figure>
+        </div>
+      </section>
+      <section class="tablet">
+        <h2>iPad 880 × 1035</h2>
+        <div class="grid">
+          <figure><img src="chapter-10/tablet-q84.webp" alt="平板 Q84" /><figcaption>低档 Q84 · 182KB</figcaption></figure>
+          <figure><img src="chapter-10/tablet-q88.webp" alt="平板 Q88" /><figcaption>中档 Q88 · 223KB（最终选择）</figcaption></figure>
+          <figure><img src="chapter-10/tablet-q92.webp" alt="平板 Q92" /><figcaption>高档 Q92 · 281KB</figcaption></figure>
+        </div>
+      </section>
+      <section class="mobile">
+        <h2>手机 361 × 612</h2>
+        <div class="grid">
+          <figure><img src="chapter-10/mobile-q82.webp" alt="手机 Q82" /><figcaption>低档 Q82 · 58KB</figcaption></figure>
+          <figure><img src="chapter-10/mobile-q86.webp" alt="手机 Q86" /><figcaption>中档 Q86 · 69KB（最终选择）</figcaption></figure>
+          <figure><img src="chapter-10/mobile-q90.webp" alt="手机 Q90" /><figcaption>高档 Q90 · 84KB</figcaption></figure>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
