@@ -15,9 +15,10 @@ interface SettingsPageProps {
   cloudEnabled: boolean;
   onSync: () => Promise<void>;
   onSettingsChange: (settings: ChildSettings) => void;
+  onLogout: () => void;
 }
 
-export function SettingsPage({ child, syncState, cloudEnabled, onSync, onSettingsChange }: SettingsPageProps) {
+export function SettingsPage({ child, syncState, cloudEnabled, onSync, onSettingsChange, onLogout }: SettingsPageProps) {
   const [uiPreferences, setUiPreferences] = useState(() => getChildUiPreferences(child.id));
   const [syncMessage, setSyncMessage] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -114,6 +115,10 @@ export function SettingsPage({ child, syncState, cloudEnabled, onSync, onSetting
           </div></details>
         </SettingRow>
       </section>
+
+      <footer className="settings-logout-footer">
+        <button type="button" className="danger settings-logout-button" onClick={onLogout}><span aria-hidden="true">↪</span>退出登录</button>
+      </footer>
     </main>
   );
 }

@@ -195,6 +195,13 @@ export default function App() {
     navigate(childPath(current.id, section));
   };
 
+  const handleLogout = () => {
+    logoutParent();
+    setActivePuzzle(null);
+    setView("selector");
+    navigate(ROUTES.PARENT_LOGIN);
+  };
+
   const startPuzzle = (puzzle?: SudokuPuzzleItem, mode?: PracticeMode, stageIndex?: number, source?: PracticeSource) => {
     const current = getActiveChild();
     if (!current) return;
@@ -311,7 +318,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app-shell child-shell ${view === "home" ? "home-shell" : ""} ${view === "play" || view === "fast-pass" ? "practice-shell" : ""} ${view === "practice" ? "free-practice-shell" : ""} ${view === "adventure" ? "adventure-shell" : ""} ${view === "fast-pass" ? "fast-pass-shell" : ""} ${adventureLevel ? "adventure-detail-route" : ""} ${view === "growth" ? "growth-shell" : ""}`}>
+    <div className={`app-shell child-shell ${view === "home" ? "home-shell" : ""} ${view === "play" || view === "fast-pass" ? "practice-shell" : ""} ${view === "practice" ? "free-practice-shell" : ""} ${view === "adventure" ? "adventure-shell" : ""} ${view === "fast-pass" ? "fast-pass-shell" : ""} ${adventureLevel ? "adventure-detail-route" : ""} ${view === "growth" ? "growth-shell" : ""} ${view === "settings" ? "settings-shell" : ""}`}>
       <AdventureAppShell
         child={child}
         ability={ability}
@@ -322,7 +329,7 @@ export default function App() {
         onGrowth={() => goChild("growth")}
         onSettings={() => goChild("settings")}
         onSwitchChild={() => { setActiveChild(null); setView("selector"); navigate(ROUTES.CHILDREN); }}
-        onLogout={() => { logoutParent(); setActivePuzzle(null); setView("selector"); navigate(ROUTES.PARENT_LOGIN); }}
+        onLogout={handleLogout}
       >
 
       {view === "home" && (
@@ -444,6 +451,7 @@ export default function App() {
             updateChild(parent.id, child.id, { settings });
             refresh();
           }}
+          onLogout={handleLogout}
         />
       )}
       </AdventureAppShell>

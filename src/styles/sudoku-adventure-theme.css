@@ -225,6 +225,9 @@ body {
 .home-mini-game-disclosure > summary { min-height: 52px; padding: 15px 20px; cursor: pointer; color: var(--adventure-green-900); font-weight: 900; list-style: none; }
 .home-mini-game-disclosure > summary span { float: right; }
 .home-mini-game-disclosure[open] > summary span { transform: rotate(180deg); }
+.home-mini-game-disclosure:not([open]) > :not(summary),
+.practice-more-modes:not([open]) > :not(summary),
+.settings-row-details:not([open]) > :not(summary) { display: none; }
 .home-mini-game-disclosure .mini-game-panel { margin: 0; border: 0; box-shadow: none; }
 
 .forest-practice-hero,
@@ -318,6 +321,9 @@ body {
 .settings-sync-button { min-height: 52px; }
 .settings-inline-message { position: absolute; right: 28px; bottom: 8px; margin: 0; font-size: 12px; }
 .adventure-settings-list { display: grid; gap: 10px; margin-top: 18px; padding: 18px; border: 3px solid #e9dda2; border-radius: var(--adventure-section-radius); background: rgba(255,253,238,.97); box-shadow: var(--adventure-card-shadow); }
+.settings-logout-footer { display: flex; justify-content: flex-end; margin-top: 16px; padding-bottom: max(4px, env(safe-area-inset-bottom)); }
+.settings-logout-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 132px; min-height: 44px; padding: 8px 16px; border-width: 1px; border-radius: 14px; box-shadow: 0 3px 0 #cf987f; font-size: 14px; }
+.settings-logout-button span { font-size: 17px; line-height: 1; }
 .adventure-setting-row { position: relative; display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 15px; min-height: 88px; padding: 7px 15px; border: 2px solid #f0dea0; border-radius: 18px; background: linear-gradient(135deg, #fffef4, #fff9e2); }
 .adventure-setting-icon { width: 70px; height: 70px; }
 .adventure-setting-copy strong { display: block; color: var(--adventure-green-900); font-size: 20px; }
@@ -493,6 +499,8 @@ body {
   .settings-sync-button { grid-column: 1 / -1; min-height: 44px; }
   .settings-inline-message { right: 12px; bottom: 4px; }
   .adventure-settings-list { gap: 7px; margin-top: 10px; padding: 8px; border-width: 2px; border-radius: 22px; }
+  .settings-logout-footer { margin-top: 8px; padding: 0 4px calc(8px + env(safe-area-inset-bottom)); }
+  .settings-logout-button { width: auto; min-width: 116px; min-height: 44px; padding: 7px 14px; font-size: 13px; }
   .adventure-setting-row { grid-template-columns: 52px 1fr auto; gap: 8px; min-height: 68px; padding: 5px 8px; border-width: 1px; border-radius: 15px; }
   .adventure-setting-icon { width: 50px; height: 50px; }
   .adventure-setting-copy strong { font-size: 15px; }
@@ -537,4 +545,1549 @@ body {
   .adventure-accordion i,
   .adventure-toggle > span,
   .adventure-toggle > span::after { transition: none; }
+}
+
+/* Fixed-device acceptance layouts: phone, portrait tablet and landscape tablet. */
+.child-shell,
+.forest-child-selector { overflow-x: clip; }
+
+.forest-home-page,
+.forest-practice-page,
+.forest-growth-page,
+.adventure-settings-page,
+.forest-selector-header,
+.forest-selector-panel { min-width: 0; }
+
+@media (max-width: 430px) {
+  .app-shell.child-shell { width: 100%; max-width: none; min-height: 100dvh; margin: 0; padding: 7px 7px 0; display: block; }
+  .app-shell.child-shell.home-shell,
+  .app-shell.child-shell.free-practice-shell { width: 100%; max-width: none; min-height: 100dvh; margin: 0; padding: 7px 7px 0; display: block; }
+  .adventure-page-content { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+
+  .home-shell .adventure-page-content { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .home-shell .adventure-app-header {
+    grid-template-rows: 1fr;
+    height: 72px;
+    min-height: 72px;
+    margin-bottom: 5px;
+    padding: 4px 6px;
+  }
+  .home-shell .adventure-brand-mascot { width: 40px; height: 40px; flex-basis: 40px; }
+  .home-shell .adventure-brand strong { font-size: 16px; }
+  .home-shell .adventure-child-summary {
+    position: absolute;
+    bottom: 6px;
+    left: 53px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .adventure-app-header {
+    min-height: 68px;
+    margin-bottom: 7px;
+    padding: 5px 7px;
+    border-radius: 16px;
+  }
+  .adventure-brand-mascot { width: 42px; height: 42px; flex-basis: 42px; border-radius: 12px; }
+  .adventure-brand strong { max-width: 132px; font-size: 17px; }
+  .adventure-child-summary { margin-top: -2px; }
+  .adventure-child-summary strong,
+  .adventure-child-summary small { font-size: 11px; }
+  .adventure-header-actions button { min-width: 44px; min-height: 44px; padding: 3px; font-size: 10px; }
+
+  .adventure-bottom-nav.mobile-bottom-nav {
+    bottom: max(4px, env(safe-area-inset-bottom));
+    width: calc(100% - 12px);
+    min-height: 64px;
+    padding: 5px;
+    border-radius: 18px;
+  }
+  .adventure-bottom-nav.mobile-bottom-nav button { min-height: 48px; padding: 3px; border-radius: 13px; }
+  .adventure-bottom-nav button span { font-size: 18px; }
+  .adventure-bottom-nav button small { font-size: 10px; }
+
+  .forest-today-task {
+    grid-template-columns: 86px minmax(0, 1fr) 36px;
+    min-height: 104px;
+    padding: 5px 7px 5px 2px;
+    border-radius: 16px;
+  }
+  .forest-today-sign { width: 84px; height: 84px; }
+  .forest-today-copy small { font-size: 11px; }
+  .forest-today-copy strong { font-size: 24px; }
+  .forest-today-copy em { font-size: 10px; }
+  .forest-round-arrow { width: 34px; height: 34px; font-size: 27px; }
+  .forest-map-card { min-height: 145px; margin-top: 7px; border-radius: 16px; }
+  .forest-map-copy { left: 13px; }
+  .forest-map-copy small { padding: 4px 7px; font-size: 9px; }
+  .forest-map-copy strong { margin: 5px 0 8px; font-size: 29px; }
+  .forest-map-copy em { padding: 7px 10px; font-size: 12px; }
+  .forest-map-stats { font-size: 9px; }
+  .forest-home-entries { gap: 6px; margin-top: 7px; }
+  .forest-home-entries .feature-entry-card {
+    grid-template-columns: 66px minmax(0, 1fr) 20px;
+    min-height: 64px;
+    padding: 4px 7px;
+    text-align: left;
+  }
+  .forest-home-entries .feature-entry-art { width: 54px; height: 54px; }
+  .forest-home-entries .feature-entry-copy strong { font-size: 17px; }
+  .forest-home-entries .feature-entry-copy small { font-size: 10px; line-height: 1.25; }
+  .forest-home-entries .feature-entry-arrow { display: block; font-size: 24px; }
+  .home-mini-game-disclosure { margin-top: 7px; border-radius: 14px; }
+  .home-mini-game-disclosure > summary { min-height: 44px; padding: 11px 13px; font-size: 12px; }
+
+  .home-shell .forest-today-task {
+    grid-template-columns: 76px minmax(0, 1fr) 34px;
+    min-height: 92px;
+    height: 92px;
+    padding: 4px 6px 4px 1px;
+  }
+  .home-shell .forest-today-sign { width: 74px; height: 74px; }
+  .home-shell .forest-today-copy small { font-size: 10px; }
+  .home-shell .forest-today-copy strong { margin: 1px 0; font-size: 21px; }
+  .home-shell .forest-today-copy em { font-size: 9px; }
+  .home-shell .forest-map-card { min-height: 136px; height: 136px; margin-top: 4px; }
+  .home-shell .forest-map-copy strong { margin: 4px 0 6px; font-size: 27px; }
+  .home-shell .forest-map-copy em { min-height: 44px; padding: 6px 10px; }
+  .home-shell .forest-home-entries { gap: 4px; margin-top: 4px; }
+  .home-shell .forest-home-entries .feature-entry-card {
+    min-height: 60px;
+    height: 60px;
+    grid-template-columns: 60px minmax(0, 1fr) 18px;
+    padding: 3px 6px;
+  }
+  .home-shell .forest-home-entries .feature-entry-art { width: 50px; height: 50px; }
+  .home-shell .forest-home-entries .feature-entry-copy strong { font-size: 16px; }
+  .home-shell .forest-home-entries .feature-entry-copy small { margin-top: 1px; font-size: 9px; }
+  .home-shell .forest-home-entries .feature-entry-arrow { font-size: 21px; }
+  .home-shell .home-mini-game-disclosure { margin-top: 4px; }
+
+  .forest-practice-hero,
+  .forest-growth-hero { min-height: 88px; border-radius: 16px; }
+  .forest-practice-hero > div,
+  .forest-growth-hero > div { right: 10px; width: 64%; }
+  .forest-practice-hero h2,
+  .forest-growth-hero h2 { margin: 2px 0; font-size: 25px; }
+  .forest-practice-hero span,
+  .forest-growth-hero span { display: none; }
+  .forest-practice-panel { margin-top: 7px; }
+  .forest-recommendation-strip { grid-template-columns: 54px minmax(0, 1fr); gap: 5px; padding: 5px 7px 7px; border-radius: 14px; }
+  .recommendation-medal { width: 52px; height: 52px; }
+  .forest-recommendation-strip strong { font-size: 13px; }
+  .forest-recommendation-strip p { font-size: 9px; }
+  .forest-recommendation-strip button { min-height: 44px; padding: 6px; font-size: 11px; }
+  .forest-practice-entry-grid { gap: 6px; margin-top: 7px; }
+  .forest-practice-entry-grid .feature-entry-card {
+    min-height: 126px;
+    padding: 5px;
+    border-radius: 14px;
+  }
+  .forest-practice-entry-grid .feature-entry-art { height: 68px; }
+  .forest-practice-entry-grid .feature-entry-copy strong { font-size: 16px; }
+  .forest-practice-entry-grid .feature-entry-copy small { font-size: 9px; line-height: 1.2; }
+  .practice-more-modes { margin-top: 7px; border-radius: 14px; }
+  .practice-more-modes summary { min-height: 44px; padding: 11px 12px; font-size: 12px; }
+  .forest-practice-tip { min-height: 44px; margin-top: 7px; border-radius: 14px; }
+  .forest-practice-tip p { padding: 9px 8px 8px 56px; font-size: 10px; }
+  .forest-practice-tip strong { display: inline; margin-right: 4px; }
+
+  .forest-growth-metrics { gap: 6px; margin-top: 7px; }
+  .summary-metric-card { grid-template-columns: 48px minmax(0, 1fr); min-height: 78px; padding: 5px; border-radius: 14px; }
+  .summary-metric-art { width: 46px; height: 54px; }
+  .summary-metric-card small { font-size: 9px; }
+  .summary-metric-card strong { margin-top: 2px; font-size: 14px; }
+  .forest-growth-accordions { gap: 5px; margin-top: 7px; padding: 6px; border-radius: 16px; }
+  .adventure-accordion { border-radius: 12px; }
+  .adventure-accordion > button { grid-template-columns: 40px minmax(0, 1fr) 28px; gap: 5px; min-height: 56px; padding: 4px 7px; }
+  .adventure-accordion-art { width: 38px; height: 42px; }
+  .adventure-accordion strong { font-size: 15px; }
+  .adventure-accordion small { margin-top: 1px; font-size: 9px; }
+  .adventure-accordion i { width: 28px; height: 28px; font-size: 16px; }
+  .forest-growth-suggestion { margin-top: 6px; padding: 9px 10px; font-size: 10px; }
+
+  .settings-title-sign { height: 68px; margin-bottom: -7px; }
+  .settings-title-sign p { font-size: 9px; }
+  .settings-title-sign h2 { font-size: 23px; }
+  .settings-sync-card { grid-template-columns: 58px minmax(0, 1fr) auto; gap: 6px; min-height: 98px; padding: 7px; border-radius: 16px; }
+  .settings-sync-art { width: 56px; height: 58px; }
+  .settings-sync-copy p { font-size: 9px; }
+  .settings-sync-copy strong { margin: 1px 0; font-size: 14px; }
+  .settings-sync-copy span { max-width: 150px; font-size: 9px; }
+  .settings-sync-button { min-width: 44px; min-height: 44px; padding: 5px; font-size: 0; }
+  .settings-sync-button span { font-size: 20px; }
+  .adventure-settings-list { gap: 5px; margin-top: 7px; padding: 6px; border-radius: 16px; }
+  .adventure-setting-row { grid-template-columns: 42px minmax(0, 1fr) auto; gap: 6px; min-height: 56px; padding: 3px 6px; border-radius: 12px; }
+  .adventure-setting-icon { width: 40px; height: 40px; }
+  .adventure-setting-copy strong { font-size: 14px; }
+  .adventure-setting-copy small { display: none; }
+
+  .forest-child-selector { padding: 7px 7px calc(10px + env(safe-area-inset-bottom)); }
+  .forest-selector-header { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 6px; padding: 6px; border-radius: 16px; }
+  .forest-selector-mascot { width: 46px; height: 46px; border-radius: 12px; }
+  .forest-selector-header p { display: none; }
+  .forest-selector-header h1 { font-size: 19px; }
+  .forest-selector-header span { display: block; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .forest-selector-panel { margin-top: 7px; padding: 8px; border-radius: 16px; }
+  .forest-selector-title h2 { font-size: 17px; }
+  .forest-selector-title > button { padding-inline: 7px; font-size: 11px; }
+  .forest-child-grid { gap: 7px; margin-top: 8px; }
+  .forest-child-card { grid-template-columns: 68px minmax(0, 1fr); gap: 7px; padding: 7px; border-radius: 14px; }
+  .forest-child-avatar { width: 66px; height: 66px; }
+  .forest-child-copy p { font-size: 10px; }
+  .forest-child-copy h3 { font-size: 19px; }
+  .forest-child-copy span { padding: 2px 6px; font-size: 11px; }
+  .forest-child-copy small { display: -webkit-box; overflow: hidden; font-size: 10px; line-height: 1.25; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .forest-child-actions button { min-height: 44px; font-size: 10px; }
+  .forest-selector-foliage { display: none; }
+}
+
+@media (max-width: 430px) and (max-height: 630px) {
+  .app-shell.child-shell.home-shell { padding-top: 5px; }
+  .home-shell .adventure-page-content { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .home-shell .adventure-app-header { height: 68px; min-height: 68px; margin-bottom: 4px; }
+  .home-shell .adventure-brand-mascot { width: 38px; height: 38px; flex-basis: 38px; }
+  .home-shell .adventure-child-summary { bottom: 4px; left: 51px; }
+  .home-shell .forest-today-task { min-height: 84px; height: 84px; }
+  .home-shell .forest-today-sign { width: 68px; height: 68px; }
+  .home-shell .forest-map-card { min-height: 124px; height: 124px; margin-top: 3px; }
+  .home-shell .forest-home-entries { gap: 3px; margin-top: 3px; }
+  .home-shell .forest-home-entries .feature-entry-card { min-height: 56px; height: 56px; }
+  .home-shell .forest-home-entries .feature-entry-art { width: 46px; height: 46px; }
+  .home-shell .home-mini-game-disclosure { margin-top: 3px; }
+}
+
+@media (min-width: 431px) and (max-width: 899px) {
+  .app-shell.child-shell { width: 100%; max-width: none; min-height: 100dvh; margin: 0; padding: 10px 14px 0; display: block; }
+  .app-shell.child-shell.home-shell,
+  .app-shell.child-shell.free-practice-shell { width: 100%; max-width: none; min-height: 100dvh; margin: 0; padding: 10px 14px 0; display: block; }
+  .adventure-page-content { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
+  .adventure-app-header { min-height: 76px; margin-bottom: 10px; padding: 7px 10px; border-radius: 20px; }
+  .adventure-brand-mascot { width: 52px; height: 52px; flex-basis: 52px; }
+  .adventure-brand strong { font-size: 22px; }
+  .adventure-child-avatar { width: 46px; height: 46px; flex-basis: 46px; }
+  .adventure-header-actions button { min-height: 48px; }
+  .adventure-bottom-nav.mobile-bottom-nav { min-height: 66px; padding: 6px; }
+  .adventure-bottom-nav.mobile-bottom-nav button { min-height: 50px; }
+
+  .forest-today-task { grid-template-columns: 150px minmax(0, 1fr) 44px; min-height: 122px; padding: 7px 14px 7px 4px; }
+  .forest-today-sign { width: 145px; height: 108px; }
+  .forest-today-copy small { font-size: 13px; }
+  .forest-today-copy strong { font-size: 31px; }
+  .forest-today-copy em { font-size: 12px; }
+  .forest-round-arrow { width: 42px; height: 42px; font-size: 32px; }
+  .forest-map-card { min-height: 238px; margin-top: 10px; }
+  .forest-map-copy strong { margin: 8px 0 12px; font-size: 40px; }
+  .forest-home-entries { gap: 9px; margin-top: 10px; }
+  .forest-home-entries .feature-entry-card { min-height: 142px; padding: 7px; }
+  .forest-home-entries .feature-entry-art { height: 88px; }
+  .forest-home-entries .feature-entry-copy strong { font-size: 18px; }
+  .forest-home-entries .feature-entry-copy small { font-size: 10px; }
+  .home-mini-game-disclosure { margin-top: 9px; }
+  .home-mini-game-disclosure > summary { min-height: 44px; padding: 11px 16px; }
+
+  .forest-practice-hero,
+  .forest-growth-hero { min-height: 108px; }
+  .forest-practice-hero h2,
+  .forest-growth-hero h2 { font-size: 31px; }
+  .forest-practice-panel { margin-top: 10px; }
+  .forest-recommendation-strip { grid-template-columns: 76px minmax(0, 1fr) auto; gap: 10px; padding: 8px 12px; }
+  .recommendation-medal { width: 72px; height: 68px; }
+  .forest-recommendation-strip strong { font-size: 17px; }
+  .forest-recommendation-strip p { font-size: 11px; }
+  .forest-recommendation-strip button { min-height: 44px; }
+  .forest-practice-entry-grid { gap: 9px; margin-top: 10px; }
+  .forest-practice-entry-grid .feature-entry-card { min-height: 138px; grid-template-columns: 38% minmax(0, 1fr) 22px; padding: 7px; text-align: left; }
+  .forest-practice-entry-grid .feature-entry-art { height: 112px; }
+  .forest-practice-entry-grid .feature-entry-copy strong { font-size: 21px; }
+  .forest-practice-entry-grid .feature-entry-arrow { display: block; font-size: 26px; }
+  .practice-more-modes { margin-top: 9px; }
+  .forest-practice-tip { min-height: 50px; margin-top: 9px; }
+  .forest-practice-tip p { padding: 13px 18px 11px 82px; font-size: 11px; }
+
+  .forest-growth-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+  .summary-metric-card { grid-template-columns: 1fr; min-height: 128px; padding: 6px; justify-items: center; text-align: center; }
+  .summary-metric-art { width: 82px; height: 76px; }
+  .summary-metric-card small { font-size: 10px; }
+  .summary-metric-card strong { font-size: 16px; }
+  .forest-growth-accordions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; padding: 9px; }
+  .adventure-accordion > button { grid-template-columns: 54px minmax(0, 1fr) 30px; gap: 7px; min-height: 72px; padding: 5px 8px; }
+  .adventure-accordion-art { width: 50px; height: 54px; }
+  .adventure-accordion strong { font-size: 17px; }
+  .adventure-accordion small { font-size: 10px; }
+  .adventure-accordion i { width: 30px; height: 30px; font-size: 18px; }
+  .forest-growth-suggestion { margin-top: 9px; padding: 11px 14px; font-size: 12px; }
+
+  .settings-title-sign { height: 86px; margin-bottom: -10px; }
+  .settings-title-sign h2 { font-size: 28px; }
+  .settings-sync-card { grid-template-columns: 92px minmax(0, 1fr) auto; min-height: 112px; padding: 10px 14px; }
+  .settings-sync-art { width: 88px; height: 86px; }
+  .settings-sync-copy strong { font-size: 18px; }
+  .adventure-settings-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 10px; padding: 9px; }
+  .adventure-setting-row { grid-template-columns: 50px minmax(0, 1fr) auto; gap: 7px; min-height: 68px; padding: 4px 7px; }
+  .adventure-setting-icon { width: 48px; height: 48px; }
+  .adventure-setting-copy strong { font-size: 15px; }
+  .adventure-setting-copy small { font-size: 10px; }
+
+  .forest-child-selector { padding: 10px 14px 20px; }
+  .forest-selector-header { grid-template-columns: 66px minmax(0, 1fr) auto; padding: 8px 12px; }
+  .forest-selector-mascot { width: 62px; height: 62px; }
+  .forest-selector-header h1 { font-size: 25px; }
+  .forest-selector-panel { margin-top: 10px; padding: 14px; }
+  .forest-child-grid { gap: 10px; margin-top: 12px; }
+  .forest-child-card { grid-template-columns: 86px minmax(0, 1fr); gap: 10px; padding: 10px; }
+  .forest-child-avatar { width: 82px; height: 82px; }
+  .forest-child-copy h3 { font-size: 23px; }
+  .forest-child-copy em { display: none; }
+  .forest-selector-foliage { display: none; }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) and (orientation: landscape) {
+  .app-shell.child-shell { width: 100%; max-width: none; min-height: 100dvh; margin: 0; padding: 8px 18px 0; display: block; }
+  .app-shell.child-shell.home-shell,
+  .app-shell.child-shell.free-practice-shell { width: 100%; max-width: none; min-height: 100dvh; margin: 0; padding: 8px 18px 0; display: block; }
+  .adventure-page-content { min-height: 0; padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
+  .adventure-app-header {
+    grid-template-columns: minmax(220px, 1fr) auto auto;
+    gap: 12px;
+    min-height: 68px;
+    margin-bottom: 8px;
+    padding: 5px 10px;
+    border-radius: 18px;
+  }
+  .adventure-brand-mascot { width: 48px; height: 48px; flex-basis: 48px; border-radius: 13px; }
+  .adventure-brand strong { font-size: 22px; }
+  .adventure-brand small { display: none; }
+  .adventure-child-avatar { width: 44px; height: 44px; flex-basis: 44px; }
+  .adventure-child-summary { min-width: 170px; }
+  .adventure-header-actions button { min-width: 54px; min-height: 48px; padding: 4px 7px; }
+  .adventure-bottom-nav.mobile-bottom-nav { bottom: max(4px, env(safe-area-inset-bottom)); width: min(calc(100% - 28px), 700px); min-height: 58px; padding: 5px; border-radius: 18px; }
+  .adventure-bottom-nav.mobile-bottom-nav { box-shadow: 0 3px 0 rgba(13, 82, 34, 0.45), 0 6px 14px rgba(6, 57, 24, 0.2); }
+  .adventure-bottom-nav.mobile-bottom-nav button { min-height: 44px; border-radius: 12px; }
+  .adventure-bottom-nav button span { font-size: 18px; }
+  .adventure-bottom-nav button small { font-size: 10px; }
+
+  .forest-home-page {
+    height: calc(100dvh - 157px - env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, .8fr);
+    grid-template-rows: 94px minmax(0, 1fr) 44px;
+    gap: 8px 10px;
+  }
+  .forest-today-task { grid-column: 1; grid-row: 1; grid-template-columns: 106px minmax(0, 1fr) 38px; min-height: 0; height: 94px; padding: 4px 8px 4px 2px; border-width: 2px; border-radius: 14px; }
+  .forest-today-sign { width: 102px; height: 84px; }
+  .forest-today-copy small { font-size: 10px; }
+  .forest-today-copy strong { margin: 1px 0; font-size: 24px; }
+  .forest-today-copy em { font-size: 10px; }
+  .forest-round-arrow { width: 34px; height: 34px; border-width: 2px; font-size: 27px; }
+  .forest-map-card { grid-column: 1; grid-row: 2 / 4; min-height: 0; height: 100%; margin: 0; border-width: 2px; border-radius: 14px; }
+  .forest-map-copy { left: 18px; }
+  .forest-map-copy small { padding: 4px 7px; font-size: 10px; }
+  .forest-map-copy strong { margin: 7px 0 10px; font-size: 36px; }
+  .forest-map-copy em { padding: 8px 12px; font-size: 13px; }
+  .forest-map-stats { right: 8px; bottom: 7px; font-size: 9px; }
+  .forest-home-entries { grid-column: 2; grid-row: 1 / 3; grid-template-columns: 1fr; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 7px; min-height: 0; margin: 0; }
+  .forest-home-entries .feature-entry-card { grid-template-columns: 72px minmax(0, 1fr) 20px; min-height: 0; height: 100%; padding: 5px 7px; border-width: 2px; border-radius: 14px; text-align: left; }
+  .forest-home-entries .feature-entry-art { width: 68px; height: 68px; }
+  .forest-home-entries .feature-entry-copy strong { font-size: 18px; }
+  .forest-home-entries .feature-entry-copy small { margin-top: 2px; font-size: 9px; line-height: 1.2; }
+  .forest-home-entries .feature-entry-arrow { display: block; font-size: 24px; }
+  .home-mini-game-disclosure { grid-column: 2; grid-row: 3; min-height: 44px; margin: 0; border-radius: 12px; }
+  .home-mini-game-disclosure > summary { min-height: 44px; padding: 11px 12px; font-size: 11px; }
+
+  .forest-practice-page {
+    height: calc(100dvh - 157px - env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: minmax(250px, .7fr) minmax(0, 1.45fr);
+    grid-template-rows: minmax(0, 1fr) 54px;
+    gap: 9px 12px;
+  }
+  .forest-practice-hero { grid-column: 1; grid-row: 1; min-height: 0; height: 100%; border-width: 2px; border-radius: 14px; }
+  .forest-practice-hero > div { right: 12px; width: 65%; }
+  .forest-practice-hero h2 { font-size: 31px; }
+  .forest-practice-hero span { font-size: 11px; }
+  .forest-practice-panel { grid-column: 2; grid-row: 1 / 3; min-height: 0; margin: 0; }
+  .forest-practice-overview { height: 100%; display: grid; grid-template-rows: 90px minmax(0, 1fr) 44px; gap: 8px; }
+  .forest-recommendation-strip { grid-template-columns: 66px minmax(0, 1fr) auto; gap: 8px; min-height: 0; padding: 6px 9px; border-width: 2px; border-radius: 14px; }
+  .recommendation-medal { width: 62px; height: 58px; }
+  .forest-recommendation-strip strong { font-size: 15px; }
+  .forest-recommendation-strip p { font-size: 10px; }
+  .forest-recommendation-strip button { min-height: 44px; padding: 6px 9px; font-size: 11px; }
+  .forest-practice-entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 7px; min-height: 0; margin: 0; }
+  .forest-practice-entry-grid .feature-entry-card { grid-template-columns: 84px minmax(0, 1fr) 18px; min-height: 0; height: 100%; padding: 5px; border-width: 2px; border-radius: 13px; text-align: left; }
+  .forest-practice-entry-grid .feature-entry-art { width: 80px; height: 80px; }
+  .forest-practice-entry-grid .feature-entry-copy strong { font-size: 17px; }
+  .forest-practice-entry-grid .feature-entry-copy small { font-size: 9px; }
+  .forest-practice-entry-grid .feature-entry-arrow { display: block; font-size: 22px; }
+  .practice-more-modes { min-height: 44px; margin: 0; border-radius: 12px; }
+  .practice-more-modes summary { min-height: 44px; padding: 11px 12px; font-size: 11px; }
+  .forest-practice-tip { grid-column: 1; grid-row: 2; min-height: 54px; margin: 0; border-radius: 13px; }
+  .forest-practice-tip p { padding: 11px 8px 9px 62px; font-size: 9px; }
+  .forest-practice-tip strong { display: inline; margin-right: 3px; }
+
+  .forest-growth-page {
+    height: calc(100dvh - 157px - env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: minmax(340px, .9fr) minmax(0, 1.25fr);
+    grid-template-rows: 112px minmax(0, 1fr) 44px;
+    gap: 8px 10px;
+  }
+  .forest-growth-hero { grid-column: 1; grid-row: 1; min-height: 0; height: 112px; border-width: 2px; border-radius: 14px; }
+  .forest-growth-hero > div { right: 12px; width: 65%; }
+  .forest-growth-hero h2 { font-size: 29px; }
+  .forest-growth-hero span { font-size: 10px; }
+  .forest-growth-metrics { grid-column: 1; grid-row: 2; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 7px; min-height: 0; margin: 0; }
+  .summary-metric-card { grid-template-columns: 58px minmax(0, 1fr); min-height: 0; height: 100%; padding: 5px; align-content: center; border-width: 2px; border-radius: 13px; }
+  .summary-metric-art { width: 56px; height: 60px; }
+  .summary-metric-card small { font-size: 9px; }
+  .summary-metric-card strong { font-size: 15px; }
+  .forest-growth-accordions { grid-column: 2; grid-row: 1 / 4; grid-template-columns: 1fr; grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 7px; min-height: 0; margin: 0; padding: 8px; border-width: 2px; border-radius: 14px; }
+  .adventure-accordion { min-height: 0; border-radius: 12px; }
+  .adventure-accordion > button { grid-template-columns: 50px minmax(0, 1fr) 30px; gap: 7px; min-height: 0; height: 100%; padding: 4px 8px; }
+  .adventure-accordion-art { width: 46px; height: 48px; }
+  .adventure-accordion strong { font-size: 17px; }
+  .adventure-accordion small { font-size: 9px; }
+  .adventure-accordion i { width: 30px; height: 30px; font-size: 18px; }
+  .forest-growth-suggestion { grid-column: 1; grid-row: 3; min-height: 44px; margin: 0; padding: 9px 11px; overflow: hidden; font-size: 10px; }
+  .forest-growth-suggestion span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .adventure-settings-page {
+    height: calc(100dvh - 157px - env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: minmax(300px, .72fr) minmax(0, 1.45fr);
+    grid-template-rows: 92px auto minmax(0, 1fr);
+    gap: 8px 12px;
+  }
+  .settings-title-sign { grid-column: 1; grid-row: 1; width: 100%; height: 92px; margin: 0; }
+  .settings-title-sign h2 { font-size: 29px; }
+  .settings-sync-card { grid-column: 1; grid-row: 2; grid-template-columns: 82px minmax(0, 1fr); align-content: center; align-self: start; gap: 7px; min-height: 220px; height: 220px; padding: 10px; border-width: 2px; border-radius: 14px; }
+  .settings-sync-art { width: 80px; height: 82px; }
+  .settings-sync-copy strong { font-size: 18px; }
+  .settings-sync-copy span { font-size: 10px; }
+  .settings-sync-button { grid-column: 1 / -1; min-height: 44px; }
+  .adventure-settings-list { grid-column: 2; grid-row: 1 / 4; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 6px; min-height: 0; margin: 0; padding: 7px; border-width: 2px; border-radius: 14px; }
+  .settings-logout-footer { grid-column: 1; grid-row: 3; align-self: start; justify-content: stretch; margin: 0; padding: 0; }
+  .settings-logout-button { width: 100%; min-height: 44px; }
+  .adventure-setting-row { grid-template-columns: 46px minmax(0, 1fr) auto; gap: 6px; min-height: 0; height: 100%; padding: 3px 6px; border-width: 1px; border-radius: 11px; }
+  .adventure-setting-icon { width: 44px; height: 44px; }
+  .adventure-setting-copy strong { font-size: 14px; }
+  .adventure-setting-copy small { font-size: 9px; }
+
+  .forest-child-selector { height: 100dvh; min-height: 0; padding: 8px 20px 8px; }
+  .forest-selector-header { grid-template-columns: 60px minmax(0, 1fr) auto; gap: 9px; min-height: 70px; padding: 6px 10px; border-width: 2px; border-radius: 18px; }
+  .forest-selector-mascot { width: 56px; height: 56px; border-radius: 14px; }
+  .forest-selector-header p { display: none; }
+  .forest-selector-header h1 { font-size: 24px; }
+  .forest-selector-panel { height: calc(100dvh - 94px); min-height: 0; margin-top: 8px; padding: 12px; border-width: 2px; border-radius: 18px; }
+  .forest-selector-title h2 { font-size: 21px; }
+  .forest-child-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+  .forest-child-card { grid-template-columns: 80px minmax(0, 1fr); gap: 9px; padding: 9px; border-width: 2px; border-radius: 15px; }
+  .forest-child-avatar { width: 76px; height: 76px; }
+  .forest-child-copy h3 { font-size: 22px; }
+  .forest-child-copy small { font-size: 10px; }
+  .forest-child-copy em { display: none; }
+  .forest-selector-foliage { display: none; }
+}
+
+/* Phone-only one-screen compositions. Details stay available in secondary panels. */
+@media (max-width: 430px) {
+  .app-shell.child-shell {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .app-shell.child-shell .adventure-app-header {
+    grid-template-rows: 1fr;
+    height: 72px;
+    min-height: 72px;
+    margin-bottom: 5px;
+    padding: 4px 6px;
+  }
+  .app-shell.child-shell .adventure-brand-mascot { width: 40px; height: 40px; flex-basis: 40px; }
+  .app-shell.child-shell .adventure-brand strong { font-size: 16px; }
+  .app-shell.child-shell .adventure-child-summary {
+    position: absolute;
+    bottom: 6px;
+    left: 53px;
+    margin: 0;
+    padding: 0;
+  }
+  .app-shell.child-shell .adventure-page-content {
+    height: calc(100dvh - 84px);
+    min-height: 0;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+
+  /* Home secondary content opens above the fixed one-screen dashboard. */
+  .home-shell .home-mini-game-disclosure[open] {
+    position: fixed;
+    z-index: 160;
+    inset: 84px 7px calc(70px + env(safe-area-inset-bottom));
+    margin: 0;
+    display: grid;
+    grid-template-rows: 44px minmax(0, 1fr);
+    overflow: hidden;
+    border: 2px solid #dcebaa;
+    border-radius: 16px;
+    background: #fffdf1;
+    box-shadow: 0 0 0 100vmax rgba(25, 66, 49, .34), 0 12px 30px rgba(32, 82, 59, .24);
+  }
+  .home-shell .home-mini-game-disclosure[open] > summary {
+    position: relative;
+    z-index: 1;
+    min-height: 44px;
+    height: 44px;
+    padding: 11px 13px;
+    border-bottom: 1px solid rgba(54, 112, 78, .16);
+    background: #f7fbe9;
+    font-size: 12px;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel {
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "copy"
+      "scene"
+      "actions";
+    grid-template-rows: auto 96px auto;
+    gap: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 0;
+    border-radius: 0;
+    background: #fffdf1;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel::after { display: none; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-copy {
+    grid-area: copy;
+    display: grid;
+    gap: 2px;
+    align-content: start;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-copy .eyebrow,
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-copy > p {
+    display: block;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-copy .eyebrow { font-size: 9px; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-copy h2 { font-size: 17px; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-copy h3 { font-size: 14px; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-copy > p:last-child { margin-top: 2px; font-size: 10px; line-height: 1.35; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-scene {
+    grid-area: scene;
+    display: block;
+    height: 96px;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-actions {
+    grid-area: actions;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-chips {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-chips span,
+  .home-shell .home-mini-game-disclosure[open] .mini-game-chips span:nth-child(4) {
+    grid-column: auto;
+    min-height: 46px;
+    padding: 4px;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 1px;
+    text-align: center;
+    font-size: 8px;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-chips strong { font-size: 9px; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-buttons button,
+  .home-shell .home-mini-game-disclosure[open] .mini-game-buttons button:not(.primary) {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 5px;
+    font-size: 11px;
+  }
+
+  /* Free practice */
+  .free-practice-shell .forest-practice-page {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 68px minmax(0, 1fr) 40px;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .free-practice-shell .forest-practice-hero { min-height: 68px; height: 68px; border-width: 2px; }
+  .free-practice-shell .forest-practice-hero h2 { font-size: 21px; }
+  .free-practice-shell .forest-practice-hero p { font-size: 9px; }
+  .free-practice-shell .forest-practice-panel {
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 6px;
+    overflow: hidden;
+  }
+  .free-practice-shell .forest-practice-overview {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 60px minmax(0, 1fr) 44px;
+    gap: 4px;
+  }
+  .free-practice-shell .forest-recommendation-strip {
+    grid-template-columns: 54px minmax(0, 1fr) 94px;
+    gap: 4px;
+    min-height: 60px;
+    height: 60px;
+    padding: 3px 4px;
+  }
+  .free-practice-shell .recommendation-medal { width: 52px; height: 52px; }
+  .free-practice-shell .forest-recommendation-strip small,
+  .free-practice-shell .forest-recommendation-strip p { display: none; }
+  .free-practice-shell .forest-recommendation-strip strong { font-size: 12px; line-height: 1.2; }
+  .free-practice-shell .forest-recommendation-strip button { grid-column: 3; grid-row: 1; align-self: center; min-height: 44px; padding: 4px; font-size: 10px; }
+  .free-practice-shell .forest-practice-entry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    min-height: 0;
+    margin: 0;
+  }
+  .free-practice-shell .forest-practice-entry-grid .feature-entry-card {
+    grid-template-columns: 62px minmax(0, 1fr);
+    min-height: 0;
+    height: 100%;
+    padding: 5px 7px;
+    align-content: center;
+    border-radius: 11px;
+    text-align: left;
+  }
+  .free-practice-shell .forest-practice-entry-grid .feature-entry-art { width: 58px; height: 58px; }
+  .free-practice-shell .forest-practice-entry-grid .feature-entry-copy strong { font-size: 15px; line-height: 1.15; }
+  .free-practice-shell .forest-practice-entry-grid .feature-entry-copy small { margin-top: 3px; font-size: 9px; line-height: 1.25; }
+  .free-practice-shell .forest-practice-entry-grid .feature-entry-arrow { display: none; }
+  .free-practice-shell .practice-more-modes { min-height: 44px; height: 44px; margin: 0; }
+  .free-practice-shell .practice-more-modes[open] {
+    position: fixed;
+    z-index: 160;
+    right: 8px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    left: 8px;
+    width: auto;
+    min-height: 108px;
+    height: 108px;
+    margin: 0;
+    display: grid;
+    grid-template-rows: 44px 64px;
+    overflow: hidden;
+    border: 2px solid #d1e79b;
+    border-radius: 15px;
+    background: #fffdf1;
+    box-shadow: 0 0 0 100vmax rgba(25, 66, 49, .3), 0 10px 26px rgba(32, 82, 59, .22);
+  }
+  .free-practice-shell .practice-more-modes[open] > summary {
+    min-height: 44px;
+    height: 44px;
+    padding: 11px 13px;
+    border-bottom: 1px solid rgba(54, 112, 78, .16);
+    background: #f7fbe9;
+    font-size: 12px;
+  }
+  .free-practice-shell .practice-more-modes[open] > div {
+    min-height: 64px;
+    height: 64px;
+    padding: 9px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .free-practice-shell .practice-more-modes[open] button {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    height: 44px;
+    padding: 4px;
+    font-size: 11px;
+  }
+  .free-practice-shell .forest-practice-tip { min-height: 40px; height: 40px; margin: 0; }
+  .free-practice-shell .forest-practice-tip p { padding: 8px 7px 7px 52px; font-size: 9px; }
+
+  /* Growth */
+  .growth-shell .forest-growth-page {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 72px 112px 216px 36px;
+    gap: 5px;
+    overflow: hidden;
+  }
+  .growth-shell .forest-growth-hero {
+    min-height: 72px;
+    height: 72px;
+    overflow: hidden;
+    border: 2px solid #dce89b;
+    border-radius: 14px;
+    background: linear-gradient(100deg, #dff4e6 0 32%, #fffdf1 58% 100%);
+    box-shadow: 0 4px 0 rgba(76, 135, 78, .14);
+  }
+  .growth-shell .forest-growth-hero-art {
+    display: block;
+    inset: 0 auto 0 0;
+    width: 128px;
+    height: 100%;
+    opacity: 1;
+  }
+  .growth-shell .forest-growth-hero-art::after {
+    background: linear-gradient(90deg, rgba(255, 253, 238, 0) 0 44%, rgba(255, 253, 238, .72) 74%, #fffdf1 100%);
+  }
+  .growth-shell .forest-growth-hero > div {
+    top: 50%;
+    right: 10px;
+    width: calc(100% - 126px);
+    padding-left: 10px;
+    transform: translateY(-50%);
+    text-align: left;
+  }
+  .growth-shell .forest-growth-hero h2 { margin: 2px 0 0; font-size: 21px; line-height: 1.05; }
+  .growth-shell .forest-growth-hero p { font-size: 9px; line-height: 1.2; }
+  .growth-shell .forest-growth-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, 54px);
+    gap: 4px;
+    min-height: 0;
+    margin: 0;
+  }
+  .growth-shell .summary-metric-card {
+    grid-template-columns: 36px minmax(0, 1fr);
+    min-height: 54px;
+    height: 54px;
+    padding: 3px;
+  }
+  .growth-shell .summary-metric-art { width: 34px; height: 36px; }
+  .growth-shell .summary-metric-card small { font-size: 8px; }
+  .growth-shell .summary-metric-card strong { font-size: 12px; line-height: 1.1; }
+  .growth-shell .forest-growth-accordions {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 48px);
+    gap: 4px;
+    min-height: 216px;
+    height: 216px;
+    margin: 0;
+    padding: 6px;
+  }
+  .growth-shell .adventure-accordion { min-height: 48px; height: 48px; }
+  .growth-shell .adventure-accordion > button {
+    grid-template-columns: 36px minmax(0, 1fr) 28px;
+    min-height: 48px;
+    height: 48px;
+    padding: 3px 6px;
+  }
+  .growth-shell .adventure-accordion-art { width: 34px; height: 36px; }
+  .growth-shell .adventure-accordion strong { font-size: 13px; }
+  .growth-shell .adventure-accordion small { font-size: 8px; }
+  .growth-shell .forest-growth-suggestion { min-height: 36px; height: 36px; margin: 0; padding: 7px 9px; font-size: 9px; }
+  .growth-shell .adventure-accordion.is-open {
+    position: fixed;
+    z-index: 150;
+    top: 84px;
+    right: 8px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    left: 8px;
+    width: auto;
+    height: auto;
+    display: grid;
+    grid-template-rows: 52px minmax(0, 1fr);
+    overflow: hidden;
+    border: 2px solid #cfe29b;
+    border-radius: 16px;
+    background: #fffef4;
+    box-shadow: 0 18px 44px rgba(16, 72, 34, .28);
+  }
+  .growth-shell .adventure-accordion.is-open > button { height: 52px; border-radius: 14px 14px 0 0; }
+  .growth-shell .adventure-accordion.is-open .adventure-accordion-content { min-height: 0; padding: 8px; overflow: auto; }
+
+  /* Settings */
+  .settings-shell .adventure-settings-page {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 46px 72px 300px 44px;
+    gap: 4px;
+    align-content: start;
+    overflow: hidden;
+  }
+  .settings-shell .settings-title-sign { grid-column: 1; grid-row: 1; height: 46px; margin: 0; }
+  .settings-shell .settings-title-sign p { display: none; }
+  .settings-shell .settings-title-sign h2 { margin: 0; font-size: 19px; }
+  .settings-shell .settings-sync-card {
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: 42px minmax(0, 1fr) 44px;
+    gap: 4px;
+    min-height: 72px;
+    height: 72px;
+    padding: 4px 6px;
+    border-width: 2px;
+  }
+  .settings-shell .settings-sync-art { width: 40px; height: 40px; }
+  .settings-shell .settings-sync-copy p { font-size: 8px; }
+  .settings-shell .settings-sync-copy strong { font-size: 12px; }
+  .settings-shell .settings-sync-copy span { display: none; }
+  .settings-shell .settings-sync-button { grid-column: 3; min-width: 44px; min-height: 44px; }
+  .settings-shell .adventure-settings-list {
+    grid-column: 1;
+    grid-row: 3;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    min-height: 0;
+    height: 300px;
+    margin: 0;
+    padding: 4px;
+  }
+  .settings-shell .adventure-setting-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px;
+    min-height: 0;
+    height: 100%;
+    padding: 4px 5px;
+  }
+  .settings-shell .adventure-setting-icon { display: none; }
+  .settings-shell .adventure-setting-copy strong { font-size: 11px; line-height: 1.15; }
+  .settings-shell .adventure-toggle { width: 44px; height: 28px; }
+  .settings-shell .adventure-toggle > span::after { width: 18px; height: 18px; }
+  .settings-shell .adventure-toggle input:checked + span::after { transform: translateX(18px); }
+  .settings-shell .settings-row-action { width: 44px; min-width: 44px; min-height: 44px; padding: 3px; font-size: 0; }
+  .settings-shell .settings-row-action span { font-size: 21px; }
+  .settings-shell .settings-logout-footer { grid-column: 1; grid-row: 4; margin: 0; padding: 0 4px; }
+  .settings-shell .settings-logout-button { min-width: 112px; min-height: 44px; }
+
+  /* Adventure overview */
+  .adventure-shell:not(.adventure-detail-route) .adventure-map-page {
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+  }
+  .adventure-shell:not(.adventure-detail-route) .adventure-touch-view { height: 100%; overflow: hidden; }
+  .adventure-shell .touch-map-intro {
+    height: 54px;
+    min-height: 54px;
+    padding: 5px 7px;
+    border-radius: 14px;
+  }
+  .adventure-shell .touch-map-intro h2 { font-size: 14px; }
+  .adventure-shell .touch-map-actions { gap: 4px; }
+  .adventure-shell .fast-pass-map-entry { min-height: 44px; padding: 4px 6px; }
+  .adventure-shell .fast-pass-map-entry strong { font-size: 9px; }
+  .adventure-shell .touch-chest-counter { min-width: 66px; min-height: 44px; padding: 4px 6px; }
+  .adventure-shell .touch-adventure-map {
+    height: calc(100% - 60px);
+    min-height: 0;
+    margin-top: 6px;
+    padding: 52px 7px 7px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    border-radius: 16px;
+  }
+  .adventure-shell .touch-map-summary { top: 6px; right: 6px; left: 6px; gap: 4px; }
+  .adventure-shell .touch-map-summary span { min-height: 40px; padding: 4px 2px; font-size: 7px; }
+  .adventure-shell .touch-map-summary strong { font-size: 9px; }
+  .adventure-shell .touch-map-station,
+  .adventure-shell .touch-map-station:nth-of-type(odd),
+  .adventure-shell .touch-map-station:nth-of-type(even) {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 30px minmax(0, 1fr);
+    justify-items: center;
+    align-items: center;
+    padding: 2px;
+    text-align: center;
+  }
+  .adventure-shell .touch-station-number {
+    flex-basis: 28px;
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
+    font-size: 10px;
+  }
+  .adventure-shell .touch-station-card,
+  .adventure-shell .touch-map-station:nth-of-type(even) .touch-station-card {
+    width: 100%;
+    min-height: 0;
+    margin: -2px 0 0;
+    padding: 3px;
+    align-content: center;
+    border-radius: 9px;
+  }
+  .adventure-shell .touch-station-card strong {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 9px;
+    line-height: 1.15;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .adventure-shell .touch-station-card small { display: none; }
+  .adventure-shell .touch-station-card em { margin-top: 1px; font-size: 8px; }
+  .adventure-shell .touch-station-card b { top: -6px; right: 1px; padding: 1px 3px; font-size: 7px; }
+
+  /* Chapter detail */
+  .adventure-detail-route .adventure-app-header { display: none; }
+  .adventure-detail-route .adventure-page-content {
+    height: calc(100dvh - 7px);
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+  .adventure-detail-route .adventure-map-page { height: 100%; padding: 0; overflow: hidden; }
+  .adventure-detail-route .touch-chapter-detail {
+    height: 100%;
+    padding: 4px 7px;
+    display: grid;
+    grid-template-rows: 44px 140px 192px 44px 44px;
+    gap: 5px;
+    align-content: start;
+    overflow: hidden;
+  }
+  .adventure-detail-route .touch-detail-topbar { min-height: 44px; height: 44px; }
+  .adventure-detail-route .touch-chapter-hero { min-height: 140px; height: 140px; aspect-ratio: auto; }
+  .adventure-detail-route .touch-stage-list {
+    height: 192px;
+    display: grid;
+    grid-template-rows: 24px minmax(0, 1fr);
+  }
+  .adventure-detail-route .touch-stage-list > header { min-height: 24px; height: 24px; margin: 0; }
+  .adventure-detail-route .touch-stage-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .adventure-detail-route .touch-stage-row {
+    min-height: 0;
+    height: 100%;
+    padding: 3px 4px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 28px minmax(0, 1fr) 16px;
+    justify-items: center;
+    gap: 1px 3px;
+    text-align: center;
+  }
+  .adventure-detail-route .touch-stage-number { grid-column: 1 / -1; width: 26px; height: 26px; }
+  .adventure-detail-route .touch-stage-title { grid-column: 1 / -1; justify-items: center; }
+  .adventure-detail-route .touch-stage-title strong { font-size: 9px; }
+  .adventure-detail-route .touch-stage-title small { font-size: 7px; }
+  .adventure-detail-route .touch-stage-stars { grid-column: 1; justify-self: start; font-size: 8px; }
+  .adventure-detail-route .touch-stage-row em { grid-column: 2; grid-row: 3; justify-self: end; padding: 1px 3px; font-size: 7px; }
+  .adventure-detail-route .touch-continue-button { min-height: 44px; height: 44px; }
+  .adventure-detail-route .touch-reward-preview { min-height: 44px; height: 44px; }
+
+  /* Play */
+  .practice-shell:not(.free-practice-shell):not(.fast-pass-shell) .practice-layout {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 80px minmax(0, 1fr) 98px;
+    gap: 4px;
+    margin: 0;
+    overflow: hidden;
+  }
+  .practice-shell:not(.free-practice-shell):not(.fast-pass-shell) .play-size-9 { grid-template-rows: 80px minmax(0, 1fr) 146px; }
+  .practice-shell .practice-info {
+    min-height: 80px;
+    height: 80px;
+    max-height: 80px;
+    padding: 3px 5px;
+    grid-template-rows: 40px 32px;
+    gap: 2px 4px;
+  }
+  .practice-shell .practice-info .back-button,
+  .practice-shell .practice-info .mobile-puzzle-home-link { min-height: 40px; height: 40px; padding: 3px 6px; }
+  .practice-shell .practice-info .status-row span { min-height: 32px; height: 32px; padding: 2px; font-size: 9px; }
+  .practice-shell .board-panel { min-height: 0; height: 100%; max-height: none; padding: 2px; }
+  .practice-shell .sudoku-board-wrap,
+  .practice-shell .sudoku-board,
+  .practice-shell .play-size-4 .sudoku-board-wrap,
+  .practice-shell .play-size-4 .sudoku-board,
+  .practice-shell .play-size-6 .sudoku-board-wrap,
+  .practice-shell .play-size-6 .sudoku-board { width: 270px; min-width: 270px; max-width: 270px; height: 270px; min-height: 270px; max-height: 270px; }
+  .practice-shell .play-size-9 .sudoku-board-wrap,
+  .practice-shell .play-size-9 .sudoku-board { width: 248px; min-width: 248px; max-width: 248px; height: 248px; min-height: 248px; max-height: 248px; }
+  .practice-shell .play-action-panel,
+  .practice-shell .play-size-9 .play-action-panel { min-height: 0; height: 100%; max-height: none; padding: 2px 4px; gap: 4px; }
+  .practice-shell .action-section { padding: 0; }
+  .practice-shell .number-pad button,
+  .practice-shell .play-size-9 .number-pad button { min-height: 44px; height: 44px; }
+  .practice-shell .primary-action-section :is(.check-action, .hint-action, .mobile-delete-action, .mobile-more-toggle) { min-height: 44px; height: 44px; }
+
+  /* Fast pass */
+  .fast-pass-shell .adventure-app-header { display: none; }
+  .app-shell.fast-pass-shell .adventure-page-content {
+    height: calc(100dvh - 7px);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .fast-pass-shell .fast-pass-page { height: 100%; margin: 0; overflow: hidden; }
+  .fast-pass-shell .fast-pass-intro-page { padding: 4px 9px 0; }
+  .fast-pass-shell .fast-pass-intro-panel { max-height: 100%; }
+  .fast-pass-shell .fast-pass-challenge-page { padding: 0; }
+  .fast-pass-shell .fast-pass-progress { min-height: 60px; height: 60px; padding: 4px 7px; }
+  .fast-pass-shell .fast-pass-challenge-page .practice-layout {
+    height: calc(100% - 68px);
+    display: grid;
+    grid-template-areas:
+      "board"
+      "actions";
+    grid-template-rows: minmax(0, 1fr) 98px;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .fast-pass-shell .fast-pass-challenge-page .play-size-9 { grid-template-rows: minmax(0, 1fr) 146px; }
+  .fast-pass-shell .fast-pass-challenge-page .practice-info { display: none; }
+  .fast-pass-shell .fast-pass-challenge-page .board-panel {
+    grid-area: board;
+    min-height: 0;
+    height: 100%;
+  }
+  .fast-pass-shell .fast-pass-challenge-page .play-action-panel {
+    grid-area: actions;
+    min-height: 0;
+    height: 100%;
+  }
+}
+
+@media (max-width: 430px) and (max-height: 630px) {
+  .settings-shell .adventure-settings-page {
+    grid-template-rows: 42px 68px 284px 44px;
+    gap: 3px;
+  }
+  .settings-shell .settings-title-sign { height: 42px; }
+  .settings-shell .settings-sync-card { min-height: 68px; height: 68px; }
+  .settings-shell .adventure-settings-list { height: 284px; }
+  .adventure-shell:not(.adventure-detail-route) .adventure-map-page { height: calc(100% - 4px); }
+}
+
+/* Fixed iPad landscape composition: 1120 x 738. */
+@media (min-width: 900px) and (max-width: 1199px) and (orientation: landscape) {
+  .app-shell.child-shell {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .app-shell.child-shell .adventure-page-content {
+    height: calc(100dvh - 86px);
+    min-height: 0;
+    padding-bottom: calc(66px + env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+
+  /* Clear, friendly utility and navigation icons. */
+  .adventure-header-actions button > span {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #e6f4cf;
+    color: #216d43;
+    font-size: 16px;
+    font-weight: 900;
+  }
+  .adventure-bottom-nav.mobile-bottom-nav button > span {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 1px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .14);
+    font-size: 0;
+  }
+  .adventure-bottom-nav.mobile-bottom-nav button > span::before { font-size: 17px; line-height: 1; }
+  .adventure-bottom-nav.mobile-bottom-nav button:nth-child(1) > span::before { content: "⌂"; }
+  .adventure-bottom-nav.mobile-bottom-nav button:nth-child(2) > span::before { content: "✦"; }
+  .adventure-bottom-nav.mobile-bottom-nav button:nth-child(3) > span::before { content: "▦"; }
+  .adventure-bottom-nav.mobile-bottom-nav button:nth-child(4) > span::before { content: "★"; }
+  .adventure-bottom-nav.mobile-bottom-nav button:nth-child(5) > span::before { content: "⚙"; }
+  .adventure-bottom-nav.mobile-bottom-nav button.active > span {
+    background: #dff1c7;
+    color: #17673c;
+    box-shadow: inset 0 0 0 1px rgba(36, 111, 65, .18);
+  }
+
+  /* Home */
+  .forest-home-entries .feature-entry-card {
+    grid-template-columns: 120px minmax(0, 1fr) 32px;
+    gap: 9px;
+    padding: 10px 12px;
+  }
+  .forest-home-entries .feature-entry-art { width: 114px; height: 114px; }
+  .forest-home-entries .feature-entry-copy strong { font-size: 23px; line-height: 1.1; }
+  .forest-home-entries .feature-entry-copy small { margin-top: 6px; font-size: 12px; line-height: 1.35; }
+  .forest-home-entries .feature-entry-arrow {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .58);
+    font-size: 22px;
+  }
+  .home-shell .home-mini-game-disclosure[open] {
+    position: fixed;
+    z-index: 160;
+    top: 92px;
+    right: 50%;
+    bottom: 76px;
+    width: min(720px, calc(100vw - 40px));
+    margin: 0;
+    transform: translateX(50%);
+    display: grid;
+    grid-template-rows: 48px minmax(0, 1fr);
+    overflow: hidden;
+    border: 2px solid #dce89b;
+    border-radius: 18px;
+    background: #fffdf1;
+    box-shadow: 0 0 0 100vmax rgba(25, 66, 49, .34), 0 16px 40px rgba(20, 61, 42, .28);
+  }
+  .home-shell .home-mini-game-disclosure[open] > summary { min-height: 48px; padding: 13px 16px; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel {
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  /* Free practice */
+  .forest-practice-hero-art::after {
+    background: linear-gradient(180deg, rgba(255, 253, 238, .04) 0 38%, rgba(255, 253, 238, .82) 72%, #fffdf1 100%);
+  }
+  .forest-practice-hero-art > img { object-position: 14% center; }
+  .forest-practice-hero > div {
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: auto;
+    padding: 12px 14px;
+    transform: none;
+    border: 1px solid rgba(72, 123, 65, .18);
+    border-radius: 14px;
+    background: rgba(255, 253, 241, .88);
+    text-align: left;
+  }
+  .forest-practice-hero h2 { font-size: 32px; }
+  .forest-practice-entry-grid .feature-entry-card { grid-template-columns: 104px minmax(0, 1fr) 28px; padding: 8px 10px; }
+  .forest-practice-entry-grid .feature-entry-art { width: 98px; height: 98px; }
+  .forest-practice-entry-grid .feature-entry-copy strong { font-size: 19px; }
+  .forest-practice-entry-grid .feature-entry-copy small { margin-top: 4px; font-size: 11px; }
+  .forest-practice-entry-grid .feature-entry-arrow {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .58);
+  }
+  .free-practice-shell .practice-more-modes[open] {
+    position: fixed;
+    z-index: 160;
+    right: 50%;
+    bottom: 76px;
+    width: min(680px, calc(100vw - 40px));
+    margin: 0;
+    transform: translateX(50%);
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fffdf1;
+    box-shadow: 0 0 0 100vmax rgba(25, 66, 49, .3), 0 14px 32px rgba(20, 61, 42, .24);
+  }
+  .free-practice-shell .practice-more-modes[open] > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 12px; }
+
+  /* Growth */
+  .forest-growth-metrics .summary-metric-card {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  .forest-growth-metrics .summary-metric-art { width: 88px; height: 92px; }
+  .forest-growth-metrics .summary-metric-card small { font-size: 11px; }
+  .forest-growth-metrics .summary-metric-card strong { margin-top: 6px; font-size: 19px; }
+  .forest-growth-accordions .adventure-accordion > button {
+    grid-template-columns: 74px minmax(0, 1fr) 38px;
+    gap: 10px;
+    padding: 8px 12px;
+  }
+  .forest-growth-accordions .adventure-accordion-art { width: 68px; height: 70px; }
+  .forest-growth-accordions .adventure-accordion strong { font-size: 20px; }
+  .forest-growth-accordions .adventure-accordion small { margin-top: 5px; font-size: 11px; }
+  .forest-growth-accordions .adventure-accordion i { width: 36px; height: 36px; font-size: 20px; }
+  .growth-shell .adventure-accordion.is-open {
+    position: fixed;
+    z-index: 160;
+    top: 50%;
+    right: 50%;
+    bottom: auto;
+    width: min(760px, calc(100vw - 40px));
+    max-height: calc(100dvh - 190px);
+    transform: translate(50%, -50%);
+    display: grid;
+    grid-template-rows: 76px auto;
+    overflow: hidden;
+    background: #fffdf1;
+    box-shadow: 0 0 0 100vmax rgba(25, 66, 49, .34), 0 16px 40px rgba(20, 61, 42, .28);
+  }
+  .growth-shell .adventure-accordion.is-open .adventure-accordion-content {
+    min-height: 0;
+    max-height: calc(100dvh - 266px);
+    overflow-y: auto;
+  }
+
+  /* Settings */
+  .adventure-settings-page { grid-template-rows: 92px 132px minmax(0, 1fr); }
+  .settings-sync-card {
+    grid-template-columns: 66px minmax(0, 1fr) 52px;
+    grid-template-rows: 1fr;
+    gap: 7px 10px;
+    min-height: 132px;
+    height: 132px;
+    padding: 8px 12px;
+  }
+  .settings-sync-art { width: 64px; height: 64px; }
+  .settings-sync-copy p { font-size: 11px; }
+  .settings-sync-copy strong { margin: 2px 0; font-size: 17px; }
+  .settings-sync-copy span { font-size: 9px; }
+  .settings-sync-button {
+    grid-column: 3;
+    grid-row: 1;
+    width: 52px;
+    min-width: 52px;
+    min-height: 52px;
+    height: 52px;
+    padding: 4px;
+    font-size: 0;
+    border-radius: 50%;
+  }
+  .settings-sync-button > span {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .24);
+    font-size: 20px;
+  }
+  .adventure-settings-list .adventure-setting-row {
+    grid-template-columns: 60px minmax(0, 1fr) auto;
+    gap: 9px;
+    padding: 7px 10px;
+  }
+  .adventure-settings-list .adventure-setting-icon { width: 56px; height: 56px; }
+  .adventure-settings-list .adventure-setting-copy strong { font-size: 16px; }
+  .adventure-settings-list .adventure-setting-copy small { margin-top: 4px; font-size: 10px; line-height: 1.3; }
+  .adventure-settings-list .settings-row-action,
+  .adventure-settings-list .settings-row-details > summary { width: 48px; min-width: 48px; height: 48px; min-height: 48px; padding: 3px; }
+  .settings-row-details[open] > div { position: fixed; z-index: 170; top: 96px; right: 50%; width: min(520px, calc(100vw - 40px)); max-height: calc(100dvh - 180px); transform: translateX(50%); overflow-y: auto; }
+  .settings-row-details[open] > div .adventure-toggle {
+    width: 100%;
+    min-height: 44px;
+    height: 44px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 58px;
+    align-items: center;
+    gap: 12px;
+  }
+  .settings-row-details[open] > div .adventure-toggle > span {
+    position: relative;
+    inset: auto;
+    grid-column: 2;
+    grid-row: 1;
+    width: 58px;
+    height: 32px;
+  }
+  .settings-row-details[open] > div .adventure-toggle > em {
+    position: static;
+    grid-column: 1;
+    grid-row: 1;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    color: var(--adventure-green-900);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 850;
+  }
+
+  /* Adventure overview */
+  .adventure-shell:not(.adventure-detail-route) .adventure-map-page,
+  .adventure-shell:not(.adventure-detail-route) .adventure-touch-view { height: 100%; min-height: 0; overflow: hidden; }
+  .adventure-shell:not(.adventure-detail-route) .adventure-touch-view {
+    display: grid;
+    grid-template-rows: 58px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .adventure-shell .touch-map-intro { min-height: 58px; height: 58px; padding: 6px 12px; border-radius: 15px; }
+  .adventure-shell .touch-map-intro h2 { font-size: 22px; }
+  .adventure-shell .fast-pass-map-entry,
+  .adventure-shell .touch-chest-counter { min-height: 46px; height: 46px; }
+  .adventure-shell .touch-adventure-map {
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 58px 12px 12px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    overflow: hidden;
+    border-radius: 18px;
+  }
+  .adventure-shell .touch-map-summary { top: 8px; right: 12px; left: 12px; gap: 8px; }
+  .adventure-shell .touch-map-summary span { min-height: 42px; padding: 5px 10px; font-size: 10px; }
+  .adventure-shell .touch-map-summary strong { font-size: 14px; }
+  .adventure-shell .touch-map-station,
+  .adventure-shell .touch-map-station:nth-of-type(odd),
+  .adventure-shell .touch-map-station:nth-of-type(even) {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 50px minmax(0, 1fr);
+    align-items: center;
+    gap: 7px;
+    padding: 7px;
+    text-align: left;
+  }
+  .adventure-shell .touch-station-number { flex-basis: 48px; width: 48px; height: 48px; font-size: 16px; }
+  .adventure-shell .touch-station-card,
+  .adventure-shell .touch-map-station:nth-of-type(even) .touch-station-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 82px;
+    margin: 0;
+    padding: 10px;
+    align-content: center;
+    border-radius: 12px;
+  }
+  .adventure-shell .touch-station-card strong { font-size: 14px; line-height: 1.2; white-space: normal; }
+  .adventure-shell .touch-station-card small { display: block; margin-top: 4px; font-size: 10px; }
+  .adventure-shell .touch-station-card em { margin-top: 6px; font-size: 12px; }
+  .adventure-shell .touch-station-card b { top: -7px; right: 4px; font-size: 8px; }
+
+  /* Adventure chapter detail */
+  .adventure-detail-route .adventure-map-page { height: 100%; min-height: 0; padding: 0; overflow: hidden; }
+  .adventure-detail-route .touch-chapter-detail {
+    height: calc(100% - 12px);
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(320px, .78fr) minmax(0, 1.35fr);
+    grid-template-rows: 48px minmax(0, 1fr) 54px;
+    gap: 8px 10px;
+    overflow: hidden;
+  }
+  .adventure-detail-route .touch-detail-topbar { grid-column: 1 / -1; grid-row: 1; min-height: 48px; height: 48px; }
+  .adventure-detail-route .touch-chapter-hero { grid-column: 1; grid-row: 2; min-height: 0; height: 100%; aspect-ratio: auto; }
+  .adventure-detail-route .touch-chapter-copy { right: 12px; bottom: 12px; left: 12px; width: auto; }
+  .adventure-detail-route .touch-stage-list { grid-column: 2; grid-row: 2; min-height: 0; height: 100%; display: grid; grid-template-rows: 32px minmax(0, 1fr); }
+  .adventure-detail-route .touch-stage-list > header { min-height: 32px; height: 32px; margin: 0; }
+  .adventure-detail-route .touch-stage-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .adventure-detail-route .touch-stage-row {
+    min-height: 0;
+    height: 100%;
+    padding: 8px;
+    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 22px;
+    gap: 4px 7px;
+  }
+  .adventure-detail-route .touch-stage-number { width: 40px; height: 40px; }
+  .adventure-detail-route .touch-stage-title strong { font-size: 14px; }
+  .adventure-detail-route .touch-stage-title small { font-size: 10px; }
+  .adventure-detail-route .touch-stage-stars { font-size: 13px; }
+  .adventure-detail-route .touch-stage-row em { padding: 3px 7px; font-size: 9px; }
+  .adventure-detail-route .touch-continue-button { grid-column: 1; grid-row: 3; min-height: 54px; height: 54px; }
+  .adventure-detail-route .touch-reward-preview { grid-column: 2; grid-row: 3; min-height: 54px; height: 54px; padding: 6px 12px; }
+  .adventure-detail-route .touch-reward-preview h3 { font-size: 14px; }
+  .adventure-detail-route .touch-reward-preview > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  /* Fast pass */
+  .fast-pass-intro-panel { width: min(100%, 900px); }
+  .fast-pass-details-button::before { content: "ⓘ"; margin-right: 7px; color: #28724b; }
+  .fast-pass-start-button::before { content: "▶"; margin-right: 7px; }
+  .fast-pass-shell .fast-pass-page { max-height: 100%; overflow: hidden; }
+
+  /* Normal play: keep the board and every primary action visible together. */
+  .practice-shell:not(.free-practice-shell):not(.fast-pass-shell) .practice-layout,
+  .fast-pass-shell .fast-pass-challenge-page .practice-layout {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 252px minmax(380px, 1fr) 258px;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: "info board actions";
+    gap: 10px;
+    overflow: hidden;
+  }
+  .practice-shell:not(.free-practice-shell) .practice-info {
+    grid-area: info;
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+    padding: 10px;
+    align-content: start;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .practice-shell:not(.free-practice-shell) .practice-title-block h2 { font-size: 19px; line-height: 1.2; }
+  .practice-shell:not(.free-practice-shell) .practice-title-block p { font-size: 11px; }
+  .practice-shell:not(.free-practice-shell) .practice-info .mobile-puzzle-home-link { display: none; }
+  .practice-shell:not(.free-practice-shell) .practice-info .play-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .practice-shell:not(.free-practice-shell) .practice-info .status-row span {
+    min-height: 40px;
+    padding: 5px 7px;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    text-align: center;
+  }
+  .practice-shell:not(.free-practice-shell) .practice-info .method-card { padding: 8px; }
+  .practice-shell:not(.free-practice-shell) .practice-info .method-toggle { min-height: 44px; padding: 6px 8px; }
+  .practice-shell:not(.free-practice-shell) .practice-info .candidate-toggle { min-height: 44px; padding: 7px 9px; font-size: 11px; }
+  .practice-shell:not(.free-practice-shell) .board-panel {
+    grid-area: board;
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+    padding: 7px;
+    align-self: stretch;
+    overflow: hidden;
+  }
+  .practice-shell:not(.free-practice-shell) .sudoku-board-wrap,
+  .practice-shell:not(.free-practice-shell) .sudoku-board,
+  .practice-shell:not(.free-practice-shell) .play-size-4 .sudoku-board-wrap,
+  .practice-shell:not(.free-practice-shell) .play-size-4 .sudoku-board,
+  .practice-shell:not(.free-practice-shell) .play-size-6 .sudoku-board-wrap,
+  .practice-shell:not(.free-practice-shell) .play-size-6 .sudoku-board {
+    width: min(43vw, 480px);
+    min-width: 0;
+    max-width: 480px;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    aspect-ratio: 1;
+  }
+  .practice-shell:not(.free-practice-shell) .play-size-9 .sudoku-board-wrap,
+  .practice-shell:not(.free-practice-shell) .play-size-9 .sudoku-board {
+    width: min(41vw, 450px);
+    max-width: 450px;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .practice-shell:not(.free-practice-shell) .selected-cell-note { margin: 0; font-size: 10px; }
+  .practice-shell:not(.free-practice-shell) .play-action-panel,
+  .practice-shell:not(.free-practice-shell) .play-size-9 .play-action-panel {
+    grid-area: actions;
+    position: static;
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+    padding: 8px;
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .practice-shell:not(.free-practice-shell) .action-section { padding: 8px; }
+  .practice-shell:not(.free-practice-shell) .action-section h3 { margin-bottom: 6px; font-size: 13px; }
+  .practice-shell:not(.free-practice-shell) .number-pad { gap: 6px; }
+  .practice-shell:not(.free-practice-shell) .number-pad button,
+  .practice-shell:not(.free-practice-shell) .play-size-9 .number-pad button { min-height: 44px; height: 44px; padding: 4px; }
+  .practice-shell:not(.free-practice-shell) .primary-action-section .action-button-grid { gap: 7px; }
+  .practice-shell:not(.free-practice-shell) .primary-action-section :is(.check-action, .hint-action, .desktop-reveal-action, .mobile-more-toggle) {
+    min-height: 44px;
+    height: 44px;
+  }
+  .practice-shell:not(.free-practice-shell) .check-action::before { content: "✓"; margin-right: 7px; font-weight: 950; }
+  .practice-shell:not(.free-practice-shell) .hint-action::before { content: "✦"; margin-right: 7px; }
+  .practice-shell:not(.free-practice-shell) .mobile-more-toggle::before { content: "•••"; margin-right: 7px; letter-spacing: 1px; }
+  .practice-shell:not(.free-practice-shell) .desktop-reveal-action::before { content: "◉"; margin-right: 7px; }
+  .practice-shell:not(.free-practice-shell) .mobile-more-toggle { display: block; }
+  .practice-shell:not(.free-practice-shell) .play-more-actions { display: none; }
+  .practice-shell:not(.free-practice-shell) .play-more-actions.open {
+    position: fixed;
+    z-index: 170;
+    right: 50%;
+    bottom: 76px;
+    width: min(680px, calc(100vw - 40px));
+    max-height: calc(100dvh - 170px);
+    padding: 14px;
+    transform: translateX(50%);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    overflow-y: auto;
+    border: 2px solid #d4e6b6;
+    border-radius: 16px;
+    background: #fffdf1;
+    box-shadow: 0 0 0 100vmax rgba(25, 66, 49, .34), 0 16px 40px rgba(20, 61, 42, .28);
+  }
+  .practice-shell:not(.free-practice-shell) .play-more-actions.open .mobile-more-sheet-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .practice-shell:not(.free-practice-shell) .play-more-actions.open .mobile-more-sheet-actions button { min-height: 44px; }
+
+  /* The three-question challenge uses the full landscape canvas. */
+  .fast-pass-shell:has(.fast-pass-challenge-page) .adventure-app-header,
+  .fast-pass-shell:has(.fast-pass-challenge-page) .adventure-bottom-nav { display: none; }
+  .app-shell.fast-pass-shell:has(.fast-pass-challenge-page) .adventure-page-content {
+    height: 100dvh;
+    padding: 8px 18px;
+  }
+  .fast-pass-shell .fast-pass-challenge-page {
+    height: 100%;
+    padding: 0;
+    display: grid;
+    grid-template-rows: 72px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .fast-pass-shell .fast-pass-progress {
+    width: 100%;
+    min-height: 72px;
+    height: 72px;
+    margin: 0;
+    padding: 6px 12px;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    gap: 12px;
+    overflow: hidden;
+  }
+  .fast-pass-shell .fast-pass-progress h2 { font-size: 21px; }
+  .fast-pass-shell .fast-pass-progress-message { display: none; }
+  .fast-pass-shell .fast-pass-challenge-page .practice-layout { height: 100%; }
+  .fast-pass-shell .fast-pass-challenge-page .practice-info { display: grid; }
 }
