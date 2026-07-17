@@ -117,8 +117,8 @@ describe("cross-page UI actions", () => {
 
     const card = screen.getByText("安安").closest("article");
     expect(card).toBeTruthy();
-    expect(within(card!).getByText("能力等级：待探索")).toBeTruthy();
-    fireEvent.click(within(card!).getByRole("button", { name: "进入练习" }));
+    expect(within(card!).getByText("待探索")).toBeTruthy();
+    fireEvent.click(within(card!).getByRole("button", { name: "开始探险" }));
     expect(onEnter).toHaveBeenCalledTimes(2);
 
     fireEvent.click(within(card!).getByRole("button", { name: "编辑" }));
@@ -129,7 +129,7 @@ describe("cross-page UI actions", () => {
 
     const editedCard = screen.getByText("安安改").closest("article");
     expect(editedCard).toBeTruthy();
-    fireEvent.click(within(editedCard!).getByRole("button", { name: "删除" }));
+    fireEvent.click(within(editedCard!).getByRole("button", { name: "删除档案" }));
     expect(getChildrenByParent(parent.id)).toHaveLength(0);
 
     fireEvent.click(screen.getByRole("button", { name: "退出登录" }));

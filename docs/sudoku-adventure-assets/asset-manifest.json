@@ -1,0 +1,371 @@
+[
+  {
+    "path": "/assets/sudoku-adventure/common/explorer-mascot.webp",
+    "file": "common/explorer-mascot.webp",
+    "alt": "数独探险家卡通探险员吉祥物",
+    "usedOn": "首页、顶部品牌区、空状态",
+    "width": 264,
+    "height": 257,
+    "bytes": 14840
+  },
+  {
+    "path": "/assets/sudoku-adventure/common/child-avatar-boy.webp",
+    "file": "common/child-avatar-boy.webp",
+    "alt": "男孩默认头像",
+    "usedOn": "顶部孩子信息、切换孩子页",
+    "width": 229,
+    "height": 232,
+    "bytes": 9786
+  },
+  {
+    "path": "/assets/sudoku-adventure/common/wooden-sign.webp",
+    "file": "common/wooden-sign.webp",
+    "alt": "带指南针的空白木质路牌",
+    "usedOn": "首页今日任务、页面标题",
+    "width": 522,
+    "height": 332,
+    "bytes": 24570
+  },
+  {
+    "path": "/assets/sudoku-adventure/common/explorer-boy-waving.webp",
+    "file": "common/explorer-boy-waving.webp",
+    "alt": "挥手的儿童探险员",
+    "usedOn": "成长报告页头、欢迎区域",
+    "width": 380,
+    "height": 371,
+    "bytes": 28084
+  },
+  {
+    "path": "/assets/sudoku-adventure/common/foliage-ground.webp",
+    "file": "common/foliage-ground.webp",
+    "alt": "草地花丛装饰条",
+    "usedOn": "卡片底部和页面装饰",
+    "width": 485,
+    "height": 205,
+    "bytes": 6596
+  },
+  {
+    "path": "/assets/sudoku-adventure/common/foliage-bushes.webp",
+    "file": "common/foliage-bushes.webp",
+    "alt": "茂密灌木花丛装饰条",
+    "usedOn": "页面底部和标题区装饰",
+    "width": 555,
+    "height": 205,
+    "bytes": 8636
+  },
+  {
+    "path": "/assets/sudoku-adventure/home/adventure-map.webp",
+    "file": "home/adventure-map.webp",
+    "alt": "森林河流闯关地图",
+    "usedOn": "首页闯关地图主入口",
+    "width": 548,
+    "height": 383,
+    "bytes": 39324
+  },
+  {
+    "path": "/assets/sudoku-adventure/home/goal-clearing.webp",
+    "file": "home/goal-clearing.webp",
+    "alt": "森林终点旗帜场景",
+    "usedOn": "今日任务或关卡目标",
+    "width": 490,
+    "height": 302,
+    "bytes": 20982
+  },
+  {
+    "path": "/assets/sudoku-adventure/home/sudoku-board.webp",
+    "file": "home/sudoku-board.webp",
+    "alt": "带铅笔的数独棋盘插画",
+    "usedOn": "首页自由练习入口",
+    "width": 340,
+    "height": 265,
+    "bytes": 10712
+  },
+  {
+    "path": "/assets/sudoku-adventure/home/growth-trophy.webp",
+    "file": "home/growth-trophy.webp",
+    "alt": "金色星星奖杯插画",
+    "usedOn": "首页成长报告入口",
+    "width": 335,
+    "height": 265,
+    "bytes": 11312
+  },
+  {
+    "path": "/assets/sudoku-adventure/home/secret-book-chest.webp",
+    "file": "home/secret-book-chest.webp",
+    "alt": "秘籍书本和宝箱插画",
+    "usedOn": "首页闯关秘籍入口",
+    "width": 368,
+    "height": 265,
+    "bytes": 13446
+  },
+  {
+    "path": "/assets/sudoku-adventure/practice/practice-header.webp",
+    "file": "practice/practice-header.webp",
+    "alt": "带木牌和花草的练习页头背景",
+    "usedOn": "自由练习页面标题区",
+    "width": 1030,
+    "height": 250,
+    "bytes": 23320
+  },
+  {
+    "path": "/assets/sudoku-adventure/practice/recommendation-medal.webp",
+    "file": "practice/recommendation-medal.webp",
+    "alt": "金色星星推荐奖章",
+    "usedOn": "自由练习推荐条",
+    "width": 301,
+    "height": 251,
+    "bytes": 13180
+  },
+  {
+    "path": "/assets/sudoku-adventure/practice/recommendation-calendar.webp",
+    "file": "practice/recommendation-calendar.webp",
+    "alt": "带星星的推荐日历",
+    "usedOn": "今日推荐入口",
+    "width": 360,
+    "height": 290,
+    "bytes": 14688
+  },
+  {
+    "path": "/assets/sudoku-adventure/practice/custom-practice.webp",
+    "file": "practice/custom-practice.webp",
+    "alt": "带铅笔的数独练习板",
+    "usedOn": "自选练习入口",
+    "width": 365,
+    "height": 300,
+    "bytes": 16952
+  },
+  {
+    "path": "/assets/sudoku-adventure/practice/question-bank.webp",
+    "file": "practice/question-bank.webp",
+    "alt": "绿色数独题库书本",
+    "usedOn": "我的题库入口",
+    "width": 383,
+    "height": 265,
+    "bytes": 15586
+  },
+  {
+    "path": "/assets/sudoku-adventure/practice/printer.webp",
+    "file": "practice/printer.webp",
+    "alt": "正在打印数独题目的打印机",
+    "usedOn": "打印练习入口",
+    "width": 465,
+    "height": 280,
+    "bytes": 15012
+  },
+  {
+    "path": "/assets/sudoku-adventure/practice/tip-banner.webp",
+    "file": "practice/tip-banner.webp",
+    "alt": "带灯泡和植物的小提示横条",
+    "usedOn": "自由练习页提示区域",
+    "width": 1020,
+    "height": 145,
+    "bytes": 8724
+  },
+  {
+    "path": "/assets/sudoku-adventure/growth/growth-hero.webp",
+    "file": "growth/growth-hero.webp",
+    "alt": "森林与挥手探险员成长页插画",
+    "usedOn": "成长报告页头",
+    "width": 1045,
+    "height": 376,
+    "bytes": 48376
+  },
+  {
+    "path": "/assets/sudoku-adventure/growth/star-trophy.webp",
+    "file": "growth/star-trophy.webp",
+    "alt": "金色星星奖杯",
+    "usedOn": "累计星星指标",
+    "width": 205,
+    "height": 230,
+    "bytes": 9224
+  },
+  {
+    "path": "/assets/sudoku-adventure/growth/current-title-badge.webp",
+    "file": "growth/current-title-badge.webp",
+    "alt": "绿色皇冠称号徽章",
+    "usedOn": "当前称号指标",
+    "width": 225,
+    "height": 230,
+    "bytes": 7646
+  },
+  {
+    "path": "/assets/sudoku-adventure/growth/completion-target.webp",
+    "file": "growth/completion-target.webp",
+    "alt": "绿色靶心和箭头",
+    "usedOn": "最近完成率指标",
+    "width": 255,
+    "height": 230,
+    "bytes": 9870
+  },
+  {
+    "path": "/assets/sudoku-adventure/growth/progress-map.webp",
+    "file": "growth/progress-map.webp",
+    "alt": "带旗帜的探险地图",
+    "usedOn": "当前进度指标",
+    "width": 315,
+    "height": 240,
+    "bytes": 12824
+  },
+  {
+    "path": "/assets/sudoku-adventure/growth/recent-performance-sun.webp",
+    "file": "growth/recent-performance-sun.webp",
+    "alt": "微笑太阳图标",
+    "usedOn": "最近表现折叠项",
+    "width": 199,
+    "height": 220,
+    "bytes": 6894
+  },
+  {
+    "path": "/assets/sudoku-adventure/growth/method-lightbulb.webp",
+    "file": "growth/method-lightbulb.webp",
+    "alt": "发光灯泡图标",
+    "usedOn": "方法掌握折叠项",
+    "width": 240,
+    "height": 230,
+    "bytes": 6528
+  },
+  {
+    "path": "/assets/sudoku-adventure/growth/practice-record-notebook.webp",
+    "file": "growth/practice-record-notebook.webp",
+    "alt": "带铅笔的练习记录本",
+    "usedOn": "练习记录折叠项",
+    "width": 227,
+    "height": 234,
+    "bytes": 6724
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/settings-title-sign.webp",
+    "file": "settings/settings-title-sign.webp",
+    "alt": "带齿轮的空白木质设置路牌",
+    "usedOn": "设置页标题",
+    "width": 768,
+    "height": 200,
+    "bytes": 17050
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/sync-status-panel.webp",
+    "file": "settings/sync-status-panel.webp",
+    "alt": "云同步状态插画面板",
+    "usedOn": "设置页账户与同步区域",
+    "width": 775,
+    "height": 275,
+    "bytes": 14294
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/music.webp",
+    "file": "settings/music.webp",
+    "alt": "音乐音符设置插画",
+    "usedOn": "声音与音乐设置",
+    "width": 240,
+    "height": 240,
+    "bytes": 5970
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/eye-care.webp",
+    "file": "settings/eye-care.webp",
+    "alt": "绿色眼睛护眼插画",
+    "usedOn": "护眼模式设置",
+    "width": 245,
+    "height": 240,
+    "bytes": 7130
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/vibration.webp",
+    "file": "settings/vibration.webp",
+    "alt": "手机震动反馈插画",
+    "usedOn": "震动反馈设置",
+    "width": 255,
+    "height": 240,
+    "bytes": 8440
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/cloud-sync.webp",
+    "file": "settings/cloud-sync.webp",
+    "alt": "云端上传同步插画",
+    "usedOn": "数据同步设置",
+    "width": 250,
+    "height": 240,
+    "bytes": 6200
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/reminder.webp",
+    "file": "settings/reminder.webp",
+    "alt": "黄色提醒铃铛插画",
+    "usedOn": "学习提醒设置",
+    "width": 240,
+    "height": 230,
+    "bytes": 5808
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/difficulty.webp",
+    "file": "settings/difficulty.webp",
+    "alt": "紫色难度柱状图插画",
+    "usedOn": "题目难度说明",
+    "width": 245,
+    "height": 230,
+    "bytes": 5706
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/rewards.webp",
+    "file": "settings/rewards.webp",
+    "alt": "橙色礼物奖励插画",
+    "usedOn": "奖励与动画设置",
+    "width": 255,
+    "height": 230,
+    "bytes": 6614
+  },
+  {
+    "path": "/assets/sudoku-adventure/settings/about.webp",
+    "file": "settings/about.webp",
+    "alt": "绿色信息说明插画",
+    "usedOn": "关于我们",
+    "width": 250,
+    "height": 230,
+    "bytes": 5292
+  },
+  {
+    "path": "/assets/sudoku-adventure/backgrounds/card-green.webp",
+    "file": "backgrounds/card-green.webp",
+    "alt": "浅绿色叶片卡片背景",
+    "usedOn": "成长报告、设置页折叠卡",
+    "width": 340,
+    "height": 165,
+    "bytes": 5114
+  },
+  {
+    "path": "/assets/sudoku-adventure/backgrounds/card-cream.webp",
+    "file": "backgrounds/card-cream.webp",
+    "alt": "米黄色星光卡片背景",
+    "usedOn": "今日任务、推荐卡",
+    "width": 325,
+    "height": 165,
+    "bytes": 4446
+  },
+  {
+    "path": "/assets/sudoku-adventure/backgrounds/card-sky.webp",
+    "file": "backgrounds/card-sky.webp",
+    "alt": "蓝天白云卡片背景",
+    "usedOn": "自由练习入口卡",
+    "width": 370,
+    "height": 165,
+    "bytes": 4902
+  },
+  {
+    "path": "/assets/sudoku-adventure/backgrounds/forest-clearing.webp",
+    "file": "backgrounds/forest-clearing.webp",
+    "alt": "森林草地场景背景",
+    "usedOn": "空状态、提示弹窗",
+    "width": 325,
+    "height": 235,
+    "bytes": 11402
+  },
+  {
+    "path": "/assets/sudoku-adventure/backgrounds/soft-green.webp",
+    "file": "backgrounds/soft-green.webp",
+    "alt": "柔和浅绿色叶片背景",
+    "usedOn": "通用内容卡",
+    "width": 325,
+    "height": 235,
+    "bytes": 6884
+  }
+]

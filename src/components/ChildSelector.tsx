@@ -5,6 +5,8 @@ import { ChildForm } from "./ChildForm";
 import { createChild, deleteChild, getChildrenByParent, getPracticeRecordsByChild, logoutParent, updateChild } from "../lib/storage";
 import { formatDateTime } from "../lib/time";
 import type { ChildProfile, ChildProfileInput, ParentAccount } from "../types";
+import { sudokuAdventureAssets } from "../ui/assets/sudokuAdventureAssets";
+import { AssetImage } from "./ui/AssetImage";
 
 interface ChildSelectorProps {
   parent: ParentAccount;
@@ -40,57 +42,42 @@ export function ChildSelector({ parent, onChanged, onEnter, onLogout }: ChildSel
   };
 
   return (
-    <main className="selector-page child-selector-page">
-      <section className="selector-hero quest-hero">
-        <p className="eyebrow">本地网页版</p>
-        <h1>儿童数独分级训练</h1>
-        <p>{parent.displayName}（{parent.username}） · 已创建孩子 {children.length} / 2。</p>
+    <main className="selector-page forest-child-selector">
+      <section className="forest-selector-header">
+        <AssetImage src={sudokuAdventureAssets.common.explorerMascot} alt="数独探险家吉祥物" className="forest-selector-mascot" loading="eager" />
+        <div><p>欢迎来到森林训练营</p><h1>数独探险家</h1><span>{parent.displayName} · 已创建孩子 {children.length} / 2</span></div>
+        <button type="button" onClick={() => { logoutParent(); onLogout(); }}>退出登录</button>
       </section>
 
-      <section className="panel">
-        <div className="section-title">
+      <section className="forest-selector-panel">
+        <div className="forest-selector-title">
           <div>
-            <h2>选择孩子账号</h2>
-            <p>{children.length === 0 ? "先创建第一个孩子。" : "进入后开始练习或查看题库。"}</p>
+            <p>选择探险员</p><h2>{children.length === 0 ? "创建第一位小探险家" : "今天谁来挑战数独？"}</h2>
           </div>
-          <div className="section-actions">
-            <button
-              className="primary"
-              onClick={() => {
-                if (children.length >= 2) {
-                  setMessage("当前测试版每个家长账号最多创建 2 个学习账号。");
-                  return;
-                }
-                setEditing(undefined);
-                setShowForm(true);
-              }}
-            >
-              新增孩子
-            </button>
-            <button onClick={() => { logoutParent(); onLogout(); }}>退出登录</button>
-          </div>
+          <button className="primary" onClick={() => {
+            if (children.length >= 2) { setMessage("当前测试版每个家长账号最多创建 2 个学习账号。"); return; }
+            setEditing(undefined); setShowForm(true);
+          }}>＋ 新增孩子</button>
         </div>
 
         {message && <p className="result-note">{message}</p>}
         {showForm && <ChildForm child={editing} onSubmit={submit} onCancel={() => { setShowForm(false); setEditing(undefined); }} />}
 
-        <div className="child-grid">
+        <div className="forest-child-grid">
           {children.map((child) => {
             const records = getPracticeRecordsByChild(parent.id, child.id);
             const completed = records.filter((record) => record.completed).length;
             const ability = getAbilityDisplayModel(child, records);
             return (
-              <article className="child-card" key={child.id} onClick={() => onEnter(child.id)}>
-                <div className={`avatar avatar-${child.avatar ?? "sun"}`}>{child.name.slice(0, 1)}</div>
-                <div>
-                  <h3>{child.name}</h3>
-                  <p>{gradeLabels[child.gradeLevel]}</p>
-                  <p>能力等级：{ability.title}</p>
-                  <p>{ability.subtitle}</p>
-                  <p>已完成 {completed} 题 · 最近 {formatDateTime(records[0]?.finishedAt ?? records[0]?.startedAt)}</p>
+              <article className="forest-child-card" key={child.id} role="button" tabIndex={0} onClick={() => onEnter(child.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onEnter(child.id); }}>
+                <AssetImage src={sudokuAdventureAssets.common.childAvatarBoy} alt={`${child.name}的头像`} className="forest-child-avatar" />
+                <div className="forest-child-copy">
+                  <p>{gradeLabels[child.gradeLevel]}</p><h3>{child.name}</h3>
+                  <span>{ability.title}</span><small>{ability.subtitle}</small>
+                  <em>已完成 {completed} 题 · 最近 {formatDateTime(records[0]?.finishedAt ?? records[0]?.startedAt)}</em>
                 </div>
-                <div className="card-actions" onClick={(event) => event.stopPropagation()}>
-                  <button className="primary" onClick={() => onEnter(child.id)}>进入练习</button>
+                <div className="forest-child-actions" onClick={(event) => event.stopPropagation()}>
+                  <button className="primary" onClick={() => onEnter(child.id)}>开始探险</button>
                   <button onClick={() => { setEditing(child); setShowForm(true); }}>编辑</button>
                   <button
                     className="danger"
@@ -101,7 +88,7 @@ export function ChildSelector({ parent, onChanged, onEnter, onLogout }: ChildSel
                       }
                     }}
                   >
-                    删除
+                    删除档案
                   </button>
                 </div>
               </article>
@@ -109,6 +96,7 @@ export function ChildSelector({ parent, onChanged, onEnter, onLogout }: ChildSel
           })}
         </div>
       </section>
+      <AssetImage src={sudokuAdventureAssets.common.foliageBushes} alt="森林花丛装饰" className="forest-selector-foliage" />
     </main>
   );
 }

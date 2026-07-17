@@ -1,176 +1,89 @@
-import { sizeLabels } from "../constants/gradeLabels";
-import { getAbilityDisplayModel, type AbilityDisplayModel } from "../lib/ability";
-import { getAdventureDisplayContext, getAdventureMap, getAdventureStats } from "../lib/adventure";
+import { difficultyLabels, sizeLabels } from "../constants/gradeLabels";
+import { getAbilityDisplayModel } from "../lib/ability";
+import { getAdventureDisplayContext, getAdventureStats } from "../lib/adventure";
+import { getDailyPracticeRecommendation } from "../lib/dailyPracticeRecommendation";
 import { getTotalEarnedStars } from "../lib/gamification";
 import { getPracticeRecordsByChild } from "../lib/storage";
 import { getChildSummary } from "../lib/stats";
-import type { AdventureStage, ChildProfile, PracticeRecord } from "../types";
+import type { ChildProfile } from "../types";
+import { sudokuAdventureAssets } from "../ui/assets/sudokuAdventureAssets";
 import { MiniGamePanel } from "./MiniGamePanel";
+import { AssetImage } from "./ui/AssetImage";
+import { FeatureEntryCard } from "./ui/AdventurePrimitives";
 
 interface ChildDashboardProps {
   child: ChildProfile;
   onOpenPractice: () => void;
   onOpenCurve: () => void;
   onOpenAdventure: () => void;
+  onOpenFastPass: () => void;
 }
 
-const sameDay = (isoTime: string | undefined, dayKey: string): boolean => {
-  if (!isoTime) return false;
-  return new Date(isoTime).toDateString() === dayKey;
-};
-
-const getStageState = (stage: AdventureStage): { className: string; label: string; value: string } => {
-  if (stage.completed) return { className: "completed", label: "已完成", value: "✓" };
-  if (stage.recommended) return { className: "current", label: "当前推荐", value: String(stage.stageIndex) };
-  if (!stage.unlocked) return { className: "locked", label: "未解锁", value: "锁" };
-  return { className: "available", label: "可挑战", value: String(stage.stageIndex) };
-};
-
-function TodayTaskCard({
-  child,
-  ability,
-  stages,
-  progressLabel,
-  gapMessage,
-  todayCompleted,
-  completedCount,
-  accuracyLabel,
-  onOpenAdventure
-}: {
-  child: ChildProfile;
-  ability: AbilityDisplayModel;
-  stages: AdventureStage[];
-  progressLabel: string;
-  gapMessage: string;
-  todayCompleted: number;
-  completedCount: number;
-  accuracyLabel: string;
-  onOpenAdventure: () => void;
-}) {
-  const recommended = stages.find((stage) => stage.recommended) ?? stages.find((stage) => stage.unlocked && !stage.completed) ?? stages[0];
-  const taskLabel = recommended ? `L${recommended.level}-${recommended.stageIndex} ${recommended.levelName}` : progressLabel;
-
-  return (
-    <article className="today-task-card" aria-label="今日任务">
-      <section className="today-task-copy">
-        <p className="eyebrow">今日任务 · 欢迎回来，{child.name}</p>
-        <h2>继续挑战 {taskLabel}</h2>
-        <p className="today-task-note">{gapMessage}</p>
-        <dl className="today-task-context">
-          <div><dt>能力等级</dt><dd>{ability.title}</dd></div>
-          <div><dt>闯关进度</dt><dd>{progressLabel}</dd></div>
-        </dl>
-      </section>
-
-      <section className="today-route-map" aria-label="当前大关小关路径">
-        <span className="today-route-path" aria-hidden="true" />
-        {stages.slice(0, 5).map((stage) => {
-          const state = getStageState(stage);
-          return (
-            <span
-              key={`${stage.level}-${stage.stageIndex}`}
-              className={`today-route-node ${state.className}`}
-              aria-label={`L${stage.level}-${stage.stageIndex}，${state.label}`}
-            >
-              <strong>{state.value}</strong>
-              <small>{stage.stageIndex}</small>
-            </span>
-          );
-        })}
-      </section>
-
-      <aside className="today-task-actions">
-        <div className="today-task-stats" aria-label="今日任务数据">
-          <span><i className="complete" aria-hidden="true" /><strong>{todayCompleted}</strong><small>今日完成</small></span>
-          <span><i className="progress" aria-hidden="true" /><strong>{completedCount}/5</strong><small>当前进度</small></span>
-          <span><i className="accuracy" aria-hidden="true" /><strong>{accuracyLabel}</strong><small>最近正确率</small></span>
-        </div>
-        <button className="primary today-primary-action" onClick={onOpenAdventure}>继续闯关</button>
-      </aside>
-    </article>
-  );
-}
-
-function PracticeEntryCard({ ability, onOpenPractice }: { ability: AbilityDisplayModel; onOpenPractice: () => void }) {
-  const config = ability.recommendedConfig;
-  return (
-    <article className="home-support-card practice-support-card" aria-label="自由练习入口">
-      <div className="support-card-copy">
-        <p className="eyebrow">自主安排</p>
-        <h2>自由练习</h2>
-        <p className="support-card-meta"><strong>推荐题型：</strong>{sizeLabels[config.size]} · {ability.title}</p>
-        <button onClick={onOpenPractice}>进入自由练习</button>
-      </div>
-    </article>
-  );
-}
-
-function GrowthEntryCard({
-  totalStars,
-  completedStages,
-  recentCompletionRate,
-  onOpenCurve
-}: {
-  totalStars: number;
-  completedStages: number;
-  recentCompletionRate: string;
-  onOpenCurve: () => void;
-}) {
-  return (
-    <article className="home-support-card growth-support-card" aria-label="成长报告入口">
-      <div className="support-card-copy">
-        <p className="eyebrow">学习进展</p>
-        <h2>成长报告</h2>
-        <div className="support-growth-stats">
-          <span><strong>{totalStars}</strong><small>累计星星</small></span>
-          <span><strong>{completedStages}</strong><small>已完成小关</small></span>
-          <span><strong>{recentCompletionRate}</strong><small>最近完成率</small></span>
-        </div>
-        <button onClick={onOpenCurve}>查看成长</button>
-      </div>
-    </article>
-  );
-}
-
-export function ExplorerHomePage({ child, onOpenPractice, onOpenCurve, onOpenAdventure }: ChildDashboardProps) {
+export function ExplorerHomePage({ child, onOpenPractice, onOpenCurve, onOpenAdventure, onOpenFastPass }: ChildDashboardProps) {
   const records = getPracticeRecordsByChild(child.parentId, child.id);
   const ability = getAbilityDisplayModel(child, records);
   const summary = getChildSummary(child.parentId, child.id);
   const adventureStats = getAdventureStats(child);
   const adventureContext = getAdventureDisplayContext(child);
-  const adventureMap = getAdventureMap(child);
-  const recommendedLevel = adventureContext.recommendedStage?.level ?? 1;
-  const currentStages = adventureMap.filter((stage) => stage.level === recommendedLevel).slice(0, 5);
-  const completedInCurrent = currentStages.filter((stage) => stage.completed).length;
-  const todayKey = new Date().toDateString();
-  const todayCompleted = records.filter((record) => record.completed && !record.gaveUp && sameDay(record.finishedAt ?? record.startedAt, todayKey)).length;
-  const recentCompletionRate = records.length === 0 ? "暂无" : `${Math.round(summary.recentCompletionRate * 100)}%`;
+  const dailyRecommendation = getDailyPracticeRecommendation({ child, practiceRecords: records });
+  const totalStars = getTotalEarnedStars(records);
+  const completionRate = records.length === 0 ? "待探索" : `${Math.round(summary.recentCompletionRate * 100)}%`;
+  const recommendedStage = adventureContext.recommendedStage;
+  const adventureLabel = recommendedStage ? `L${recommendedStage.level}-${recommendedStage.stageIndex}` : adventureContext.progressLabel;
 
   return (
-    <main className="explorer-page simplified-home-page clean-home-page map-shell" aria-label="孩子首页">
-      <section className="home-dashboard-grid">
-        <TodayTaskCard
-          child={child}
-          ability={ability}
-          stages={currentStages}
-          progressLabel={adventureContext.progressLabel}
-          gapMessage={adventureContext.gapMessage}
-          todayCompleted={todayCompleted}
-          completedCount={completedInCurrent}
-          accuracyLabel="暂无"
-          onOpenAdventure={onOpenAdventure}
+    <main className="explorer-page forest-home-page map-shell" aria-label="孩子首页">
+      <button type="button" className="forest-today-task" onClick={onOpenPractice}>
+        <AssetImage src={sudokuAdventureAssets.common.woodenSign} alt="今日任务木质路牌" className="forest-today-sign" loading="eager" />
+        <span className="forest-today-copy">
+          <small>今天先做什么</small>
+          <strong>今日任务</strong>
+          <em>{dailyRecommendation.title} · {sizeLabels[dailyRecommendation.size]} {difficultyLabels[dailyRecommendation.difficulty]}</em>
+        </span>
+        <span className="forest-round-arrow" aria-hidden="true">›</span>
+      </button>
+
+      <button type="button" className="forest-map-card" onClick={onOpenAdventure}>
+        <AssetImage src={sudokuAdventureAssets.home.adventureMap} alt="森林河流闯关地图" className="forest-map-art" loading="eager" objectFit="cover" />
+        <span className="forest-map-copy">
+          <small>当前进度 {adventureLabel}</small>
+          <strong>闯关地图</strong>
+          <em>继续闯关 <span aria-hidden="true">▶</span></em>
+        </span>
+        <span className="forest-map-stats"><b>{adventureStats.completedStageCount}</b> 已完成 · <b>{totalStars}</b> 星星</span>
+      </button>
+
+      <section className="forest-home-entries" aria-label="核心功能入口">
+        <FeatureEntryCard
+          title="自由练习"
+          description={`${sizeLabels[ability.recommendedConfig.size]} · ${difficultyLabels[ability.recommendedConfig.difficulty]}`}
+          image={sudokuAdventureAssets.home.sudokuBoard}
+          imageAlt="带铅笔的数独棋盘"
+          tone="sky"
+          onClick={onOpenPractice}
         />
-        <section className="home-support-grid" aria-label="辅助入口">
-          <PracticeEntryCard ability={ability} onOpenPractice={onOpenPractice} />
-          <GrowthEntryCard
-            totalStars={getTotalEarnedStars(records)}
-            completedStages={adventureStats.completedStageCount}
-            recentCompletionRate={recentCompletionRate}
-            onOpenCurve={onOpenCurve}
-          />
-        </section>
+        <FeatureEntryCard
+          title="成长报告"
+          description={`${totalStars} 颗星 · 最近完成率 ${completionRate}`}
+          image={sudokuAdventureAssets.home.growthTrophy}
+          imageAlt="金色星星奖杯"
+          tone="purple"
+          onClick={onOpenCurve}
+        />
+        <FeatureEntryCard
+          title="闯关秘籍"
+          description="完成 3 道验证题，找到合适起点"
+          image={sudokuAdventureAssets.home.secretBookChest}
+          imageAlt="秘籍书本和宝箱"
+          tone="gold"
+          onClick={onOpenFastPass}
+        />
       </section>
-      <MiniGamePanel />
+
+      <details className="home-mini-game-disclosure">
+        <summary>探险休息站 · 数独小游戏 <span aria-hidden="true">⌄</span></summary>
+        <MiniGamePanel />
+      </details>
     </main>
   );
 }

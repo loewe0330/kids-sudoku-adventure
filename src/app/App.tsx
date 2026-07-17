@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { difficultyLabels, gradeLabels, sizeLabels } from "../constants/gradeLabels";
 import { ROUTES, childAdventurePath, childPath, matchChildRoute, type ChildRouteSection, type PracticeTab } from "./routes";
 import { AdminDashboard, AdminLogin } from "../features/admin";
 import { AdventureMap, FastPassFlow } from "../features/adventure";
-import { ParentLogin, PasswordField } from "../features/auth";
+import { ParentLogin } from "../features/auth";
 import { ChildSelector } from "../features/children";
 import { LearningCurve } from "../features/growth";
 import { ChildDashboard } from "../features/home";
 import { SudokuBoard } from "../features/play";
 import { PracticeWorkspace } from "../features/practice";
 import { PrintPreview } from "../features/print";
+import { SettingsPage } from "../features/settings";
+import { AdventureAppShell } from "../components/ui/AdventureAppShell";
 import {
   addPuzzleToBank,
   getActiveChild,
@@ -24,7 +25,6 @@ import {
   setActiveChild,
   subscribeStorageSyncState,
   synchronizeAppStorage,
-  updateCurrentParentPassword,
   updateChild
 } from "../lib/storage";
 import { getAbilityDisplayModel } from "../lib/ability";
@@ -33,7 +33,6 @@ import { getDailyPracticeRecommendation, type DailyPracticeRecommendation } from
 import { generatePracticePuzzle, generateReplacementPuzzle } from "../lib/practiceRules";
 import { generatePuzzleForChild } from "../lib/sudoku";
 import { isCloudAccountEnabled } from "../lib/cloudClient";
-import { formatDateTime } from "../lib/time";
 import { getWebAppPathname, webNavigationAdapter } from "../platform/web/webNavigationAdapter";
 import type { AdventureStage, PracticeMode, PracticeSource, SudokuDifficulty, SudokuPuzzleItem, SudokuSize, ViewMode } from "../types";
 
@@ -54,10 +53,6 @@ export default function App() {
   const [printItems, setPrintItems] = useState<SudokuPuzzleItem[]>([]);
   const [printAnswers, setPrintAnswers] = useState(true);
   const [practiceTab, setPracticeTab] = useState<PracticeTab>("select");
-  const [settingsMessage, setSettingsMessage] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [syncState, setSyncState] = useState(getStorageSyncState);
   const pendingPracticeTab = useRef<PracticeTab | null>(null);
 
@@ -317,34 +312,18 @@ export default function App() {
 
   return (
     <div className={`app-shell child-shell ${view === "home" ? "home-shell" : ""} ${view === "play" || view === "fast-pass" ? "practice-shell" : ""} ${view === "practice" ? "free-practice-shell" : ""} ${view === "adventure" ? "adventure-shell" : ""} ${view === "fast-pass" ? "fast-pass-shell" : ""} ${adventureLevel ? "adventure-detail-route" : ""} ${view === "growth" ? "growth-shell" : ""}`}>
-      <header className="app-header compact-hero explorer-top-nav explorer-topbar no-print">
-        <div className="brand-lockup">
-          <span className="brand-mark" aria-hidden="true">数</span>
-          <div>
-            <p className="eyebrow">儿童数独分级训练</p>
-            <h1>数独探险家</h1>
-            <p>
-              <span>{child.name} · {gradeLabels[child.gradeLevel]}</span>
-              <span className="child-level-summary"> · 能力等级：{ability?.title}</span>
-            </p>
-          </div>
-        </div>
-        <nav className="top-actions">
-          <button className={view === "home" ? "active" : ""} onClick={() => goChild("home")}>首页</button>
-          <button className={view === "adventure" || view === "fast-pass" ? "active" : ""} onClick={() => goChild("adventure")}>闯关</button>
-          <button className={view === "practice" ? "active" : ""} onClick={() => goChild("practice")}>自由练习</button>
-          <button className={view === "growth" ? "active" : ""} onClick={() => goChild("growth")}>成长</button>
-        </nav>
-        <nav className="utility-actions" aria-label="辅助工具">
-          <button className="settings-action" aria-label="设置" onClick={() => goChild("settings")}>
-            <span className="desktop-action-label">设置</span><span className="mobile-action-label" aria-hidden="true">设置</span>
-          </button>
-          <button className="switch-child-action" aria-label="切换孩子" onClick={() => { setActiveChild(null); setView("selector"); navigate(ROUTES.CHILDREN); }}>
-            <span className="desktop-action-label">切换孩子</span><span className="mobile-action-label" aria-hidden="true">切换</span>
-          </button>
-          <button className="logout-action" onClick={() => { logoutParent(); setActivePuzzle(null); setView("selector"); navigate(ROUTES.PARENT_LOGIN); }}>退出登录</button>
-        </nav>
-      </header>
+      <AdventureAppShell
+        child={child}
+        ability={ability}
+        view={view}
+        onHome={() => goChild("home")}
+        onAdventure={() => goChild("adventure")}
+        onPractice={() => goChild("practice")}
+        onGrowth={() => goChild("growth")}
+        onSettings={() => goChild("settings")}
+        onSwitchChild={() => { setActiveChild(null); setView("selector"); navigate(ROUTES.CHILDREN); }}
+        onLogout={() => { logoutParent(); setActivePuzzle(null); setView("selector"); navigate(ROUTES.PARENT_LOGIN); }}
+      >
 
       {view === "home" && (
         <ChildDashboard
@@ -352,6 +331,7 @@ export default function App() {
           onOpenPractice={() => goChild("practice")}
           onOpenCurve={() => goChild("growth")}
           onOpenAdventure={() => goChild("adventure")}
+          onOpenFastPass={() => goChild("fast-pass")}
         />
       )}
 
@@ -455,136 +435,18 @@ export default function App() {
       )}
 
       {view === "settings" && (
-        <section className="panel child-settings-page">
-          <h2>设置</h2>
-          <div className={`settings-sync-row sync-${syncState.status}`} role="status">
-            <div>
-              <span className="settings-sync-label">数据同步</span>
-              <strong>{syncState.status === "error" ? "同步暂不可用" : syncState.message ?? (isCloudAccountEnabled() ? "已同步" : "本地模式")}</strong>
-              <span>{syncState.status === "error" ? "学习记录仍保存在当前设备，可稍后重试。" : `最后同步：${formatDateTime(syncState.lastSyncedAt)}`}</span>
-            </div>
-            <button
-              type="button"
-              disabled={!isCloudAccountEnabled() || syncState.status === "syncing"}
-              onClick={() => {
-                void synchronizeAppStorage().then(refresh).catch(() => undefined);
-              }}
-            >
-              {syncState.status === "error" ? "重新同步" : "同步数据"}
-            </button>
-          </div>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={child.settings.immediateErrorFeedback}
-              onChange={(event) => {
-                updateChild(parent.id, child.id, { settings: { ...child.settings, immediateErrorFeedback: event.target.checked } });
-                refresh();
-              }}
-            />
-            即时错误反馈
-          </label>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={child.settings.showTimer}
-              onChange={(event) => {
-                updateChild(parent.id, child.id, { settings: { ...child.settings, showTimer: event.target.checked } });
-                refresh();
-              }}
-            />
-            显示计时器
-          </label>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={child.settings.soundEnabled}
-              onChange={(event) => {
-                updateChild(parent.id, child.id, { settings: { ...child.settings, soundEnabled: event.target.checked } });
-                refresh();
-              }}
-            />
-            声音提示
-          </label>
-          <label>
-            练习模式
-            <select
-              value={child.settings.practiceMode}
-              onChange={(event) => {
-                updateChild(parent.id, child.id, { settings: { ...child.settings, practiceMode: event.target.value as PracticeMode } });
-                refresh();
-              }}
-            >
-              <option value="practice">练习：不限时，只记录用时</option>
-              <option value="adventure">闯关：显示建议完成时间</option>
-              <option value="challenge">挑战：显示挑战时间</option>
-            </select>
-          </label>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={child.settings.successAnimationEnabled}
-              onChange={(event) => {
-                updateChild(parent.id, child.id, { settings: { ...child.settings, successAnimationEnabled: event.target.checked } });
-                refresh();
-              }}
-            />
-            成功动画
-          </label>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={child.settings.reducedMotion}
-              onChange={(event) => {
-                updateChild(parent.id, child.id, { settings: { ...child.settings, reducedMotion: event.target.checked } });
-                refresh();
-              }}
-            />
-            减少动画模式
-          </label>
-          <div className="child-form">
-            <h3>修改家长登录密码</h3>
-            <form
-              className="password-settings-form"
-              onSubmit={async (event) => {
-                event.preventDefault();
-                if (newPassword !== confirmPassword) {
-                  setSettingsMessage("两次密码不一致。");
-                  return;
-                }
-                try {
-                  await updateCurrentParentPassword(currentPassword, newPassword);
-                  setSettingsMessage("家长密码已修改。");
-                  setCurrentPassword("");
-                  setNewPassword("");
-                  setConfirmPassword("");
-                } catch (error) {
-                  setSettingsMessage(error instanceof Error ? error.message : "修改失败");
-                }
-              }}
-            >
-              <PasswordField label="当前密码" value={currentPassword} onChange={setCurrentPassword} autoComplete="current-password" />
-              <PasswordField label="新密码" value={newPassword} onChange={setNewPassword} autoComplete="new-password" />
-              <PasswordField label="确认新密码" value={confirmPassword} onChange={setConfirmPassword} autoComplete="new-password" />
-              <button className="primary" type="submit">修改密码</button>
-            </form>
-            {settingsMessage && <p className="result-note">{settingsMessage}</p>}
-          </div>
-        </section>
+        <SettingsPage
+          child={child}
+          syncState={syncState}
+          cloudEnabled={isCloudAccountEnabled()}
+          onSync={() => synchronizeAppStorage().then(() => refresh())}
+          onSettingsChange={(settings) => {
+            updateChild(parent.id, child.id, { settings });
+            refresh();
+          }}
+        />
       )}
-
-      <footer className="app-footer no-print">
-        {isCloudAccountEnabled()
-          ? "账号与学习数据已启用跨设备同步。"
-          : "当前为本地测试模式，数据保存在当前浏览器。"}{child.name} · {ability?.title} · {ability ? `${sizeLabels[ability.recommendedConfig.size]} ${difficultyLabels[ability.recommendedConfig.difficulty]}` : ""}
-      </footer>
-
-      <nav className="mobile-bottom-nav no-print" aria-label="手机端主导航">
-        <button className={view === "home" ? "active" : ""} onClick={() => goChild("home")}><span aria-hidden="true">⌂</span>首页</button>
-        <button className={view === "adventure" || view === "fast-pass" ? "active" : ""} onClick={() => goChild("adventure")}><span aria-hidden="true">◇</span>闯关</button>
-        <button className={view === "practice" || view === "play" ? "active" : ""} onClick={() => goChild("practice")}><span aria-hidden="true">▦</span>练习</button>
-        <button className={view === "growth" ? "active" : ""} onClick={() => goChild("growth")}><span aria-hidden="true">↗</span>成长</button>
-      </nav>
+      </AdventureAppShell>
     </div>
   );
 }

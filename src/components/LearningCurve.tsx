@@ -15,6 +15,9 @@ import {
 } from "../lib/stats";
 import { formatDateTime, formatDuration } from "../lib/time";
 import type { ChildProfile, PracticeRecord } from "../types";
+import { sudokuAdventureAssets } from "../ui/assets/sudokuAdventureAssets";
+import { AssetImage } from "./ui/AssetImage";
+import { AdventureAccordion, SummaryMetricCard } from "./ui/AdventurePrimitives";
 
 interface LearningCurveProps {
   child: ChildProfile;
@@ -101,9 +104,8 @@ function CompactRecordTable({ records, expanded }: { records: PracticeRecord[]; 
 }
 
 export function LearningCurve({ child }: LearningCurveProps) {
-  const [recordsOpen, setRecordsOpen] = useState(false);
+  const [openSections, setOpenSections] = useState<string[]>([]);
   const [showAllRecords, setShowAllRecords] = useState(false);
-  const [activeInsight, setActiveInsight] = useState<"recent" | "adventure" | "methods" | null>(null);
   const recent = getRecentRecords(child.parentId, child.id, 20);
   const ability = getAbilityDisplayModel(child, recent);
   const recent10 = recent.slice(0, 10);
@@ -140,6 +142,10 @@ export function LearningCurve({ child }: LearningCurveProps) {
   const nextSuggestion = recommended
     ? `继续完成 L${recommended.level}-${recommended.stageIndex}，熟悉${touchedMethods.map((method) => method.shortTitle).join("和")}。`
     : "完成一题后，这里会给出下一步练习建议。";
+  const toggleSection = (id: string) => {
+    setOpenSections((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+    if (id === "records") setShowAllRecords(false);
+  };
 
   const recentPerformanceCard = (
     <section className="growth-section recent-performance-card explorer-card" aria-labelledby="recent-performance-title">
@@ -151,7 +157,6 @@ export function LearningCurve({ child }: LearningCurveProps) {
         <span><strong>{recent.length === 0 ? "暂无" : formatDuration(recentAverageDuration)}</strong><small>平均用时</small></span>
         <span><strong>{recent.length === 0 ? "暂无" : recentAverageHints.toFixed(1)}</strong><small>平均提示</small></span>
       </div>
-      <p className="growth-learning-comment">{growthConclusion}</p>
     </section>
   );
 
@@ -192,93 +197,29 @@ export function LearningCurve({ child }: LearningCurveProps) {
   );
 
   return (
-    <main className="learning-page growth-report-page growth-clean-page map-shell explorer-journal">
-      <section className="growth-report-hero explorer-card" aria-labelledby="growth-report-title">
-        <div className="growth-conclusion-copy">
-          <p className="eyebrow">成长报告 · {gradeLabels[child.gradeLevel]}</p>
-          <h2 id="growth-report-title">{child.name}的成长报告</h2>
-          <div className="growth-conclusion-lines">
-            <p className="growth-evaluation-line"><span aria-hidden="true">★</span><strong>成长评价</strong>{growthConclusion}</p>
-            <p className="growth-next-step-line"><span aria-hidden="true">芽</span><strong>下一步</strong>{nextSuggestion}</p>
-          </div>
-        </div>
-        <div className="growth-context-chips">
-          <span className="growth-level-chip">能力等级：{ability.title}</span>
-          <span className="growth-progress-chip">闯关进度：{adventureContext.progressLabel}</span>
-        </div>
+    <main className="learning-page forest-growth-page map-shell" aria-labelledby="growth-report-title">
+      <section className="forest-growth-hero">
+        <AssetImage src={sudokuAdventureAssets.growth.hero} alt="森林与挥手探险员成长插画" className="forest-growth-hero-art" loading="eager" objectFit="cover" />
+        <div><p>{gradeLabels[child.gradeLevel]} · {child.name}</p><h2 id="growth-report-title">成长报告</h2><span>{growthConclusion}</span></div>
       </section>
 
-      <section className="growth-section growth-overview-card explorer-card" aria-labelledby="growth-overview-title">
-        <div className="growth-section-heading">
-          <div><h3 id="growth-overview-title">核心数据</h3></div>
-        </div>
-        <div className="growth-core-metrics">
-          <article><i aria-hidden="true">★</i><span><small>累计星星</small><strong>{totalStars}</strong></span></article>
-          <article><i aria-hidden="true">✓</i><span><small>已完成小关</small><strong>{adventureStats.completedStageCount}</strong></span></article>
-          <article><i aria-hidden="true">▥</i><span><small>最近完成率</small><strong>{recent.length === 0 ? "暂无" : `${recentCompletionRate}%`}</strong></span></article>
-          <article><i aria-hidden="true">◷</i><span><small>平均用时</small><strong>{recent.length === 0 ? "暂无" : formatDuration(recentAverageDuration)}</strong></span></article>
-        </div>
+      <section className="forest-growth-metrics" aria-label="成长摘要">
+        <SummaryMetricCard label="当前称号" value={ability.title} image={sudokuAdventureAssets.growth.currentTitleBadge} imageAlt="绿色皇冠称号徽章" />
+        <SummaryMetricCard label="累计星星" value={totalStars} image={sudokuAdventureAssets.growth.starTrophy} imageAlt="金色星星奖杯" />
+        <SummaryMetricCard label="最近完成率" value={recent.length === 0 ? "暂无" : `${recentCompletionRate}%`} image={sudokuAdventureAssets.growth.completionTarget} imageAlt="绿色完成率靶心" />
+        <SummaryMetricCard label="当前进度" value={adventureContext.progressLabel} image={sudokuAdventureAssets.growth.progressMap} imageAlt="带旗帜的探险地图" />
       </section>
 
-      <section className="growth-section growth-insights-panel explorer-card" aria-labelledby="growth-insights-title">
-        <div className="growth-section-heading growth-insights-heading">
-          <div><h3 id="growth-insights-title">{activeInsight ? "洞察详情" : "成长洞察"}</h3></div>
-          {activeInsight && (
-            <button type="button" className="secondary growth-insight-back" onClick={() => setActiveInsight(null)}>
-              返回成长洞察
-            </button>
-          )}
-        </div>
-        {activeInsight ? (
-          <div className="growth-insight-detail" data-testid="growth-insight-detail">
-            {activeInsight === "recent" && recentPerformanceCard}
-            {activeInsight === "adventure" && adventureProgressCard}
-            {activeInsight === "methods" && methodMasteryCard}
-          </div>
-        ) : (
-          <div className="growth-insight-entry-grid">
-            <button type="button" className="growth-insight-entry recent" onClick={() => setActiveInsight("recent")}>
-              <span aria-hidden="true">↗</span><strong>最近表现</strong><small>{recent.length === 0 ? "完成练习后查看分析" : `完成率 ${recentCompletionRate}%`}</small><em>查看详情</em>
-            </button>
-            <button type="button" className="growth-insight-entry adventure" onClick={() => setActiveInsight("adventure")}>
-              <span aria-hidden="true">⚑</span><strong>闯关进度</strong><small>推荐 {recommendedLabel}</small><em>查看详情</em>
-            </button>
-            <button type="button" className="growth-insight-entry methods" onClick={() => setActiveInsight("methods")}>
-              <span aria-hidden="true">●</span><strong>方法掌握</strong><small>继续练 {suggestedMethod?.shortTitle ?? "观察法"}</small><em>查看详情</em>
-            </button>
-          </div>
-        )}
+      <section className="forest-growth-accordions" aria-label="成长详情">
+        <AdventureAccordion id="recent" title="最近表现" summary={recent.length === 0 ? "完成练习后查看分析" : `最近完成率 ${recentCompletionRate}%`} image={sudokuAdventureAssets.growth.recentPerformanceSun} imageAlt="微笑太阳" open={openSections.includes("recent")} onToggle={() => toggleSection("recent")}>{recentPerformanceCard}</AdventureAccordion>
+        <AdventureAccordion id="methods" title="方法掌握" summary={`继续练习 ${suggestedMethod?.shortTitle ?? "观察法"}`} image={sudokuAdventureAssets.growth.methodLightbulb} imageAlt="发光灯泡" open={openSections.includes("methods")} onToggle={() => toggleSection("methods")}>{methodMasteryCard}</AdventureAccordion>
+        <AdventureAccordion id="adventure-progress" title="闯关进度" summary={`当前推荐 ${recommendedLabel}`} image={sudokuAdventureAssets.growth.progressMap} imageAlt="带旗帜的探险地图" open={openSections.includes("adventure")} onToggle={() => toggleSection("adventure")}>{adventureProgressCard}</AdventureAccordion>
+        <AdventureAccordion id="records" title="练习记录" summary={recent.length === 0 ? "还没有练习足迹" : `最近记录 ${recent.length} 条`} image={sudokuAdventureAssets.growth.practiceRecordNotebook} imageAlt="带铅笔的练习记录本" open={openSections.includes("records")} onToggle={() => toggleSection("records")}>
+          {visibleRecords.length > 0 ? <><CompactRecordTable records={visibleRecords} expanded={showAllRecords} />{recent.length > 3 && <button className="secondary growth-record-more-toggle" onClick={() => setShowAllRecords((value) => !value)}>{showAllRecords ? "只看最近 3 条" : "查看全部记录"}</button>}</> : <div className="growth-empty-log"><p>暂无练习记录，完成一题后这里会留下新的探险足迹。</p></div>}
+        </AdventureAccordion>
       </section>
 
-      <section className="growth-section growth-record-log explorer-card" aria-labelledby="growth-record-title">
-        <div className="growth-section-heading">
-          <div><h3 id="growth-record-title">练习日志</h3></div>
-          <button
-            className="secondary growth-record-toggle"
-            aria-expanded={recordsOpen}
-            onClick={() => {
-              setRecordsOpen((value) => !value);
-              setShowAllRecords(false);
-            }}
-          >
-            {recordsOpen ? "收起练习日志" : "展开练习日志"}
-          </button>
-        </div>
-        {recordsOpen && (
-          visibleRecords.length > 0 ? (
-            <>
-              <CompactRecordTable records={visibleRecords} expanded={showAllRecords} />
-              {recent.length > 3 && (
-                <button className="secondary growth-record-more-toggle" onClick={() => setShowAllRecords((value) => !value)}>
-                  {showAllRecords ? "只看最近 3 条" : "查看全部记录"}
-                </button>
-              )}
-            </>
-          ) : (
-            <div className="growth-empty-log"><span aria-hidden="true">⌕</span><p>暂无练习记录，完成一题后这里会留下新的探险足迹。</p></div>
-          )
-        )}
-      </section>
+      <aside className="forest-growth-suggestion"><strong>下一步</strong><span>{nextSuggestion}</span></aside>
     </main>
   );
 }

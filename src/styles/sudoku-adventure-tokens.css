@@ -1,0 +1,24 @@
+:root {
+  --adventure-green-950: #123e24;
+  --adventure-green-900: #16562e;
+  --adventure-green-700: #258a43;
+  --adventure-green-500: #4dbd59;
+  --adventure-green-200: #cceba6;
+  --adventure-green-100: #eaf7d6;
+  --adventure-cream: #fffdf0;
+  --adventure-cream-deep: #fff5c9;
+  --adventure-yellow: #ffc932;
+  --adventure-orange: #f39a24;
+  --adventure-blue: #45a8e8;
+  --adventure-purple: #9a72d8;
+  --adventure-text: #183b28;
+  --adventure-muted: #58705d;
+  --adventure-line: #c8df89;
+  --adventure-card-radius: 22px;
+  --adventure-section-radius: 30px;
+  --adventure-button-radius: 18px;
+  --adventure-card-shadow: 0 6px 0 rgba(69, 119, 44, 0.18), 0 12px 28px rgba(27, 80, 40, 0.12);
+  --adventure-raised-shadow: 0 7px 0 #d69f1e, 0 14px 24px rgba(64, 92, 32, 0.2);
+  --adventure-content-width: 1120px;
+  --adventure-font: ui-rounded, "SF Pro Rounded", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
