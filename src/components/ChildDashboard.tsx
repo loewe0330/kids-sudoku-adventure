@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { difficultyLabels, sizeLabels } from "../constants/gradeLabels";
 import { getAbilityDisplayModel } from "../lib/ability";
 import { getAdventureDisplayContext, getAdventureStats } from "../lib/adventure";
@@ -20,6 +21,7 @@ interface ChildDashboardProps {
 }
 
 export function ExplorerHomePage({ child, onOpenPractice, onOpenCurve, onOpenAdventure, onOpenFastPass }: ChildDashboardProps) {
+  const [miniGameOpen, setMiniGameOpen] = useState(false);
   const records = getPracticeRecordsByChild(child.parentId, child.id);
   const ability = getAbilityDisplayModel(child, records);
   const summary = getChildSummary(child.parentId, child.id);
@@ -80,8 +82,9 @@ export function ExplorerHomePage({ child, onOpenPractice, onOpenCurve, onOpenAdv
         />
       </section>
 
-      <details className="home-mini-game-disclosure">
-        <summary>探险休息站 · 数独小游戏 <span aria-hidden="true">⌄</span></summary>
+      {miniGameOpen && <div className="disclosure-backdrop" data-testid="home-disclosure-backdrop" role="presentation" onMouseDown={() => setMiniGameOpen(false)} />}
+      <details className="home-mini-game-disclosure" open={miniGameOpen}>
+        <summary onClick={(event) => { event.preventDefault(); setMiniGameOpen((value) => !value); }}>探险休息站 · 数独小游戏 <span aria-hidden="true">⌄</span></summary>
         <MiniGamePanel />
       </details>
     </main>

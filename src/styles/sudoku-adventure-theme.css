@@ -228,6 +228,11 @@ body {
 .home-mini-game-disclosure:not([open]) > :not(summary),
 .practice-more-modes:not([open]) > :not(summary),
 .settings-row-details:not([open]) > :not(summary) { display: none; }
+.disclosure-backdrop { position: fixed; z-index: 150; inset: 0; background: rgba(25, 66, 49, .34); }
+.home-mini-game-disclosure[open],
+.practice-more-modes[open],
+.growth-shell .adventure-accordion.is-open,
+.settings-row-details[open] { position: relative; z-index: 160; }
 .home-mini-game-disclosure .mini-game-panel { margin: 0; border: 0; box-shadow: none; }
 
 .forest-practice-hero,
@@ -785,6 +790,69 @@ body {
   .forest-home-entries .feature-entry-copy small { font-size: 10px; }
   .home-mini-game-disclosure { margin-top: 9px; }
   .home-mini-game-disclosure > summary { min-height: 44px; padding: 11px 16px; }
+
+  /* Expanded secondary content needs its own reading surface on iPad portrait. */
+  .home-shell .home-mini-game-disclosure[open] {
+    position: fixed;
+    z-index: 160;
+    top: 92px;
+    right: 20px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    left: 20px;
+    margin: 0;
+    display: grid;
+    grid-template-rows: 52px minmax(0, 1fr);
+    overflow: hidden;
+    border: 2px solid #dce89b;
+    border-radius: 18px;
+    background: #fffdf1;
+    box-shadow: 0 0 0 100vmax rgba(25, 66, 49, .34), 0 16px 40px rgba(20, 61, 42, .28);
+  }
+  .home-shell .home-mini-game-disclosure[open] > summary {
+    min-height: 52px;
+    height: 52px;
+    padding: 15px 18px;
+    border-bottom: 1px solid rgba(54, 112, 78, .16);
+    background: #f7fbe9;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel {
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, .85fr) minmax(300px, 1.15fr);
+    grid-template-areas:
+      "copy scene"
+      "actions actions";
+    grid-template-rows: minmax(150px, 1fr) auto;
+    gap: 16px 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 0;
+    border-radius: 0;
+    background: #fffdf1;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-copy > :is(.eyebrow, h3, p:last-child),
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-scene,
+  .home-shell .home-mini-game-disclosure[open] .mini-game-buttons button:last-child { display: block; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-scene { height: 160px; }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-panel-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, .9fr);
+    align-items: center;
+    gap: 14px;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-chips {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .home-shell .home-mini-game-disclosure[open] .mini-game-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
 
   .forest-practice-hero,
   .forest-growth-hero { min-height: 108px; }
@@ -1579,6 +1647,37 @@ body {
   .settings-shell .settings-sync-card { min-height: 68px; height: 68px; }
   .settings-shell .adventure-settings-list { height: 284px; }
   .adventure-shell:not(.adventure-detail-route) .adventure-map-page { height: calc(100% - 4px); }
+}
+
+@media (max-width: 430px) {
+  /* Settings details open above the one-screen layout instead of below it. */
+  .settings-shell .settings-row-details[open] > div {
+    position: fixed;
+    z-index: 170;
+    top: 84px;
+    right: 8px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    left: 8px;
+    width: auto;
+    max-height: none;
+    padding: 14px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 16px;
+    box-shadow: 0 0 0 100vmax rgba(25, 66, 49, .34), 0 16px 36px rgba(20, 61, 42, .28);
+  }
+  .settings-shell .settings-row-details[open] > summary {
+    position: fixed;
+    z-index: 171;
+    top: 94px;
+    right: 18px;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    transform: rotate(45deg);
+    background: #fffdf1;
+    box-shadow: 0 3px 0 rgba(37, 108, 62, .18);
+  }
 }
 
 /* Fixed iPad landscape composition: 1120 x 738. */

@@ -60,6 +60,10 @@ describe("PracticeWorkspace forest hub", () => {
   test("keeps review, challenge and batch generation available as secondary tools", () => {
     const { onQuickPractice } = renderWorkspace();
     fireEvent.click(screen.getByText("更多练习工具"));
+    fireEvent.mouseDown(screen.getByTestId("practice-disclosure-backdrop"));
+    expect(screen.queryByTestId("practice-disclosure-backdrop")).toBeNull();
+
+    fireEvent.click(screen.getByText("更多练习工具"));
     fireEvent.click(screen.getByRole("button", { name: "巩固练习" }));
     fireEvent.click(screen.getByRole("button", { name: "挑战练习" }));
     expect(onQuickPractice).toHaveBeenNthCalledWith(1, "review");

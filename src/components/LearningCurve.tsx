@@ -211,6 +211,7 @@ export function LearningCurve({ child }: LearningCurveProps) {
       </section>
 
       <section className="forest-growth-accordions" aria-label="成长详情">
+        {openSections.length > 0 && <div className="disclosure-backdrop" data-testid="growth-disclosure-backdrop" role="presentation" onMouseDown={() => setOpenSections([])} />}
         <AdventureAccordion id="recent" title="最近表现" summary={recent.length === 0 ? "完成练习后查看分析" : `最近完成率 ${recentCompletionRate}%`} image={sudokuAdventureAssets.growth.recentPerformanceSun} imageAlt="微笑太阳" open={openSections.includes("recent")} onToggle={() => toggleSection("recent")}>{recentPerformanceCard}</AdventureAccordion>
         <AdventureAccordion id="methods" title="方法掌握" summary={`继续练习 ${suggestedMethod?.shortTitle ?? "观察法"}`} image={sudokuAdventureAssets.growth.methodLightbulb} imageAlt="发光灯泡" open={openSections.includes("methods")} onToggle={() => toggleSection("methods")}>{methodMasteryCard}</AdventureAccordion>
         <AdventureAccordion id="adventure-progress" title="闯关进度" summary={`当前推荐 ${recommendedLabel}`} image={sudokuAdventureAssets.growth.progressMap} imageAlt="带旗帜的探险地图" open={openSections.includes("adventure")} onToggle={() => toggleSection("adventure")}>{adventureProgressCard}</AdventureAccordion>

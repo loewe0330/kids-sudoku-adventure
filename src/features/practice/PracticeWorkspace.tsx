@@ -39,6 +39,7 @@ export function PracticeWorkspace({
   onPrint
 }: PracticeWorkspaceProps) {
   const [customOpen, setCustomOpen] = useState(false);
+  const [moreToolsOpen, setMoreToolsOpen] = useState(false);
   const [customCount, setCustomCount] = useState(1);
   const [saveToBank, setSaveToBank] = useState(false);
   const [showCandidates, setShowCandidates] = useState(false);
@@ -83,8 +84,9 @@ export function PracticeWorkspace({
         <FeatureEntryCard title="打印练习" description="生成题目，打印练习" image={sudokuAdventureAssets.practice.printer} imageAlt="正在打印数独题目的打印机" tone="sky" onClick={() => onTabChange("print")} />
       </section>
 
-      <details className="practice-more-modes">
-        <summary>更多练习工具 <span aria-hidden="true">⌄</span></summary>
+      {moreToolsOpen && <div className="disclosure-backdrop" data-testid="practice-disclosure-backdrop" role="presentation" onMouseDown={() => setMoreToolsOpen(false)} />}
+      <details className="practice-more-modes" open={moreToolsOpen}>
+        <summary onClick={(event) => { event.preventDefault(); setMoreToolsOpen((value) => !value); }}>更多练习工具 <span aria-hidden="true">⌄</span></summary>
         <div><button type="button" onClick={() => onQuickPractice("review")}>巩固练习</button><button type="button" onClick={() => onQuickPractice("challenge")}>挑战练习</button><button type="button" onClick={() => onTabChange("batch")}>批量出题</button></div>
       </details>
     </div>

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { AdventureAppShell } from "../components/ui/AdventureAppShell";
 import { AssetImage } from "../components/ui/AssetImage";
+import { ExplorerHomePage } from "../components/ChildDashboard";
 import { SettingsPage } from "../features/settings/SettingsPage";
 import { getAbilityDisplayModel } from "../lib/ability";
 import type { ChildProfile } from "../types";
@@ -59,6 +60,20 @@ describe("forest adventure UI foundations", () => {
     unmount();
     render(<SettingsPage child={child} syncState={{ status: "synced", message: "已同步" }} cloudEnabled onSync={onSync} onSettingsChange={onSettingsChange} onLogout={onLogout} />);
     expect(screen.getByLabelText<HTMLInputElement>("护眼模式").checked).toBe(true);
+  });
+
+  test("collapses home and settings disclosures when the empty backdrop is pressed", () => {
+    const actions = { practice: vi.fn(), curve: vi.fn(), adventure: vi.fn(), fastPass: vi.fn() };
+    const home = render(<ExplorerHomePage child={child} onOpenPractice={actions.practice} onOpenCurve={actions.curve} onOpenAdventure={actions.adventure} onOpenFastPass={actions.fastPass} />);
+    fireEvent.click(screen.getByText("探险休息站 · 数独小游戏"));
+    fireEvent.mouseDown(screen.getByTestId("home-disclosure-backdrop"));
+    expect(screen.queryByTestId("home-disclosure-backdrop")).toBeNull();
+    home.unmount();
+
+    render(<SettingsPage child={child} syncState={{ status: "synced", message: "已同步" }} cloudEnabled onSync={vi.fn()} onSettingsChange={vi.fn()} onLogout={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("展开关于我们"));
+    fireEvent.mouseDown(screen.getByTestId("settings-disclosure-backdrop"));
+    expect(screen.queryByTestId("settings-disclosure-backdrop")).toBeNull();
   });
 });
 

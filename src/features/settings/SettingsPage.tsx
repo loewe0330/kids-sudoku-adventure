@@ -19,6 +19,7 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({ child, syncState, cloudEnabled, onSync, onSettingsChange, onLogout }: SettingsPageProps) {
+  const [openDetail, setOpenDetail] = useState<"difficulty" | "rewards" | "about" | null>(null);
   const [uiPreferences, setUiPreferences] = useState(() => getChildUiPreferences(child.id));
   const [syncMessage, setSyncMessage] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -64,6 +65,7 @@ export function SettingsPage({ child, syncState, cloudEnabled, onSync, onSetting
       </section>
 
       <section className="adventure-settings-list" aria-label="设置列表">
+        {openDetail && <div className="disclosure-backdrop" data-testid="settings-disclosure-backdrop" role="presentation" onMouseDown={() => setOpenDetail(null)} />}
         <SettingRow image={sudokuAdventureAssets.settings.music} imageAlt="音乐音符" title="声音与音乐" description="开启答题音效与提示声音">
           <AdventureToggle label="声音与音乐" checked={child.settings.soundEnabled} onChange={(value) => updateSetting("soundEnabled", value)} />
         </SettingRow>
@@ -80,20 +82,20 @@ export function SettingsPage({ child, syncState, cloudEnabled, onSync, onSetting
           <AdventureToggle label="学习提醒" checked={uiPreferences.reminder} onChange={(value) => updateUiPreference("reminder", value)} />
         </SettingRow>
         <SettingRow image={sudokuAdventureAssets.settings.difficulty} imageAlt="题目难度" title="题目难度说明" description="查看模式、计时和纠错设置">
-          <details className="settings-row-details"><summary aria-label="展开题目难度设置">›</summary><div>
+          <details className="settings-row-details" open={openDetail === "difficulty"}><summary aria-label="展开题目难度设置" onClick={(event) => { event.preventDefault(); setOpenDetail((current) => current === "difficulty" ? null : "difficulty"); }}>›</summary><div>
             <label>练习模式<select value={child.settings.practiceMode} onChange={(event) => updateSetting("practiceMode", event.target.value as PracticeMode)}><option value="practice">练习</option><option value="adventure">闯关</option><option value="challenge">挑战</option></select></label>
             <AdventureToggle label="显示计时器" checked={child.settings.showTimer} onChange={(value) => updateSetting("showTimer", value)} />
             <AdventureToggle label="即时错误反馈" checked={child.settings.immediateErrorFeedback} onChange={(value) => updateSetting("immediateErrorFeedback", value)} />
           </div></details>
         </SettingRow>
         <SettingRow image={sudokuAdventureAssets.settings.rewards} imageAlt="奖励与动画" title="奖励与动画" description="控制通关庆祝和动态效果">
-          <details className="settings-row-details"><summary aria-label="展开奖励与动画设置">›</summary><div>
+          <details className="settings-row-details" open={openDetail === "rewards"}><summary aria-label="展开奖励与动画设置" onClick={(event) => { event.preventDefault(); setOpenDetail((current) => current === "rewards" ? null : "rewards"); }}>›</summary><div>
             <AdventureToggle label="成功动画" checked={child.settings.successAnimationEnabled} onChange={(value) => updateSetting("successAnimationEnabled", value)} />
             <AdventureToggle label="减少动画" checked={child.settings.reducedMotion} onChange={(value) => updateSetting("reducedMotion", value)} />
           </div></details>
         </SettingRow>
         <SettingRow image={sudokuAdventureAssets.settings.about} imageAlt="关于我们" title="关于我们" description="版本信息与家长账户设置">
-          <details className="settings-row-details settings-about-details"><summary aria-label="展开关于我们">›</summary><div>
+          <details className="settings-row-details settings-about-details" open={openDetail === "about"}><summary aria-label="展开关于我们" onClick={(event) => { event.preventDefault(); setOpenDetail((current) => current === "about" ? null : "about"); }}>›</summary><div>
             <p>数独探险家 · 儿童分级数独训练</p>
             <form onSubmit={async (event) => {
               event.preventDefault();

@@ -90,6 +90,8 @@ describe("LearningCurve record disclosure", () => {
     fireEvent.click(screen.getByRole("button", { name: /练习记录/ }));
     expect(screen.getByText("暂无练习记录，完成一题后这里会留下新的探险足迹。")).toBeTruthy();
     expect(screen.getByRole("button", { name: /练习记录/ }).getAttribute("aria-expanded")).toBe("true");
+    fireEvent.mouseDown(screen.getByTestId("growth-disclosure-backdrop"));
+    expect(screen.getByRole("button", { name: /练习记录/ }).getAttribute("aria-expanded")).toBe("false");
   });
 
   test("allows multiple insight sections and expands recent or full records on demand", () => {
